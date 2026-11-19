@@ -1,0 +1,52 @@
+name: SIDECI Controlled Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Target deployment environment"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+      service:
+        description: "Service to deploy"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - backend
+          - frontend
+          - all
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy (${{ inputs.service }}) to ${{ inputs.target_env }}
+    runs-on: ubuntu-latest
+    # Requires GitHub Environment approval gate configured on 'production'
+    environment: ${{ inputs.target_env }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Deployment Metadata
+        run: |
+          echo "Target Environment : ${{ inputs.target_env }}"
+          echo "Target Service     : ${{ inputs.service }}"
+          echo "Commit SHA         : ${{ github.sha }}"
+      - name: Deploy via SSH to Approved VPS
+        if: ${{ env.VPS_HOST != '' }}
+        env:
+          VPS_HOST: ${{ vars.VPS_HOST }}
+          VPS_USER: ${{ vars.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts
+          APP_DIR="~/app/sideci-${{ inputs.target_env }}"
+          ssh "${VPS_USER}@${VPS_HOST}" "mkdir -p $APP_DIR && cd $APP_DIR && echo 'Ready for container rollout commit ${{ github.sha }}'"

@@ -1,0 +1,69 @@
+# ============================================================================
+# SIDECI — Git Ignore Rules (Security & Data Protection Enforced)
+# ============================================================================
+
+# 1. Infrastructure Secrets & Reference Credentials (NEVER COMMIT)
+clients_dontread/
+infra/credentials.env
+infra/secrets/
+docs/infra/
+*.jks
+*.keystore
+*.pem
+*.key
+*.p12
+*service-account*.json
+
+# 2. Citizen PII & Legacy Database Dumps (UU PDP Protection — NEVER COMMIT)
+docs/referensi/
+*.sql.gz
+*.dump
+
+# 3. Application Environment Files
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# 4. Backend (Golang)
+backend/bin/
+backend/tmp/
+backend/storage/
+backend/coverage.out
+docs/video/screenshots/
+docs/video/*.mp4
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# 5. Frontend (Next.js / Node)
+frontend/node_modules/
+frontend/.next/
+frontend/.next-dev/
+frontend/out/
+frontend/build/
+frontend/next-env.d.ts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.tsbuildinfo
+
+# 6. Analysis, Scratch & OS/IDE Files
+graphify-out/
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/

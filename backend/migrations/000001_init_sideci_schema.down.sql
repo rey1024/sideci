@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS letter_requests;
+DROP TABLE IF EXISTS letter_templates;
+DROP TABLE IF EXISTS population_events;
+DROP TABLE IF EXISTS population_submissions;
+DROP TABLE IF EXISTS residents;
+DROP TABLE IF EXISTS households;
+DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS dusuns;
+DROP TABLE IF EXISTS villages;

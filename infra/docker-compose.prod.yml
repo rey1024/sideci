@@ -1,0 +1,62 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sideci-backend-prod
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      APP_ENV: production
+      HTTP_PORT: "8080"
+      MIGRATIONS_DIR: /app/migrations
+      AUTO_MIGRATE: "true"
+      COOKIE_SECURE: "true"
+      DEFAULT_TENANT_SLUG: ringdikit
+    ports:
+      - "127.0.0.1:6216:8080"
+    volumes:
+      - sideci_storage:/app/storage
+    networks:
+      - acagrity-prod_default
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sideci-frontend-prod
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_BASE_URL: /api/v1
+      INTERNAL_API_ORIGIN: http://sideci-backend-prod:8080
+      INTERNAL_API_BASE_URL: http://sideci-backend-prod:8080/api/v1
+      NEXT_PUBLIC_DEFAULT_VILLAGE_SLUG: ringdikit
+    ports:
+      - "0.0.0.0:6215:3000"
+    networks:
+      - acagrity-prod_default
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: sideci-cloudflared-prod
+    restart: unless-stopped
+    depends_on:
+      - frontend
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - acagrity-prod_default
+
+networks:
+  acagrity-prod_default:
+    external: true
+
+volumes:
+  sideci_storage:

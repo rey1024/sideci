@@ -1,0 +1,109 @@
+# ============================================================================
+# SIDECI — Deployment & Infrastructure Configuration (NON-SECRET)
+# ============================================================================
+# Sumber kebenaran tunggal (Single Source of Truth) untuk topologi deployment.
+# DILARANG menyimpan password, API token, JWT secret, atau private key di sini!
+# Seluruh kredensial rahasia disimpan lokal di infra/credentials.env (gitignored).
+#
+# Port VPS (6215, 6216, 6217, 6218) telah diverifikasi BEBAS bentrok terhadap
+# Reynote Port Registry & pemeriksaan aktif soket VPS (6210 digunakan reisys-prod).
+# ============================================================================
+
+project:
+  name: sideci
+  description: "SIDECI — Sistem Desa Cerdas Terintegrasi (Multi-Tenant SaaS Desa)"
+  pilot_tenant: ringdikit
+
+# ── GitHub ───────────────────────────────────────────────────────────────────
+github:
+  repo: rey1024/sideci
+  branch: main
+
+# ── VPS Host & Shared Infrastructure ─────────────────────────────────────────
+vps:
+  host: 119.252.174.189
+  user: resika
+  ssh_port: 22
+  docker_network: acagrity-prod_default
+  postgres_container: postgres-server
+  postgres_host: postgres-server
+  postgres_port: 5432
+
+# ── Cloudflare Zero Trust Tunnel (`reisys.id`) ───────────────────────────────
+cloudflare:
+  tunnel_name: vps-119
+  tunnel_id: 2238bedc-b3ca-486f-881f-f9a1a2e5a454
+  public_hostname: sideci.reisys.id
+  tunnel_service_url: http://sideci-frontend-prod:3000
+
+# ── Production Environment ───────────────────────────────────────────────────
+production:
+  deploy_path: ~/app/sideci-prod
+
+  backend:
+    container_name: sideci-backend-prod
+    external_port: 6216
+    internal_port: 8080
+    domain: sideci.reisys.id
+    health_url: https://sideci.reisys.id/health
+    db_name: sideci_prod
+    db_user: sideci_user
+
+  frontend:
+    type: nextjs-standalone
+    source_dir: frontend
+    container_name: sideci-frontend-prod
+    external_port: 6215
+    internal_port: 3000
+    root_domain: sideci.reisys.id
+    routing_mode: path_prefix
+    tenant_url_pattern: "https://sideci.reisys.id/{slug}"
+    pilot_url: https://sideci.reisys.id/ringdikit
+    health_url: https://sideci.reisys.id/ringdikit
+
+# ── Staging Environment ──────────────────────────────────────────────────────
+staging:
+  deploy_path: ~/app/sideci-staging
+
+  backend:
+    container_name: sideci-backend-staging
+    external_port: 6218
+    internal_port: 8080
+    domain: staging-sideci.reisys.id
+    health_url: https://staging-sideci.reisys.id/health
+    db_name: sideci_staging
+    db_user: sideci_user
+
+  frontend:
+    type: nextjs-standalone
+    source_dir: frontend
+    container_name: sideci-frontend-staging
+    external_port: 6217
+    internal_port: 3000
+    root_domain: staging-sideci.reisys.id
+    routing_mode: path_prefix
+    tenant_url_pattern: "https://staging-sideci.reisys.id/{slug}"
+    pilot_url: https://staging-sideci.reisys.id/ringdikit
+
+# ── JWT & Session Policy (Non-Secret Metadata) ───────────────────────────────
+auth:
+  jwt_algorithm: HS256
+  access_token_expire_minutes: 30
+  refresh_token_expire_days: 14
+
+# ── CORS & Multi-Tenant Origins ──────────────────────────────────────────────
+cors:
+  allowed_origins:
+    - https://sideci.reisys.id
+    - https://staging-sideci.reisys.id
+
+# ── API Base URL (Same-Origin Reverse Proxy via Next.js) ─────────────────────
+api:
+  base_url: https://sideci.reisys.id/api/v1
+
+# ── Roadmap Mobile App (Fase 3 — Flutter) ────────────────────────────────────
+mobile_roadmap:
+  enabled: false
+  framework: flutter
+  android_package: id.reisys.sideci
+  playstore_track: internal

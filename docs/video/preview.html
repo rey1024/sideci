@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Preview Player — SIDECI Desa Ringdikit — Produk Pengabdian Kepada Masyarakat Undiksha</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #070B14; color: #F8FAFC; font-family: 'Inter', system-ui, sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; background: #0F172A; border-bottom: 1px solid #1E293B; }
+    .title { font-weight: 800; font-size: 16px; color: #38BDF8; }
+    .controls { display: flex; align-items: center; gap: 10px; }
+    button, select { background: #1E293B; color: #F8FAFC; border: 1px solid #334155; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    button:hover { background: #334155; }
+    .stage-wrap { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 16px; }
+    iframe { width: 1920px; height: 1080px; border: 2px solid #334155; border-radius: 16px; transform-origin: center center; background: #000; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="title">🎬 @reisa-studio Preview · SIDECI Desa Ringdikit — Produk Pengabdian Kepada Masyarakat Undiksha</div>
+    <div class="controls">
+      <button id="btn-prev">◀ Prev</button>
+      <select id="scene-select"></select>
+      <button id="btn-play">▶ Play / Pause</button>
+      <button id="btn-next">Next ▶</button>
+    </div>
+  </div>
+  <div class="stage-wrap" id="stage-wrap">
+    <iframe id="player-frame"></iframe>
+  </div>
+  <audio id="scene-audio"></audio>
+  <script>
+    const SCENES = [{"id":"01-portal-publik-ringdikit","title":"SIDECI Desa Ringdikit: Layanan Desa Cerdas & Akuntabel","file":"compositions/01-portal-publik-ringdikit.html","audio":"assets/audio/01-portal-publik-ringdikit.mp3","duration":31.67},{"id":"02-dashboard-eksekutif-perbekel","title":"Dashboard Eksekutif Pimpinan & Analitik Satu Data Desa","file":"compositions/02-dashboard-eksekutif-perbekel.html","audio":"assets/audio/02-dashboard-eksekutif-perbekel.mp3","duration":16.27},{"id":"03-operator-data-penduduk-5392","title":"Manajemen 5.392 Warga & Timeline Historis Penduduk","file":"compositions/03-operator-data-penduduk-5392.html","audio":"assets/audio/03-operator-data-penduduk-5392.mp3","duration":16.44},{"id":"04-studio-surat-pdf-docx","title":"Studio Persuratan Otomatis 5 Format Resmi Desa Ringdikit","file":"compositions/04-studio-surat-pdf-docx.html","audio":"assets/audio/04-studio-surat-pdf-docx.mp3","duration":18.43},{"id":"05-register-ttd-tte-historis","title":"Buku Register Digital & Dokumentasi Arsip Surat Sah","file":"compositions/05-register-ttd-tte-historis.html","audio":"assets/audio/05-register-ttd-tte-historis.mp3","duration":13.68},{"id":"06-anjungan-kiosk-rfid-buku-tamu","title":"Anjungan Kiosk RFID KTP-el & Karya Pengabdian Undiksha","file":"compositions/06-anjungan-kiosk-rfid-buku-tamu.html","audio":"assets/audio/06-anjungan-kiosk-rfid-buku-tamu.mp3","duration":30.23}];
+    const W = 1920, H = 1080;
+    const frame = document.getElementById('player-frame');
+    const wrap = document.getElementById('stage-wrap');
+    const sel = document.getElementById('scene-select');
+    const audio = document.getElementById('scene-audio');
+    let idx = 0;
+
+    SCENES.forEach((s, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = (i + 1) + '. ' + s.title + ' (' + s.duration.toFixed(1) + 's)';
+      sel.appendChild(opt);
+    });
+
+    function fitStage() {
+      const r = wrap.getBoundingClientRect();
+      const scale = Math.min((r.width - 24) / W, (r.height - 24) / H);
+      frame.style.transform = 'scale(' + scale + ')';
+    }
+    window.addEventListener('resize', fitStage);
+    fitStage();
+
+    function loadScene(newIdx, autoPlay = true) {
+      idx = (newIdx + SCENES.length) % SCENES.length;
+      sel.value = idx;
+      const sc = SCENES[idx];
+      frame.src = sc.file;
+      audio.src = sc.audio;
+      if (autoPlay) {
+        audio.play().catch(() => {});
+      }
+    }
+
+    audio.addEventListener('timeupdate', () => {
+      if (frame.contentWindow) {
+        frame.contentWindow.postMessage({ type: 'HF_SEEK', time: audio.currentTime, paused: audio.paused }, '*');
+      }
+    });
+    audio.addEventListener('ended', () => {
+      if (idx + 1 < SCENES.length) loadScene(idx + 1, true);
+    });
+
+    sel.addEventListener('change', () => loadScene(Number(sel.value), true));
+    document.getElementById('btn-prev').addEventListener('click', () => loadScene(idx - 1, true));
+    document.getElementById('btn-next').addEventListener('click', () => loadScene(idx + 1, true));
+    document.getElementById('btn-play').addEventListener('click', () => {
+      if (audio.paused) audio.play(); else audio.pause();
+    });
+
+    loadScene(0, false);
+  </script>
+</body>
+</html>
