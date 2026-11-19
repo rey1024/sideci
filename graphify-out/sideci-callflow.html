@@ -60,7 +60,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
 <div class="container">
 
 <h1>sideci — Complete Call Flow &amp; Architecture Documentation</h1>
-<p class="subtitle">Generated from graphify knowledge graph: 784 nodes, 1835 edges, 57 communities. Commit: ec14a05</p>
+<p class="subtitle">Generated from graphify knowledge graph: 785 nodes, 1836 edges, 55 communities. Commit: ec1b73f</p>
 
 <div class="nav">
     <a href="#overview">Architecture Overview</a>
@@ -70,8 +70,8 @@ hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
     <a href="#ingest-cache-update">Ingestion &amp; Updates</a>
     <a href="#serve-api">Serving API</a>
     <a href="#security-global">Security &amp; Global Graph</a>
-    <a href="#docs-prdmd-desa">Docs Prdmd Desa</a>
     <a href="#frontend-app-pagetsx">Frontend App Pagetsx</a>
+    <a href="#docs-prdmd-desa">Docs Prdmd Desa</a>
     <a href="#deployps1-infra-invoke">Deployps1 Infra Invoke</a>
     <a href="#frontend-ringdikit-datats">Frontend Ringdikit Datats</a>
     <a href="#frontend-components-smoothchartstsx">Frontend Components Smoothchartstsx</a>
@@ -96,40 +96,40 @@ flowchart LR
     class ANALYSIS_CLUSTERING_C79796DA module;
     INGEST_CACHE_UPDATE_FF457338("Ingestion &amp; Updates<br/><small>17 nodes</small>")
     class INGEST_CACHE_UPDATE_FF457338 module;
-    SERVE_API_35EC8E86("Serving API<br/><small>139 nodes</small>")
+    SERVE_API_35EC8E86("Serving API<br/><small>144 nodes</small>")
     class SERVE_API_35EC8E86 module;
     SECURITY_GLOBAL_5B9C6A04("Security &amp; Global Graph<br/><small>26 nodes</small>")
     class SECURITY_GLOBAL_5B9C6A04 module;
+    FRONTEND_APP_PAGETSX_92018FF6("Frontend App Pagetsx<br/><small>22 nodes</small>")
+    class FRONTEND_APP_PAGETSX_92018FF6 module;
     DOCS_PRDMD_DESA_74BA5E03("Docs Prdmd Desa<br/><small>19 nodes</small>")
     class DOCS_PRDMD_DESA_74BA5E03 module;
-    FRONTEND_APP_PAGETSX_92018FF6("Frontend App Pagetsx<br/><small>17 nodes</small>")
-    class FRONTEND_APP_PAGETSX_92018FF6 module;
     DEPLOYPS1_INFRA_INVOKE_DE6453B0("Deployps1 Infra Invoke<br/><small>15 nodes</small>")
     class DEPLOYPS1_INFRA_INVOKE_DE6453B0 module;
     FRONTEND_RINGDIKIT_DATATS_A5AE01A2("Frontend Ringdikit Datats<br/><small>14 nodes</small>")
     class FRONTEND_RINGDIKIT_DATATS_A5AE01A2 module;
     FRONTEND_COMPONENTS_SMOOTHCHARTSTSX_1AB0B646("Frontend Components Smoothchartstsx<br/><small>13 nodes</small>")
     class FRONTEND_COMPONENTS_SMOOTHCHARTSTSX_1AB0B646 module;
-    FRONTEND_VILLAGESLUG_PRIVACY_7A2EDB56("Frontend Villageslug Privacy<br/><small>10 nodes</small>")
+    FRONTEND_VILLAGESLUG_PRIVACY_7A2EDB56("Frontend Villageslug Privacy<br/><small>11 nodes</small>")
     class FRONTEND_VILLAGESLUG_PRIVACY_7A2EDB56 module;
     AGENTSMD_PURPOSE_ROLE_599966A9("Agentsmd Purpose Role<br/><small>8 nodes</small>")
     class AGENTSMD_PURPOSE_ROLE_599966A9 module;
     DOCS_ARCHITECTUREMD_ARSITEKTUR_9EE170E5("Docs Architecturemd Arsitektur<br/><small>8 nodes</small>")
     class DOCS_ARCHITECTUREMD_ARSITEKTUR_9EE170E5 module;
-    OTHER_D0941E68("Other<br/><small>91 nodes</small>")
+    OTHER_D0941E68("Other<br/><small>81 nodes</small>")
     class OTHER_D0941E68 module;
-    SERVE_API_35EC8E86 -->|imports x17| OTHER_D0941E68
+    SERVE_API_35EC8E86 -->|imports x10| FRONTEND_VILLAGESLUG_PRIVACY_7A2EDB56
     SECURITY_GLOBAL_5B9C6A04 -->|contains x10| OTHER_D0941E68
     SERVE_API_35EC8E86 -->|calls x9| FRONTEND_COMPONENTS_SMOOTHCHARTSTSX_1AB0B646
+    SERVE_API_35EC8E86 -->|imports x9| OTHER_D0941E68
     FRONTEND_COMPONENTS_SMOOTHCHARTSTSX_1AB0B646 -->|imports x4| FRONTEND_RINGDIKIT_DATATS_A5AE01A2
-    OTHER_D0941E68 -->|imports x4| FRONTEND_APP_PAGETSX_92018FF6
-    FRONTEND_VILLAGESLUG_PRIVACY_7A2EDB56 -->|imports x3| OTHER_D0941E68
     SECURITY_GLOBAL_5B9C6A04 -->|contains x3| EXTRACT_PIPELINE_5F350230
     SERVE_API_35EC8E86 -->|imports x3| FRONTEND_RINGDIKIT_DATATS_A5AE01A2
-    OTHER_D0941E68 -->|calls x2| SERVE_API_35EC8E86
-    FRONTEND_APP_PAGETSX_92018FF6 -->|imports x2| OTHER_D0941E68
+    FRONTEND_COMPONENTS_SMOOTHCHARTSTSX_1AB0B646 -->|imports x3| FRONTEND_VILLAGESLUG_PRIVACY_7A2EDB56
     FRONTEND_VILLAGESLUG_PRIVACY_7A2EDB56 -->|imports x2| FRONTEND_RINGDIKIT_DATATS_A5AE01A2
-    FRONTEND_RINGDIKIT_DATATS_A5AE01A2 -->|imports x2| OTHER_D0941E68
+    FRONTEND_VILLAGESLUG_PRIVACY_7A2EDB56 -->|imports x2| OTHER_D0941E68
+    SERVE_API_35EC8E86 -->|imports x2| FRONTEND_APP_PAGETSX_92018FF6
+    FRONTEND_RINGDIKIT_DATATS_A5AE01A2 -->|imports x2| FRONTEND_VILLAGESLUG_PRIVACY_7A2EDB56
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -146,19 +146,19 @@ flowchart LR
     <h4>Architecture Layers</h4>
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>Layer</th><th>Nodes</th><th>Communities</th></tr>
-      <tr><td>Extraction Pipeline</td><td>316</td><td><code>0, 1, 2, 4, 8, 9, 14, 15, 22, 46</code></td></tr><tr><td>Graph Build</td><td>82</td><td><code>3, 51, 11, 53</code></td></tr><tr><td>Analysis &amp; Clustering</td><td>9</td><td><code>27</code></td></tr><tr><td>Ingestion &amp; Updates</td><td>17</td><td><code>24, 38</code></td></tr><tr><td>Serving API</td><td>139</td><td><code>6, 5, 7, 16, 19, 21, 25, 26, 44</code></td></tr><tr><td>Security &amp; Global Graph</td><td>26</td><td><code>18, 31, 47</code></td></tr><tr><td>Docs Prdmd Desa</td><td>19</td><td><code>10</code></td></tr><tr><td>Frontend App Pagetsx</td><td>17</td><td><code>12</code></td></tr><tr><td>Deployps1 Infra Invoke</td><td>15</td><td><code>17</code></td></tr><tr><td>Frontend Ringdikit Datats</td><td>14</td><td><code>20</code></td></tr><tr><td>Frontend Components Smoothchartstsx</td><td>13</td><td><code>23</code></td></tr><tr><td>Frontend Villageslug Privacy</td><td>10</td><td><code>13</code></td></tr><tr><td>Agentsmd Purpose Role</td><td>8</td><td><code>28</code></td></tr><tr><td>Docs Architecturemd Arsitektur</td><td>8</td><td><code>29</code></td></tr><tr><td>Other</td><td>91</td><td><code>30, 52, 32, 33, 34, 35, 36, 37, 39, 40, 41, 42, 43, 45, 48, 49, 50, 54, 55, 56</code></td></tr>
+      <tr><td>Extraction Pipeline</td><td>316</td><td><code>0, 2, 1, 4, 8, 9, 14, 15, 22, 46</code></td></tr><tr><td>Graph Build</td><td>82</td><td><code>3, 51, 11, 53</code></td></tr><tr><td>Analysis &amp; Clustering</td><td>9</td><td><code>27</code></td></tr><tr><td>Ingestion &amp; Updates</td><td>17</td><td><code>24, 38</code></td></tr><tr><td>Serving API</td><td>144</td><td><code>6, 5, 7, 21, 16, 19, 25, 26, 44</code></td></tr><tr><td>Security &amp; Global Graph</td><td>26</td><td><code>18, 31, 47</code></td></tr><tr><td>Frontend App Pagetsx</td><td>22</td><td><code>12</code></td></tr><tr><td>Docs Prdmd Desa</td><td>19</td><td><code>10</code></td></tr><tr><td>Deployps1 Infra Invoke</td><td>15</td><td><code>17</code></td></tr><tr><td>Frontend Ringdikit Datats</td><td>14</td><td><code>20</code></td></tr><tr><td>Frontend Components Smoothchartstsx</td><td>13</td><td><code>23</code></td></tr><tr><td>Frontend Villageslug Privacy</td><td>11</td><td><code>13</code></td></tr><tr><td>Agentsmd Purpose Role</td><td>8</td><td><code>28</code></td></tr><tr><td>Docs Architecturemd Arsitektur</td><td>8</td><td><code>29</code></td></tr><tr><td>Other</td><td>81</td><td><code>30, 52, 32, 33, 34, 35, 36, 37, 39, 40, 41, 45, 48, 49, 50, 54, 55, 56</code></td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Core Flow</h4>
-    <div class="arrow-chain">Graph Build -&gt; Other -&gt; Frontend App Pagetsx -&gt; Extraction Pipeline -&gt; Analysis &amp; Clustering -&gt; Ingestion &amp; Updates -&gt; Serving API</div>
+    <div class="arrow-chain">Graph Build -&gt; Other -&gt; Frontend App Pagetsx -&gt; Frontend Villageslug Privacy -&gt; Frontend Ringdikit Datats -&gt; Serving API -&gt; Frontend Components Smoothchartstsx</div>
   </div>
 </div>
 <div class="grid">
   <div class="card">
     <h4>Graph Report Highlights</h4>
     <ul>
-      <li>784 nodes · 1835 edges · 57 communities (50 shown, 7 thin omitted)</li>
+      <li>785 nodes · 1836 edges · 55 communities (48 shown, 7 thin omitted)</li>
       <li>Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 91 edges (avg confidence: 0.86)</li>
       <li>Token cost: 0 input · 0 output</li>
       <li>1. `Server` - 49 edges</li>
@@ -297,14 +297,6 @@ flowchart LR
 </tr>
 <tr>
   <td>6</td>
-  <td><code>cachedOverview</code><br><small style="color:var(--muted)">internal/handler/village.go</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Caches analysis results or computes cache keys.</td>
-</tr>
-<tr>
-  <td>7</td>
   <td><code>createSubmissionReq</code><br><small style="color:var(--muted)">internal/handler/residents.go</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td>External entry / no inbound edge</td>
@@ -312,7 +304,7 @@ flowchart LR
   <td>createSubmissionReq node in internal/handler/residents.go.</td>
 </tr>
 <tr>
-  <td>8</td>
+  <td>7</td>
   <td><code>createVillageRequest</code><br><small style="color:var(--muted)">internal/handler/admin.go</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td>External entry / no inbound edge</td>
@@ -320,7 +312,7 @@ flowchart LR
   <td>createVillageRequest node in internal/handler/admin.go.</td>
 </tr>
 <tr>
-  <td>9</td>
+  <td>8</td>
   <td><code>loginRequest</code><br><small style="color:var(--muted)">internal/handler/auth.go</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td>External entry / no inbound edge</td>
@@ -328,7 +320,7 @@ flowchart LR
   <td>loginRequest node in internal/handler/auth.go.</td>
 </tr>
 <tr>
-  <td>10</td>
+  <td>9</td>
   <td><code>reviewSubmissionReq</code><br><small style="color:var(--muted)">internal/handler/residents.go</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td>External entry / no inbound edge</td>
@@ -336,7 +328,7 @@ flowchart LR
   <td>reviewSubmissionReq node in internal/handler/residents.go.</td>
 </tr>
 <tr>
-  <td>11</td>
+  <td>10</td>
   <td><code>ctxKey</code><br><small style="color:var(--muted)">internal/middleware/tenant.go</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td>External entry / no inbound edge</td>
@@ -344,15 +336,15 @@ flowchart LR
   <td>ctxKey node in internal/middleware/tenant.go.</td>
 </tr>
 <tr>
-  <td>12</td>
+  <td>11</td>
   <td><code>api/main.go</code><br><small style="color:var(--muted)">cmd/api/main.go</small></td>
   <td><span class="tag tag-endpoint">API</span></td>
   <td>External entry / no inbound edge</td>
-  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small><br>+28 more</td>
+  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small><br><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br>+28 more</td>
   <td>api/main.go node in cmd/api/main.go.</td>
 </tr>
 <tr>
-  <td>13</td>
+  <td>12</td>
   <td><code>seed-prod/main.go</code><br><small style="color:var(--muted)">cmd/seed-prod/main.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td>External entry / no inbound edge</td>
@@ -360,7 +352,7 @@ flowchart LR
   <td>seed-prod/main.go node in cmd/seed-prod/main.go.</td>
 </tr>
 <tr>
-  <td>14</td>
+  <td>13</td>
   <td><code>auth/auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/handler/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br>+7 more</td>
@@ -368,7 +360,7 @@ flowchart LR
   <td>auth/auth.go node in internal/auth/auth.go.</td>
 </tr>
 <tr>
-  <td>15</td>
+  <td>14</td>
   <td><code>auth_test.go</code><br><small style="color:var(--muted)">internal/auth/auth_test.go</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/handler/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br>+6 more</td>
@@ -376,39 +368,39 @@ flowchart LR
   <td>Verifies imports, entry points, or version behavior.</td>
 </tr>
 <tr>
-  <td>16</td>
+  <td>15</td>
   <td><code>docgen_test.go</code><br><small style="color:var(--muted)">internal/docgen/docgen_test.go</small></td>
   <td><span class="tag tag-func">Test</span></td>
-  <td><code>letters.go</code><br><small style="color:var(--muted)">internal/handler/letters.go</small><br><code>letters.go</code><br><small style="color:var(--muted)">internal/store/letters.go</small></td>
+  <td><code>letters.go</code><br><small style="color:var(--muted)">internal/store/letters.go</small><br><code>letters.go</code><br><small style="color:var(--muted)">internal/handler/letters.go</small></td>
   <td><code>go_pkg_archive_zip</code><br><code>go_pkg_bytes</code><br><code>go_pkg_strings</code><br>+1 more</td>
   <td>Verifies imports, entry points, or version behavior.</td>
 </tr>
 <tr>
-  <td>17</td>
+  <td>16</td>
   <td><code>models.go</code><br><small style="color:var(--muted)">internal/domain/models.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
-  <td><code>letters.go</code><br><small style="color:var(--muted)">internal/handler/letters.go</small><br><code>letters.go</code><br><small style="color:var(--muted)">internal/store/letters.go</small><br><code>residents.go</code><br><small style="color:var(--muted)">internal/handler/residents.go</small><br>+2 more</td>
+  <td><code>letters.go</code><br><small style="color:var(--muted)">internal/store/letters.go</small><br><code>letters.go</code><br><small style="color:var(--muted)">internal/handler/letters.go</small><br><code>residents.go</code><br><small style="color:var(--muted)">internal/handler/residents.go</small><br>+2 more</td>
   <td><code>go_pkg_strings</code></td>
   <td>models.go node in internal/domain/models.go.</td>
 </tr>
 <tr>
-  <td>18</td>
+  <td>17</td>
   <td><code>handler/admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>main.go</code><br><small style="color:var(--muted)">cmd/api/main.go</small><br><code>village_test.go</code><br><small style="color:var(--muted)">internal/handler/village_test.go</small></td>
-  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br>+17 more</td>
+  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small><br>+17 more</td>
   <td>handler/admin.go node in internal/handler/admin.go.</td>
 </tr>
 <tr>
-  <td>19</td>
+  <td>18</td>
   <td><code>handler/auth.go</code><br><small style="color:var(--muted)">internal/handler/auth.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>main.go</code><br><small style="color:var(--muted)">cmd/api/main.go</small><br><code>village_test.go</code><br><small style="color:var(--muted)">internal/handler/village_test.go</small></td>
-  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br>+16 more</td>
+  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small><br>+16 more</td>
   <td>handler/auth.go node in internal/handler/auth.go.</td>
 </tr>
 <tr>
-  <td>20</td>
+  <td>19</td>
   <td><code>handler/kiosk.go</code><br><small style="color:var(--muted)">internal/handler/kiosk.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>main.go</code><br><small style="color:var(--muted)">cmd/api/main.go</small><br><code>village_test.go</code><br><small style="color:var(--muted)">internal/handler/village_test.go</small></td>
@@ -416,7 +408,7 @@ flowchart LR
   <td>handler/kiosk.go node in internal/handler/kiosk.go.</td>
 </tr>
 <tr>
-  <td>21</td>
+  <td>20</td>
   <td><code>handler/letters.go</code><br><small style="color:var(--muted)">internal/handler/letters.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>main.go</code><br><small style="color:var(--muted)">cmd/api/main.go</small><br><code>village_test.go</code><br><small style="color:var(--muted)">internal/handler/village_test.go</small></td>
@@ -424,15 +416,15 @@ flowchart LR
   <td>handler/letters.go node in internal/handler/letters.go.</td>
 </tr>
 <tr>
-  <td>22</td>
+  <td>21</td>
   <td><code>handler/residents.go</code><br><small style="color:var(--muted)">internal/handler/residents.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>main.go</code><br><small style="color:var(--muted)">cmd/api/main.go</small><br><code>village_test.go</code><br><small style="color:var(--muted)">internal/handler/village_test.go</small></td>
-  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br>+21 more</td>
+  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small><br>+21 more</td>
   <td>handler/residents.go node in internal/handler/residents.go.</td>
 </tr>
 <tr>
-  <td>23</td>
+  <td>22</td>
   <td><code>residents_test.go</code><br><small style="color:var(--muted)">internal/handler/residents_test.go</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td><code>main.go</code><br><small style="color:var(--muted)">cmd/api/main.go</small><br><code>village_test.go</code><br><small style="color:var(--muted)">internal/handler/village_test.go</small></td>
@@ -440,31 +432,31 @@ flowchart LR
   <td>Verifies imports, entry points, or version behavior.</td>
 </tr>
 <tr>
-  <td>24</td>
+  <td>23</td>
   <td><code>handler/village.go</code><br><small style="color:var(--muted)">internal/handler/village.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>main.go</code><br><small style="color:var(--muted)">cmd/api/main.go</small><br><code>village_test.go</code><br><small style="color:var(--muted)">internal/handler/village_test.go</small></td>
-  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br>+19 more</td>
+  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small><br>+19 more</td>
   <td>handler/village.go node in internal/handler/village.go.</td>
 </tr>
 <tr>
-  <td>25</td>
+  <td>24</td>
   <td><code>village_test.go</code><br><small style="color:var(--muted)">internal/handler/village_test.go</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td><code>main.go</code><br><small style="color:var(--muted)">cmd/api/main.go</small></td>
-  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/auth/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/handler/auth.go</small><br>+16 more</td>
+  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/handler/auth.go</small><br>+16 more</td>
   <td>Verifies imports, entry points, or version behavior.</td>
 </tr>
 <tr>
-  <td>26</td>
+  <td>25</td>
   <td><code>siak_xlsx_test.go</code><br><small style="color:var(--muted)">internal/importer/siak_xlsx_test.go</small></td>
   <td><span class="tag tag-func">Test</span></td>
-  <td><code>main.go</code><br><small style="color:var(--muted)">cmd/seed-prod/main.go</small><br><code>residents.go</code><br><small style="color:var(--muted)">internal/handler/residents.go</small><br><code>residents.go</code><br><small style="color:var(--muted)">internal/store/residents.go</small></td>
+  <td><code>main.go</code><br><small style="color:var(--muted)">cmd/seed-prod/main.go</small><br><code>residents.go</code><br><small style="color:var(--muted)">internal/store/residents.go</small><br><code>residents.go</code><br><small style="color:var(--muted)">internal/handler/residents.go</small></td>
   <td><code>go_pkg_archive_zip</code><br><code>go_pkg_bytes</code><br><code>go_pkg_fmt</code><br>+4 more</td>
   <td>Verifies imports, entry points, or version behavior.</td>
 </tr>
 <tr>
-  <td>27</td>
+  <td>26</td>
   <td><code>middleware/auth.go</code><br><small style="color:var(--muted)">internal/middleware/auth.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/handler/auth.go</small><br><code>letters.go</code><br><small style="color:var(--muted)">internal/handler/letters.go</small><br>+6 more</td>
@@ -472,7 +464,7 @@ flowchart LR
   <td>middleware/auth.go node in internal/middleware/auth.go.</td>
 </tr>
 <tr>
-  <td>28</td>
+  <td>27</td>
   <td><code>ratelimit.go</code><br><small style="color:var(--muted)">internal/middleware/ratelimit.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/handler/auth.go</small><br><code>letters.go</code><br><small style="color:var(--muted)">internal/handler/letters.go</small><br>+6 more</td>
@@ -480,7 +472,7 @@ flowchart LR
   <td>ratelimit.go node in internal/middleware/ratelimit.go.</td>
 </tr>
 <tr>
-  <td>29</td>
+  <td>28</td>
   <td><code>ratelimit_test.go</code><br><small style="color:var(--muted)">internal/middleware/ratelimit_test.go</small></td>
   <td><span class="tag tag-func">Test</span></td>
   <td><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/handler/auth.go</small><br><code>letters.go</code><br><small style="color:var(--muted)">internal/handler/letters.go</small><br>+5 more</td>
@@ -488,12 +480,20 @@ flowchart LR
   <td>Verifies imports, entry points, or version behavior.</td>
 </tr>
 <tr>
-  <td>30</td>
+  <td>29</td>
   <td><code>tenant.go</code><br><small style="color:var(--muted)">internal/middleware/tenant.go</small></td>
   <td><span class="tag tag-class">Module</span></td>
   <td><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/handler/auth.go</small><br><code>letters.go</code><br><small style="color:var(--muted)">internal/handler/letters.go</small><br>+6 more</td>
   <td><code>go_pkg_context</code><br><code>go_pkg_net</code><br><code>go_pkg_net_http</code><br>+1 more</td>
   <td>tenant.go node in internal/middleware/tenant.go.</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td><code>store/admin.go</code><br><small style="color:var(--muted)">internal/store/admin.go</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>admin.go</code><br><small style="color:var(--muted)">internal/handler/admin.go</small><br><code>auth.go</code><br><small style="color:var(--muted)">internal/handler/auth.go</small><br><code>kiosk.go</code><br><small style="color:var(--muted)">internal/handler/kiosk.go</small><br>+5 more</td>
+  <td><code>go_pkg_context</code><br><code>go_pkg_errors</code><br><code>jackc pgx v5</code></td>
+  <td>store/admin.go node in internal/store/admin.go.</td>
 </tr>
 </table>
 
@@ -1235,12 +1235,12 @@ flowchart LR
 
 <!-- ====== 6. Serving API ====== -->
 <h2 id="serve-api">6. Serving API</h2>
-<p>Serving API groups implementation around frontend, components, apits, operatorpopulationmanagertsx, mostly in src/lib/api.ts, src/components/OperatorPopulationManager.tsx, src/components/KepalaDusunWorkspace.tsx. This section covers 139 nodes and 335 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Serving API groups implementation around frontend, components, apits, operatorpopulationmanagertsx, mostly in src/lib/api.ts, src/components/OperatorPopulationManager.tsx, src/components/KepalaDusunWorkspace.tsx. This section covers 144 nodes and 344 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Serving API (139 nodes, 335 edges)
+    %% Section: Serving API (144 nodes, 344 edges)
     subgraph serve_api_src_lib_api_ts_4018941b["src/lib/api.ts"]
         frontend_src_lib_api_getlettersignedfileurl_3fdcc470("getLetterSignedFileUrl()<br/><small>src/lib/api.ts</small>")
         frontend_src_lib_api_fetchletters_4d3edfcc("fetchLetters()<br/><small>src/lib/api.ts</small>")
@@ -1289,7 +1289,7 @@ flowchart LR
     frontend_src_components_letterstudiomanager_7cc13829 -->|imports| frontend_src_lib_api_uploadsignedletterfile_e83200c1
     frontend_src_components_letterstudiomanager_7cc13829 -->|imports| frontend_src_components_residentautocomplete_res_f6f844f3
     frontend_src_app_panel_page_dc666ed4 -->|imports| frontend_src_components_operatorpopulationmanage_845b5194
-    %% Omitted for readability: 121 nodes, 14 edges
+    %% Omitted for readability: 126 nodes, 14 edges
     class frontend_src_lib_api_getlettersignedfileurl_3fdcc470 function;
     class frontend_src_lib_api_fetchletters_4d3edfcc function;
     class frontend_src_lib_api_createletter_d4b9c309 function;
@@ -1451,6 +1451,14 @@ flowchart LR
 </tr>
 <tr>
   <td>16</td>
+  <td><code>getLetterSignedFileUrl()</code><br><small style="color:var(--muted)">src/lib/api.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>LetterStudioManager()</code><br><small style="color:var(--muted)">src/components/LetterStudioManager.tsx</small><br><code>LetterStudioManager.tsx</code><br><small style="color:var(--muted)">src/components/LetterStudioManager.tsx</small><br><code>OperatorPopulationManager()</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small><br>+1 more</td>
+  <td>No direct outbound edge</td>
+  <td>getLetterSignedFileUrl() node in src/lib/api.ts.</td>
+</tr>
+<tr>
+  <td>17</td>
   <td><code>recordResidentEvent()</code><br><small style="color:var(--muted)">src/lib/api.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td><code>handleSaveEvent()</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small><br><code>OperatorPopulationManager()</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small><br><code>OperatorPopulationManager.tsx</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small></td>
@@ -1458,7 +1466,7 @@ flowchart LR
   <td>recordResidentEvent() node in src/lib/api.ts.</td>
 </tr>
 <tr>
-  <td>17</td>
+  <td>18</td>
   <td><code>updateResident()</code><br><small style="color:var(--muted)">src/lib/api.ts</small></td>
   <td><span class="tag tag-func">Function</span></td>
   <td><code>handleSaveResident()</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small><br><code>OperatorPopulationManager()</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small><br><code>OperatorPopulationManager.tsx</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small></td>
@@ -1466,7 +1474,7 @@ flowchart LR
   <td>updateResident() node in src/lib/api.ts.</td>
 </tr>
 <tr>
-  <td>18</td>
+  <td>19</td>
   <td><code>OperatorPopulationManager.tsx</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small></td>
@@ -1474,7 +1482,7 @@ flowchart LR
   <td>Module file in src/components/OperatorPopulationManager.tsx.</td>
 </tr>
 <tr>
-  <td>19</td>
+  <td>20</td>
   <td><code>EDUCATION_OPTIONS</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
@@ -1482,7 +1490,7 @@ flowchart LR
   <td>EDUCATION_OPTIONS node in src/components/OperatorPopulationManager.tsx.</td>
 </tr>
 <tr>
-  <td>20</td>
+  <td>21</td>
   <td><code>EMPTY_FORM</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
@@ -1490,7 +1498,7 @@ flowchart LR
   <td>EMPTY_FORM node in src/components/OperatorPopulationManager.tsx.</td>
 </tr>
 <tr>
-  <td>21</td>
+  <td>22</td>
   <td><code>EVENT_TYPE_LABELS</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
@@ -1498,7 +1506,7 @@ flowchart LR
   <td>EVENT_TYPE_LABELS node in src/components/OperatorPopulationManager.tsx.</td>
 </tr>
 <tr>
-  <td>22</td>
+  <td>23</td>
   <td><code>MARITAL_OPTIONS</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
@@ -1506,7 +1514,7 @@ flowchart LR
   <td>MARITAL_OPTIONS node in src/components/OperatorPopulationManager.tsx.</td>
 </tr>
 <tr>
-  <td>23</td>
+  <td>24</td>
   <td><code>RELIGION_OPTIONS</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
@@ -1514,7 +1522,7 @@ flowchart LR
   <td>RELIGION_OPTIONS node in src/components/OperatorPopulationManager.tsx.</td>
 </tr>
 <tr>
-  <td>24</td>
+  <td>25</td>
   <td><code>SHDK_OPTIONS</code><br><small style="color:var(--muted)">src/components/OperatorPopulationManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
@@ -1522,7 +1530,7 @@ flowchart LR
   <td>SHDK_OPTIONS node in src/components/OperatorPopulationManager.tsx.</td>
 </tr>
 <tr>
-  <td>25</td>
+  <td>26</td>
   <td><code>GuestbookIdMethod</code><br><small style="color:var(--muted)">src/components/KioskWorkspaceManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
@@ -1530,7 +1538,7 @@ flowchart LR
   <td>GuestbookIdMethod node in src/components/KioskWorkspaceManager.tsx.</td>
 </tr>
 <tr>
-  <td>26</td>
+  <td>27</td>
   <td><code>KioskAdminTab</code><br><small style="color:var(--muted)">src/components/KioskWorkspaceManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
@@ -1538,7 +1546,7 @@ flowchart LR
   <td>KioskAdminTab node in src/components/KioskWorkspaceManager.tsx.</td>
 </tr>
 <tr>
-  <td>27</td>
+  <td>28</td>
   <td><code>KioskServiceMode</code><br><small style="color:var(--muted)">src/components/KioskWorkspaceManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
@@ -1546,7 +1554,7 @@ flowchart LR
   <td>KioskServiceMode node in src/components/KioskWorkspaceManager.tsx.</td>
 </tr>
 <tr>
-  <td>28</td>
+  <td>29</td>
   <td><code>KioskTemplateOption</code><br><small style="color:var(--muted)">src/components/KioskWorkspaceManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
@@ -1554,20 +1562,12 @@ flowchart LR
   <td>KioskTemplateOption node in src/components/KioskWorkspaceManager.tsx.</td>
 </tr>
 <tr>
-  <td>29</td>
+  <td>30</td>
   <td><code>KioskWorkspaceManagerProps</code><br><small style="color:var(--muted)">src/components/KioskWorkspaceManager.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
   <td>External entry / no inbound edge</td>
   <td>No direct outbound edge</td>
   <td>KioskWorkspaceManagerProps node in src/components/KioskWorkspaceManager.tsx.</td>
-</tr>
-<tr>
-  <td>30</td>
-  <td><code>ApiGuestbookEntry</code><br><small style="color:var(--muted)">src/lib/api.ts</small></td>
-  <td><span class="tag tag-endpoint">API</span></td>
-  <td><code>KioskWorkspaceManager.tsx</code><br><small style="color:var(--muted)">src/components/KioskWorkspaceManager.tsx</small></td>
-  <td>No direct outbound edge</td>
-  <td>ApiGuestbookEntry node in src/lib/api.ts.</td>
 </tr>
 </table>
 
@@ -1576,10 +1576,10 @@ flowchart LR
     <h4>Key Files</h4>
     <table style="width:100%;font-size:0.85rem;">
       <tr><th>File</th><th>Coverage</th></tr>
-      <tr><td><code>src/lib/api.ts</code></td><td>54 nodes</td></tr>
+      <tr><td><code>src/lib/api.ts</code></td><td>55 nodes</td></tr>
 <tr><td><code>src/components/OperatorPopulationManager.tsx</code></td><td>17 nodes</td></tr>
 <tr><td><code>src/components/KepalaDusunWorkspace.tsx</code></td><td>14 nodes</td></tr>
-<tr><td><code>src/components/KioskWorkspaceManager.tsx</code></td><td>13 nodes</td></tr>
+<tr><td><code>src/components/KioskWorkspaceManager.tsx</code></td><td>14 nodes</td></tr>
 <tr><td><code>src/components/LetterStudioManager.tsx</code></td><td>11 nodes</td></tr>
 <tr><td><code>src/components/ResidentAutocomplete.tsx</code></td><td>8 nodes</td></tr>
 <tr><td><code>app/panel/page.tsx</code></td><td>6 nodes</td></tr>
@@ -1588,7 +1588,7 @@ flowchart LR
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x126, calls x101, imports x81, imports x18. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x130, calls x104, imports x82, imports x19. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -1923,8 +1923,297 @@ flowchart LR
 </div>
 <hr>
 
-<!-- ====== 8. Docs Prdmd Desa ====== -->
-<h2 id="docs-prdmd-desa">8. Docs Prdmd Desa</h2>
+<!-- ====== 8. Frontend App Pagetsx ====== -->
+<h2 id="frontend-app-pagetsx">8. Frontend App Pagetsx</h2>
+<p>Frontend App Pagetsx groups implementation around frontend, app, pagetsx, middlewarets, mostly in frontend/src/middleware.ts, app/health/route.ts, src/app/layout.tsx. This section covers 22 nodes and 24 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Frontend App Pagetsx (22 nodes, 24 edges)
+    subgraph frontend_app_pagetsx_frontend_src_middleware_ts_4b8d33ea["frontend/src/middleware.ts"]
+        frontend_src_middleware_7a38c060("middleware.ts")
+        frontend_src_middleware_custom_domain_map_1c832e08("CUSTOM_DOMAIN_MAP<br/><small>frontend/src/middleware.ts</small>")
+        frontend_src_middleware_reserved_segments_f77979df("RESERVED_SEGMENTS<br/><small>frontend/src/middleware.ts</small>")
+        frontend_src_middleware_config_ac8db66b("config<br/><small>frontend/src/middleware.ts</small>")
+    end
+    subgraph frontend_app_pagetsx_app_health_route_ts_212f9c7d["app/health/route.ts"]
+        frontend_src_app_health_route_26ee142a("route.ts")
+        frontend_src_app_health_route_get_c9eda906("GET()<br/><small>app/health/route.ts</small>")
+        frontend_src_app_health_route_dynamic_65d4deb5("dynamic<br/><small>app/health/route.ts</small>")
+    end
+    subgraph frontend_app_pagetsx_app_login_page_tsx_fcc83b51["app/login/page.tsx"]
+        frontend_src_app_login_page_72453a97("page.tsx")
+        frontend_src_app_login_page_rootloginredirectpag_ce04f680("RootLoginRedirectPage()<br/><small>app/login/page.tsx</small>")
+    end
+    subgraph frontend_app_pagetsx_app_privacy_policy_page_tsx_75361333["app/privacy-policy/page.tsx"]
+        frontend_src_app_privacy_policy_page_c3fcbbb4("page.tsx")
+        frontend_src_app_privacy_policy_page_rootprivacy_bdeb9b86("RootPrivacyPolicyRedirectPage()<br/><small>app/privacy-policy/page.tsx</small>")
+    end
+    subgraph frontend_app_pagetsx_src_app_layout_tsx_82d57fdd["src/app/layout.tsx"]
+        frontend_src_app_layout_a3d70c3e("layout.tsx")
+        frontend_src_app_layout_rootlayout_2c4bed50("RootLayout()<br/><small>src/app/layout.tsx</small>")
+    end
+    subgraph frontend_app_pagetsx_src_components_DemoAccessGa_91e9fa1f["src/components/DemoAccessGate.tsx"]
+        frontend_src_components_demoaccessgate_demoacces_b0f6c07f("DemoAccessGate()<br/><small>src/components/DemoAccessGate.tsx</small>")
+        frontend_src_components_demoaccessgate_a577b15c("DemoAccessGate.tsx")
+    end
+    frontend_src_app_globals_814fca60("frontend_src_app_globals")
+    ref_next_a0ec2ea0("next<br/><small>frontend/package.json</small>")
+    frontend_src_app_page_885214ff("page.tsx")
+    frontend_src_app_layout_rootlayout_2c4bed50 -->|calls| frontend_src_components_demoaccessgate_demoacces_b0f6c07f
+    frontend_src_app_health_route_26ee142a -->|imports| ref_next_a0ec2ea0
+    frontend_src_app_layout_a3d70c3e -->|imports| frontend_src_components_demoaccessgate_demoacces_b0f6c07f
+    frontend_src_app_layout_a3d70c3e -->|imports| ref_next_a0ec2ea0
+    frontend_src_app_layout_a3d70c3e -->|imports| frontend_src_app_globals_814fca60
+    frontend_src_app_layout_a3d70c3e -->|imports| frontend_src_components_demoaccessgate_a577b15c
+    frontend_src_app_login_page_72453a97 -->|imports| ref_next_a0ec2ea0
+    frontend_src_app_page_885214ff -->|imports| ref_next_a0ec2ea0
+    frontend_src_app_privacy_policy_page_c3fcbbb4 -->|imports| ref_next_a0ec2ea0
+    frontend_src_components_demoaccessgate_a577b15c -->|imports| ref_next_a0ec2ea0
+    frontend_src_middleware_7a38c060 -->|imports| ref_next_a0ec2ea0
+    %% Omitted for readability: 4 nodes, 0 edges
+    class frontend_src_middleware_7a38c060 module;
+    class frontend_src_middleware_custom_domain_map_1c832e08 klass;
+    class frontend_src_middleware_reserved_segments_f77979df klass;
+    class frontend_src_middleware_config_ac8db66b function;
+    class frontend_src_app_health_route_26ee142a api;
+    class frontend_src_app_health_route_get_c9eda906 function;
+    class frontend_src_app_health_route_dynamic_65d4deb5 function;
+    class frontend_src_app_login_page_72453a97 ui;
+    class frontend_src_app_login_page_rootloginredirectpag_ce04f680 ui;
+    class frontend_src_app_privacy_policy_page_c3fcbbb4 ui;
+    class frontend_src_app_privacy_policy_page_rootprivacy_bdeb9b86 ui;
+    class frontend_src_app_layout_a3d70c3e ui;
+    class frontend_src_app_layout_rootlayout_2c4bed50 ui;
+    class frontend_src_components_demoaccessgate_demoacces_b0f6c07f ui;
+    class frontend_src_components_demoaccessgate_a577b15c ui;
+    class frontend_src_app_globals_814fca60 function;
+    class ref_next_a0ec2ea0 function;
+    class frontend_src_app_page_885214ff ui;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>GET()</code><br><small style="color:var(--muted)">app/health/route.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>GET() node in app/health/route.ts.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>RootLayout()</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>DemoAccessGate()</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small></td>
+  <td>RootLayout() node in src/app/layout.tsx.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>RootLoginRedirectPage()</code><br><small style="color:var(--muted)">app/login/page.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Organizes documentation pages, navigation, or content lookup.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>RootRedirectPage()</code><br><small style="color:var(--muted)">src/app/page.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Organizes documentation pages, navigation, or content lookup.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>RootPrivacyPolicyRedirectPage()</code><br><small style="color:var(--muted)">app/privacy-policy/page.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Organizes documentation pages, navigation, or content lookup.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>DemoAccessGate()</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>layout.tsx</code><br><small style="color:var(--muted)">src/app/layout.tsx</small><br><code>RootLayout()</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>DemoAccessGate() node in src/components/DemoAccessGate.tsx.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>handleUnlock()</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>handleUnlock() node in src/components/DemoAccessGate.tsx.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>middleware()</code><br><small style="color:var(--muted)">frontend/src/middleware.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>middleware() node in frontend/src/middleware.ts.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>health/route.ts</code><br><small style="color:var(--muted)">app/health/route.ts</small></td>
+  <td><span class="tag tag-endpoint">API</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
+  <td>Module file in app/health/route.ts.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>dynamic</code><br><small style="color:var(--muted)">app/health/route.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>dynamic node in app/health/route.ts.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>layout.tsx</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>DemoAccessGate()</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small><br><code>DemoAccessGate.tsx</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small><br><code>frontend_src_app_globals</code><br>+1 more</td>
+  <td>Module file in src/app/layout.tsx.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>metadata</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>metadata node in src/app/layout.tsx.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>app/login/page.tsx</code><br><small style="color:var(--muted)">app/login/page.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
+  <td>Module file in app/login/page.tsx.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>app/page.tsx</code><br><small style="color:var(--muted)">src/app/page.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
+  <td>Module file in src/app/page.tsx.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>app/privacy-policy/page.tsx</code><br><small style="color:var(--muted)">app/privacy-policy/page.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
+  <td>Module file in app/privacy-policy/page.tsx.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>DemoAccessGate.tsx</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small></td>
+  <td><span class="tag tag-hook">UI</span></td>
+  <td><code>layout.tsx</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
+  <td><code>lucide-react</code><br><small style="color:var(--muted)">frontend/package.json</small><br><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small><br><code>react</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
+  <td>Module file in src/components/DemoAccessGate.tsx.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>middleware.ts</code><br><small style="color:var(--muted)">frontend/src/middleware.ts</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
+  <td>Module file in frontend/src/middleware.ts.</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>config</code><br><small style="color:var(--muted)">frontend/src/middleware.ts</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Reads, resolves, or persists project configuration.</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>CUSTOM_DOMAIN_MAP</code><br><small style="color:var(--muted)">frontend/src/middleware.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>CUSTOM_DOMAIN_MAP node in frontend/src/middleware.ts.</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td><code>RESERVED_SEGMENTS</code><br><small style="color:var(--muted)">frontend/src/middleware.ts</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>RESERVED_SEGMENTS node in frontend/src/middleware.ts.</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>DemoAccessGate.tsx</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small><br><code>layout.tsx</code><br><small style="color:var(--muted)">src/app/layout.tsx</small><br><code>middleware.ts</code><br><small style="color:var(--muted)">frontend/src/middleware.ts</small><br>+13 more</td>
+  <td>No direct outbound edge</td>
+  <td>next node in frontend/package.json.</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td><code>frontend_src_app_globals</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>layout.tsx</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
+  <td>No direct outbound edge</td>
+  <td>frontend_src_app_globals node in project.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>frontend/src/middleware.ts</code></td><td>5 nodes</td></tr>
+<tr><td><code>app/health/route.ts</code></td><td>3 nodes</td></tr>
+<tr><td><code>src/app/layout.tsx</code></td><td>3 nodes</td></tr>
+<tr><td><code>src/components/DemoAccessGate.tsx</code></td><td>3 nodes</td></tr>
+<tr><td><code>app/login/page.tsx</code></td><td>2 nodes</td></tr>
+<tr><td><code>src/app/page.tsx</code></td><td>2 nodes</td></tr>
+<tr><td><code>app/privacy-policy/page.tsx</code></td><td>2 nodes</td></tr>
+<tr><td><code>frontend/package.json</code></td><td>1 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x13, imports x9, calls x1, imports x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 9. Docs Prdmd Desa ====== -->
+<h2 id="docs-prdmd-desa">9. Docs Prdmd Desa</h2>
 <p>Docs Prdmd Desa groups implementation around docs, prdmd, desa, sistem, mostly in docs/PRD.md. This section covers 19 nodes and 18 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
@@ -2171,250 +2460,6 @@ flowchart LR
   <div class="card">
     <h4>Design Notes</h4>
     <p>This section comes from graphify community clustering. Relationship summary: contains x18. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
-  </div>
-</div>
-<hr>
-
-<!-- ====== 9. Frontend App Pagetsx ====== -->
-<h2 id="frontend-app-pagetsx">9. Frontend App Pagetsx</h2>
-<p>Frontend App Pagetsx groups implementation around frontend, app, pagetsx, health, mostly in app/health/route.ts, src/app/layout.tsx, src/components/DemoAccessGate.tsx. This section covers 17 nodes and 19 internal edges; the diagram shows only representative relationships to stay readable.</p>
-
-<div class="mermaid">
-%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
-flowchart LR
-    %% Section: Frontend App Pagetsx (17 nodes, 19 edges)
-    subgraph frontend_app_pagetsx_app_health_route_ts_212f9c7d["app/health/route.ts"]
-        frontend_src_app_health_route_26ee142a("route.ts")
-        frontend_src_app_health_route_get_c9eda906("GET()<br/><small>app/health/route.ts</small>")
-        frontend_src_app_health_route_dynamic_65d4deb5("dynamic<br/><small>app/health/route.ts</small>")
-    end
-    subgraph frontend_app_pagetsx_src_app_layout_tsx_82d57fdd["src/app/layout.tsx"]
-        frontend_src_app_layout_a3d70c3e("layout.tsx")
-        frontend_src_app_layout_rootlayout_2c4bed50("RootLayout()<br/><small>src/app/layout.tsx</small>")
-        frontend_src_app_layout_metadata_caa922ac("metadata<br/><small>src/app/layout.tsx</small>")
-    end
-    subgraph frontend_app_pagetsx_src_components_DemoAccessGa_91e9fa1f["src/components/DemoAccessGate.tsx"]
-        frontend_src_components_demoaccessgate_demoacces_b0f6c07f("DemoAccessGate()<br/><small>src/components/DemoAccessGate.tsx</small>")
-        frontend_src_components_demoaccessgate_a577b15c("DemoAccessGate.tsx")
-        frontend_src_components_demoaccessgate_demoacces_34ee3ed6("handleUnlock()<br/><small>src/components/DemoAccessGate.tsx</small>")
-    end
-    subgraph frontend_app_pagetsx_app_login_page_tsx_fcc83b51["app/login/page.tsx"]
-        frontend_src_app_login_page_72453a97("page.tsx")
-        frontend_src_app_login_page_rootloginredirectpag_ce04f680("RootLoginRedirectPage()<br/><small>app/login/page.tsx</small>")
-    end
-    subgraph frontend_app_pagetsx_app_privacy_policy_page_tsx_75361333["app/privacy-policy/page.tsx"]
-        frontend_src_app_privacy_policy_page_c3fcbbb4("page.tsx")
-        frontend_src_app_privacy_policy_page_rootprivacy_bdeb9b86("RootPrivacyPolicyRedirectPage()<br/><small>app/privacy-policy/page.tsx</small>")
-    end
-    subgraph frontend_app_pagetsx_src_app_page_tsx_90cd6404["src/app/page.tsx"]
-        frontend_src_app_page_885214ff("page.tsx")
-        frontend_src_app_page_rootredirectpage_e1e50987("RootRedirectPage()<br/><small>src/app/page.tsx</small>")
-    end
-    frontend_src_app_globals_814fca60("frontend_src_app_globals")
-    ref_next_a0ec2ea0("next<br/><small>frontend/package.json</small>")
-    frontend_src_app_layout_rootlayout_2c4bed50 -->|calls| frontend_src_components_demoaccessgate_demoacces_b0f6c07f
-    frontend_src_app_health_route_26ee142a -->|imports| ref_next_a0ec2ea0
-    frontend_src_app_layout_a3d70c3e -->|imports| frontend_src_components_demoaccessgate_demoacces_b0f6c07f
-    frontend_src_app_layout_a3d70c3e -->|imports| ref_next_a0ec2ea0
-    frontend_src_app_layout_a3d70c3e -->|imports| frontend_src_app_globals_814fca60
-    frontend_src_app_layout_a3d70c3e -->|imports| frontend_src_components_demoaccessgate_a577b15c
-    frontend_src_app_login_page_72453a97 -->|imports| ref_next_a0ec2ea0
-    frontend_src_app_page_885214ff -->|imports| ref_next_a0ec2ea0
-    frontend_src_app_privacy_policy_page_c3fcbbb4 -->|imports| ref_next_a0ec2ea0
-    frontend_src_components_demoaccessgate_a577b15c -->|imports| ref_next_a0ec2ea0
-    class frontend_src_app_health_route_26ee142a api;
-    class frontend_src_app_health_route_get_c9eda906 function;
-    class frontend_src_app_health_route_dynamic_65d4deb5 function;
-    class frontend_src_app_layout_a3d70c3e ui;
-    class frontend_src_app_layout_rootlayout_2c4bed50 ui;
-    class frontend_src_app_layout_metadata_caa922ac ui;
-    class frontend_src_components_demoaccessgate_demoacces_b0f6c07f ui;
-    class frontend_src_components_demoaccessgate_a577b15c ui;
-    class frontend_src_components_demoaccessgate_demoacces_34ee3ed6 ui;
-    class frontend_src_app_login_page_72453a97 ui;
-    class frontend_src_app_login_page_rootloginredirectpag_ce04f680 ui;
-    class frontend_src_app_privacy_policy_page_c3fcbbb4 ui;
-    class frontend_src_app_privacy_policy_page_rootprivacy_bdeb9b86 ui;
-    class frontend_src_app_page_885214ff ui;
-    class frontend_src_app_page_rootredirectpage_e1e50987 ui;
-    class frontend_src_app_globals_814fca60 function;
-    class ref_next_a0ec2ea0 function;
-    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
-    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
-    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
-    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
-    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
-    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
-    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
-    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
-    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
-</div>
-
-<h3>Call Details</h3>
-<table class="call-table">
-<tr>
-  <th style="width:5%">#</th>
-  <th style="width:28%">Node</th>
-  <th style="width:10%">Type</th>
-  <th style="width:17%">Caller</th>
-  <th style="width:20%">Callees</th>
-  <th style="width:20%">Description</th>
-</tr>
-<tr>
-  <td>1</td>
-  <td><code>GET()</code><br><small style="color:var(--muted)">app/health/route.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>GET() node in app/health/route.ts.</td>
-</tr>
-<tr>
-  <td>2</td>
-  <td><code>RootLayout()</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>DemoAccessGate()</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small></td>
-  <td>RootLayout() node in src/app/layout.tsx.</td>
-</tr>
-<tr>
-  <td>3</td>
-  <td><code>RootLoginRedirectPage()</code><br><small style="color:var(--muted)">app/login/page.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Organizes documentation pages, navigation, or content lookup.</td>
-</tr>
-<tr>
-  <td>4</td>
-  <td><code>RootRedirectPage()</code><br><small style="color:var(--muted)">src/app/page.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Organizes documentation pages, navigation, or content lookup.</td>
-</tr>
-<tr>
-  <td>5</td>
-  <td><code>RootPrivacyPolicyRedirectPage()</code><br><small style="color:var(--muted)">app/privacy-policy/page.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>Organizes documentation pages, navigation, or content lookup.</td>
-</tr>
-<tr>
-  <td>6</td>
-  <td><code>DemoAccessGate()</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td><code>layout.tsx</code><br><small style="color:var(--muted)">src/app/layout.tsx</small><br><code>RootLayout()</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
-  <td>No direct outbound edge</td>
-  <td>DemoAccessGate() node in src/components/DemoAccessGate.tsx.</td>
-</tr>
-<tr>
-  <td>7</td>
-  <td><code>handleUnlock()</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>handleUnlock() node in src/components/DemoAccessGate.tsx.</td>
-</tr>
-<tr>
-  <td>8</td>
-  <td><code>health/route.ts</code><br><small style="color:var(--muted)">app/health/route.ts</small></td>
-  <td><span class="tag tag-endpoint">API</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
-  <td>Module file in app/health/route.ts.</td>
-</tr>
-<tr>
-  <td>9</td>
-  <td><code>dynamic</code><br><small style="color:var(--muted)">app/health/route.ts</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>dynamic node in app/health/route.ts.</td>
-</tr>
-<tr>
-  <td>10</td>
-  <td><code>layout.tsx</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>DemoAccessGate()</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small><br><code>DemoAccessGate.tsx</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small><br><code>frontend_src_app_globals</code><br>+1 more</td>
-  <td>Module file in src/app/layout.tsx.</td>
-</tr>
-<tr>
-  <td>11</td>
-  <td><code>metadata</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td>External entry / no inbound edge</td>
-  <td>No direct outbound edge</td>
-  <td>metadata node in src/app/layout.tsx.</td>
-</tr>
-<tr>
-  <td>12</td>
-  <td><code>app/login/page.tsx</code><br><small style="color:var(--muted)">app/login/page.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
-  <td>Module file in app/login/page.tsx.</td>
-</tr>
-<tr>
-  <td>13</td>
-  <td><code>app/page.tsx</code><br><small style="color:var(--muted)">src/app/page.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
-  <td>Module file in src/app/page.tsx.</td>
-</tr>
-<tr>
-  <td>14</td>
-  <td><code>app/privacy-policy/page.tsx</code><br><small style="color:var(--muted)">app/privacy-policy/page.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td>External entry / no inbound edge</td>
-  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
-  <td>Module file in app/privacy-policy/page.tsx.</td>
-</tr>
-<tr>
-  <td>15</td>
-  <td><code>DemoAccessGate.tsx</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small></td>
-  <td><span class="tag tag-hook">UI</span></td>
-  <td><code>layout.tsx</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
-  <td><code>lucide-react</code><br><small style="color:var(--muted)">frontend/package.json</small><br><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small><br><code>react</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
-  <td>Module file in src/components/DemoAccessGate.tsx.</td>
-</tr>
-<tr>
-  <td>16</td>
-  <td><code>next</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td><code>DemoAccessGate.tsx</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small><br><code>layout.tsx</code><br><small style="color:var(--muted)">src/app/layout.tsx</small><br><code>middleware.ts</code><br><small style="color:var(--muted)">frontend/src/middleware.ts</small><br>+13 more</td>
-  <td>No direct outbound edge</td>
-  <td>next node in frontend/package.json.</td>
-</tr>
-<tr>
-  <td>17</td>
-  <td><code>frontend_src_app_globals</code><br><small style="color:var(--muted)"></small></td>
-  <td><span class="tag tag-func">Function</span></td>
-  <td><code>layout.tsx</code><br><small style="color:var(--muted)">src/app/layout.tsx</small></td>
-  <td>No direct outbound edge</td>
-  <td>frontend_src_app_globals node in project.</td>
-</tr>
-</table>
-
-<div class="grid">
-  <div class="card">
-    <h4>Key Files</h4>
-    <table style="width:100%;font-size:0.85rem;">
-      <tr><th>File</th><th>Coverage</th></tr>
-      <tr><td><code>app/health/route.ts</code></td><td>3 nodes</td></tr>
-<tr><td><code>src/app/layout.tsx</code></td><td>3 nodes</td></tr>
-<tr><td><code>src/components/DemoAccessGate.tsx</code></td><td>3 nodes</td></tr>
-<tr><td><code>app/login/page.tsx</code></td><td>2 nodes</td></tr>
-<tr><td><code>src/app/page.tsx</code></td><td>2 nodes</td></tr>
-<tr><td><code>app/privacy-policy/page.tsx</code></td><td>2 nodes</td></tr>
-<tr><td><code>frontend/package.json</code></td><td>1 nodes</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x9, imports x8, calls x1, imports x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -2791,7 +2836,7 @@ flowchart LR
   <td>11</td>
   <td><code>ringdikit-data.ts</code><br><small style="color:var(--muted)">src/lib/ringdikit-data.ts</small></td>
   <td><span class="tag tag-class">Module</span></td>
-  <td><code>HeroCarousel.tsx</code><br><small style="color:var(--muted)">src/components/HeroCarousel.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">[villageSlug]/privacy-policy/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br>+3 more</td>
+  <td><code>HeroCarousel.tsx</code><br><small style="color:var(--muted)">src/components/HeroCarousel.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">[villageSlug]/privacy-policy/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+3 more</td>
   <td>No direct outbound edge</td>
   <td>Module file in src/lib/ringdikit-data.ts.</td>
 </tr>
@@ -2950,7 +2995,7 @@ flowchart LR
   <td>5</td>
   <td><code>MultiSegmentDonut()</code><br><small style="color:var(--muted)">src/components/SmoothCharts.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
-  <td><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br><code>VillageTenantPortalPage()</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+1 more</td>
+  <td><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br><code>VillageTenantPortalPage()</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+1 more</td>
   <td>No direct outbound edge</td>
   <td>MultiSegmentDonut() node in src/components/SmoothCharts.tsx.</td>
 </tr>
@@ -2958,7 +3003,7 @@ flowchart LR
   <td>6</td>
   <td><code>PastelBarChart()</code><br><small style="color:var(--muted)">src/components/SmoothCharts.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
-  <td><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br><code>VillageTenantPortalPage()</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+1 more</td>
+  <td><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br><code>VillageTenantPortalPage()</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+1 more</td>
   <td><code>TrendPill()</code><br><small style="color:var(--muted)">src/components/SmoothCharts.tsx</small></td>
   <td>PastelBarChart() node in src/components/SmoothCharts.tsx.</td>
 </tr>
@@ -2966,7 +3011,7 @@ flowchart LR
   <td>7</td>
   <td><code>SmoothHoneyAreaChart()</code><br><small style="color:var(--muted)">src/components/SmoothCharts.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
-  <td><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br><code>VillageTenantPortalPage()</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+1 more</td>
+  <td><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br><code>VillageTenantPortalPage()</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+1 more</td>
   <td><code>TrendPill()</code><br><small style="color:var(--muted)">src/components/SmoothCharts.tsx</small></td>
   <td>SmoothHoneyAreaChart() node in src/components/SmoothCharts.tsx.</td>
 </tr>
@@ -2982,7 +3027,7 @@ flowchart LR
   <td>9</td>
   <td><code>SmoothVioletSparkline()</code><br><small style="color:var(--muted)">src/components/SmoothCharts.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
-  <td><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br><code>VillageTenantPortalPage()</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+1 more</td>
+  <td><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br><code>VillageTenantPortalPage()</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+1 more</td>
   <td><code>TrendPill()</code><br><small style="color:var(--muted)">src/components/SmoothCharts.tsx</small></td>
   <td>SmoothVioletSparkline() node in src/components/SmoothCharts.tsx.</td>
 </tr>
@@ -3014,7 +3059,7 @@ flowchart LR
   <td>13</td>
   <td><code>SmoothCharts.tsx</code><br><small style="color:var(--muted)">src/components/SmoothCharts.tsx</small></td>
   <td><span class="tag tag-hook">UI</span></td>
-  <td><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small></td>
+  <td><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small></td>
   <td><code>react</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
   <td>Module file in src/components/SmoothCharts.tsx.</td>
 </tr>
@@ -3039,12 +3084,12 @@ flowchart LR
 
 <!-- ====== 13. Frontend Villageslug Privacy ====== -->
 <h2 id="frontend-villageslug-privacy">13. Frontend Villageslug Privacy</h2>
-<p>Frontend Villageslug Privacy groups implementation around frontend, villageslug, privacy, policy, mostly in [villageSlug]/privacy-policy/page.tsx, src/components/HeroCarousel.tsx, src/lib/ringdikit-data.ts. This section covers 10 nodes and 10 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Frontend Villageslug Privacy groups implementation around frontend, villageslug, privacy, policy, mostly in [villageSlug]/privacy-policy/page.tsx, src/components/HeroCarousel.tsx, src/lib/ringdikit-data.ts. This section covers 11 nodes and 11 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Frontend Villageslug Privacy (10 nodes, 10 edges)
+    %% Section: Frontend Villageslug Privacy (11 nodes, 11 edges)
     subgraph frontend_villageslug_privacy_villageSlug_privacy_6db75e3c["[villageSlug]/privacy-policy/page.tsx"]
         frontend_src_app_villageslug_privacy_policy_page_3c3f0daa("page.tsx")
         frontend_src_app_villageslug_privacy_policy_page_e255bf72("PrivacyPolicyPage()<br/><small>[villageSlug]/privacy-policy/page.tsx</small>")
@@ -3058,10 +3103,12 @@ flowchart LR
         frontend_src_components_herocarousel_slides_7c34d362("SLIDES<br/><small>src/components/HeroCarousel.tsx</small>")
         frontend_src_components_herocarousel_slide_6b43d397("Slide<br/><small>src/components/HeroCarousel.tsx</small>")
     end
+    ref_react_47bfb9fb("react<br/><small>frontend/package.json</small>")
     frontend_src_lib_ringdikit_data_ringdikit_overvi_137c273e("RINGDIKIT_OVERVIEW<br/><small>src/lib/ringdikit-data.ts</small>")
     frontend_src_app_villageslug_privacy_policy_page_e255bf72 -->|calls| frontend_src_app_villageslug_privacy_policy_page_c756babf
     frontend_src_app_villageslug_privacy_policy_page_3c3f0daa -->|imports| frontend_src_lib_ringdikit_data_ringdikit_overvi_137c273e
     frontend_src_components_herocarousel_a47e3c43 -->|imports| frontend_src_lib_ringdikit_data_ringdikit_overvi_137c273e
+    frontend_src_components_herocarousel_a47e3c43 -->|imports| ref_react_47bfb9fb
     class frontend_src_app_villageslug_privacy_policy_page_3c3f0daa ui;
     class frontend_src_app_villageslug_privacy_policy_page_e255bf72 ui;
     class frontend_src_app_villageslug_privacy_policy_page_c756babf ui;
@@ -3071,6 +3118,7 @@ flowchart LR
     class frontend_src_components_herocarousel_a47e3c43 ui;
     class frontend_src_components_herocarousel_slides_7c34d362 ui;
     class frontend_src_components_herocarousel_slide_6b43d397 ui;
+    class ref_react_47bfb9fb function;
     class frontend_src_lib_ringdikit_data_ringdikit_overvi_137c273e klass;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
@@ -3169,9 +3217,17 @@ flowchart LR
   <td>10</td>
   <td><code>RINGDIKIT_OVERVIEW</code><br><small style="color:var(--muted)">src/lib/ringdikit-data.ts</small></td>
   <td><span class="tag tag-class">Class</span></td>
-  <td><code>HeroCarousel.tsx</code><br><small style="color:var(--muted)">src/components/HeroCarousel.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/panel/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+1 more</td>
+  <td><code>HeroCarousel.tsx</code><br><small style="color:var(--muted)">src/components/HeroCarousel.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">[villageSlug]/privacy-policy/page.tsx</small><br><code>page.tsx</code><br><small style="color:var(--muted)">app/[villageSlug]/page.tsx</small><br>+1 more</td>
   <td>No direct outbound edge</td>
   <td>RINGDIKIT_OVERVIEW node in src/lib/ringdikit-data.ts.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>react</code><br><small style="color:var(--muted)">frontend/package.json</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>DemoAccessGate.tsx</code><br><small style="color:var(--muted)">src/components/DemoAccessGate.tsx</small><br><code>HeroCarousel.tsx</code><br><small style="color:var(--muted)">src/components/HeroCarousel.tsx</small><br><code>KepalaDusunWorkspace.tsx</code><br><small style="color:var(--muted)">src/components/KepalaDusunWorkspace.tsx</small><br>+11 more</td>
+  <td>No direct outbound edge</td>
+  <td>react node in frontend/package.json.</td>
 </tr>
 </table>
 
@@ -3182,12 +3238,13 @@ flowchart LR
       <tr><th>File</th><th>Coverage</th></tr>
       <tr><td><code>[villageSlug]/privacy-policy/page.tsx</code></td><td>6 nodes</td></tr>
 <tr><td><code>src/components/HeroCarousel.tsx</code></td><td>3 nodes</td></tr>
+<tr><td><code>frontend/package.json</code></td><td>1 nodes</td></tr>
 <tr><td><code>src/lib/ringdikit-data.ts</code></td><td>1 nodes</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x7, imports x2, calls x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x7, imports x2, calls x1, imports x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -3460,68 +3517,59 @@ flowchart LR
 
 <!-- ====== 16. Other ====== -->
 <h2 id="other">16. Other</h2>
-<p>Other groups implementation around docs, features, frontend, readmemd, mostly in docs/features/FEATURE_TEMPLATE.md, docs/features/F01-multi-tenant-portal.md, docs/features/F02-kependudukan-mutasi.md. This section covers 91 nodes and 74 internal edges; the diagram shows only representative relationships to stay readable.</p>
+<p>Other groups implementation around docs, features, readmemd, desa, mostly in docs/features/FEATURE_TEMPLATE.md, docs/features/F01-multi-tenant-portal.md, docs/features/F02-kependudukan-mutasi.md. This section covers 81 nodes and 63 internal edges; the diagram shows only representative relationships to stay readable.</p>
 
 <div class="mermaid">
 %%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
 flowchart LR
-    %% Section: Other (91 nodes, 74 edges)
-    subgraph other_villageSlug_login_page_tsx_e5f8d506["[villageSlug]/login/page.tsx"]
-        frontend_src_app_villageslug_login_page_efe34916("page.tsx")
-        frontend_src_app_villageslug_login_page_tenantlo_be7c6d95("TenantLoginPage()<br/><small>[villageSlug]/login/page.tsx</small>")
-        frontend_src_app_villageslug_login_page_tenantlo_93cb8723("handleSubmit()<br/><small>[villageSlug]/login/page.tsx</small>")
+    %% Section: Other (81 nodes, 63 edges)
+    subgraph other_verify_token_page_tsx_5fc85357["verify/[token]/page.tsx"]
+        frontend_src_app_verify_token_page_4ceefdb7("page.tsx")
+        frontend_src_app_villageslug_verify_token_page_ace8cb4c("page.tsx")
+        frontend_src_app_villageslug_verify_token_page_t_9e801a8f("TenantVerifyLetterQRPage()<br/><small>verify/[token]/page.tsx</small>")
+        frontend_src_app_villageslug_verify_token_page_t_127fe732("TenantVerifyPageProps<br/><small>verify/[token]/page.tsx</small>")
+        frontend_src_app_verify_token_page_verifyletterq_7b4f5718("VerifyLetterQRPage()<br/><small>verify/[token]/page.tsx</small>")
+        frontend_src_app_verify_token_page_verifypagepro_2f957d44("VerifyPageProps<br/><small>verify/[token]/page.tsx</small>")
+    end
+    subgraph other_README_md_c5f956df["README.md"]
+        readme_1_frontend_web_next_js_af597c98("1. Frontend Web (Next.js)<br/><small>README.md</small>")
+        readme_2_database_backend_api_golang_postgresql_e7cb8095("2. Database &amp; Backend API (Golang + Po...<br/><small>README.md</small>")
     end
     subgraph other_frontend_next_config_mjs_421541c9["frontend/next.config.mjs"]
         frontend_next_config_b427fa41("next.config.mjs")
         frontend_next_config_nextconfig_e3f7ac6f("nextConfig<br/><small>frontend/next.config.mjs</small>")
     end
-    subgraph other_frontend_package_json_442ff2cb["frontend/package.json"]
-        ref_react_47bfb9fb("react<br/><small>frontend/package.json</small>")
-        ref_lucide_react_d9b8ec11("lucide-react<br/><small>frontend/package.json</small>")
-    end
     subgraph other_frontend_postcss_config_mjs_85c9ead1["frontend/postcss.config.mjs"]
         frontend_postcss_config_config_a9fa6735("config<br/><small>frontend/postcss.config.mjs</small>")
         frontend_postcss_config_21b874e7("postcss.config.mjs")
-    end
-    subgraph other_frontend_src_middleware_ts_73cc03f0["frontend/src/middleware.ts"]
-        frontend_src_middleware_custom_domain_map_1c832e08("CUSTOM_DOMAIN_MAP<br/><small>frontend/src/middleware.ts</small>")
-        frontend_src_middleware_reserved_segments_f77979df("RESERVED_SEGMENTS<br/><small>frontend/src/middleware.ts</small>")
-    end
-    subgraph other_verify_token_page_tsx_5fc85357["verify/[token]/page.tsx"]
-        frontend_src_app_verify_token_page_4ceefdb7("page.tsx")
-        frontend_src_app_villageslug_verify_token_page_ace8cb4c("page.tsx")
     end
     pkg_github_com_rey1024_sideci_backend_166ec453("github.com/rey1024/sideci/backend<br/><small>backend/go.mod</small>")
     backend_migrations_000002_seed_desa_ringdikit_do_85169586("seed desa ringdikit.down.sql<br/><small>backend/migrations/000002_seed_desa_ringdikit.down.sql</small>")
     backend_migrations_000002_seed_desa_ringdikit_up_146432c6("seed desa ringdikit.up.sql<br/><small>backend/migrations/000002_seed_desa_ringdikit.up.sql</small>")
     backend_migrations_000003_add_kiosk_rfid_and_gue_f01a1072("rfid and guestbook.down.sql<br/><small>backend/migrations/000003_add_kiosk_rfid_and_guestbook.down.sql</small>")
-    frontend_src_lib_api_login_249557f7("login()<br/><small>src/lib/api.ts</small>")
-    frontend_src_app_villageslug_login_page_tenantlo_be7c6d95 -->|calls| frontend_src_lib_api_login_249557f7
-    frontend_src_app_villageslug_login_page_tenantlo_93cb8723 -->|calls| frontend_src_lib_api_login_249557f7
-    frontend_src_app_villageslug_login_page_efe34916 -->|imports| frontend_src_lib_api_login_249557f7
-    frontend_src_app_villageslug_login_page_efe34916 -->|imports| ref_react_47bfb9fb
-    frontend_src_app_villageslug_login_page_efe34916 -->|imports| ref_lucide_react_d9b8ec11
+    ref_lucide_react_d9b8ec11("lucide-react<br/><small>frontend/package.json</small>")
+    next_edee9402("next")
     frontend_src_app_verify_token_page_4ceefdb7 -->|imports| ref_lucide_react_d9b8ec11
     frontend_src_app_villageslug_verify_token_page_ace8cb4c -->|imports| ref_lucide_react_d9b8ec11
-    %% Omitted for readability: 73 nodes, 0 edges
-    class frontend_src_app_villageslug_login_page_efe34916 ui;
-    class frontend_src_app_villageslug_login_page_tenantlo_be7c6d95 ui;
-    class frontend_src_app_villageslug_login_page_tenantlo_93cb8723 ui;
-    class frontend_next_config_b427fa41 function;
-    class frontend_next_config_nextconfig_e3f7ac6f function;
-    class ref_react_47bfb9fb function;
-    class ref_lucide_react_d9b8ec11 function;
-    class frontend_postcss_config_config_a9fa6735 function;
-    class frontend_postcss_config_21b874e7 function;
-    class frontend_src_middleware_custom_domain_map_1c832e08 klass;
-    class frontend_src_middleware_reserved_segments_f77979df klass;
+    %% Omitted for readability: 63 nodes, 0 edges
     class frontend_src_app_verify_token_page_4ceefdb7 ui;
     class frontend_src_app_villageslug_verify_token_page_ace8cb4c ui;
+    class frontend_src_app_villageslug_verify_token_page_t_9e801a8f ui;
+    class frontend_src_app_villageslug_verify_token_page_t_127fe732 ui;
+    class frontend_src_app_verify_token_page_verifyletterq_7b4f5718 ui;
+    class frontend_src_app_verify_token_page_verifypagepro_2f957d44 ui;
+    class readme_1_frontend_web_next_js_af597c98 concept;
+    class readme_2_database_backend_api_golang_postgresql_e7cb8095 concept;
+    class frontend_next_config_b427fa41 function;
+    class frontend_next_config_nextconfig_e3f7ac6f function;
+    class frontend_postcss_config_config_a9fa6735 function;
+    class frontend_postcss_config_21b874e7 function;
     class pkg_github_com_rey1024_sideci_backend_166ec453 module;
     class backend_migrations_000002_seed_desa_ringdikit_do_85169586 function;
     class backend_migrations_000002_seed_desa_ringdikit_up_146432c6 function;
     class backend_migrations_000003_add_kiosk_rfid_and_gue_f01a1072 function;
-    class frontend_src_lib_api_login_249557f7 function;
+    class ref_lucide_react_d9b8ec11 function;
+    class next_edee9402 module;
     classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
     classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
     classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
@@ -3802,7 +3850,7 @@ flowchart LR
   </div>
   <div class="card">
     <h4>Design Notes</h4>
-    <p>This section comes from graphify community clustering. Relationship summary: contains x66, imports x4, calls x2, imports x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x60, imports x2, dynamic import x1. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
   </div>
 </div>
 <hr>
@@ -3813,17 +3861,17 @@ flowchart LR
   <div class="card">
     <h4>Graph</h4>
     <table style="width:100%;font-size:0.85rem;">
-      <tr><td>Nodes</td><td>784</td></tr>
-      <tr><td>Edges</td><td>1835</td></tr>
+      <tr><td>Nodes</td><td>785</td></tr>
+      <tr><td>Edges</td><td>1836</td></tr>
       <tr><td>Hyperedges</td><td>0</td></tr>
-      <tr><td>Communities</td><td>57</td></tr>
+      <tr><td>Communities</td><td>55</td></tr>
       <tr><td>Documented Sections</td><td>15</td></tr>
     </table>
   </div>
   <div class="card">
     <h4>Edge Confidence</h4>
     <table style="width:100%;font-size:0.85rem;">
-      <tr><td>EXTRACTED</td><td>1744</td></tr>
+      <tr><td>EXTRACTED</td><td>1745</td></tr>
       <tr><td>INFERRED</td><td>91</td></tr>
       <tr><td>AMBIGUOUS</td><td>0</td></tr>
     </table>
@@ -3832,7 +3880,7 @@ flowchart LR
 
 <div style="text-align:center; padding:40px 0; color: var(--muted); font-size:0.9rem;">
   <p>sideci — Architecture Documentation</p>
-  <p>Generated: 2026-11-19 15:16 UTC · graphify callflow-html</p>
+  <p>Generated: 2026-11-19 15:25 UTC · graphify callflow-html</p>
 </div>
 
 </div><!-- .container -->

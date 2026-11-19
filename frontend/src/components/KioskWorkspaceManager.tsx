@@ -3,33 +3,25 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
+  ArrowRight,
   BookOpen,
-  Building2,
   CheckCircle2,
   CreditCard,
   Download,
   Edit3,
   FileSpreadsheet,
   FileText,
-  KeyRound,
   Link2,
   Maximize2,
   Minimize2,
   Nfc,
-  Phone,
-  Plus,
   Printer,
-  QrCode,
   Radio,
-  RefreshCw,
   Search,
   Settings,
   Sparkles,
-  Trash2,
   Unlink,
   UserCheck,
-  UserPlus,
-  Users,
 } from "lucide-react";
 import {
   ApiGuestbookEntry,
@@ -49,89 +41,85 @@ import ResidentAutocomplete from "@/components/ResidentAutocomplete";
 
 type KioskAdminTab = "kiosk_screen" | "rfid_settings" | "guestbook_log";
 type KioskServiceMode = "home" | "letter" | "guestbook";
+type LetterWizardStep = "pick_type" | "identify" | "confirm";
 type GuestbookIdMethod = "RFID" | "NIK" | "MANUAL";
 
 interface KioskTemplateOption {
   code: string;
   title: string;
-  subtitle: string;
+  shortTag: string;
   classCode: string;
-  accent: string;
-  bgSoft: string;
+  accentBg: string;
+  accentText: string;
 }
 
 const KIOSK_LETTER_OPTIONS: KioskTemplateOption[] = [
   {
     code: "SK_UMUM",
-    title: "1. Surat Keterangan Umum",
-    subtitle:
-      "Keterangan domisili, pengantar bank, sekolah, usaha, & administrasi umum",
+    title: "Surat Keterangan Umum",
+    shortTag: "Domisili • Pengantar Bank • Usaha • Umum",
     classCode: "470",
-    accent: "text-[#6741D9]",
-    bgSoft: "bg-pastel-violetSoft",
+    accentBg: "bg-pastel-violetSoft",
+    accentText: "text-[#6741D9]",
   },
   {
     code: "SK_KELAHIRAN",
-    title: "2. Surat Keterangan Kelahiran",
-    subtitle:
-      "Keterangan kelahiran anak kandung beserta data Ibu & Ayah kandung",
+    title: "Surat Keterangan Kelahiran",
+    shortTag: "Kelahiran Anak • Data Ibu & Ayah",
     classCode: "472.11",
-    accent: "text-[#087F5B]",
-    bgSoft: "bg-pastel-mintSoft",
+    accentBg: "bg-pastel-mintSoft",
+    accentText: "text-[#087F5B]",
   },
   {
     code: "SK_KEMATIAN",
-    title: "3. Surat Keterangan Kematian",
-    subtitle:
-      "Keterangan kematian warga lengkap dengan data Pelapor & Almarhum/ah",
+    title: "Surat Keterangan Kematian",
+    shortTag: "Pelaporan Warga Wafat & Ahli Keluarga",
     classCode: "472.12",
-    accent: "text-[#D97706]",
-    bgSoft: "bg-pastel-honeySoft",
+    accentBg: "bg-pastel-honeySoft",
+    accentText: "text-[#D97706]",
   },
   {
     code: "SK_BEDA_NAMA",
-    title: "4. Surat Keterangan Beda Nama",
-    subtitle:
-      "Menerangkan perbedaan penulisan nama pada beberapa dokumen resmi",
+    title: "Surat Keterangan Beda Nama",
+    shortTag: "Perbedaan Ejaan Nama Antar Dokumen",
     classCode: "470",
-    accent: "text-[#1971C2]",
-    bgSoft: "bg-pastel-skySoft",
+    accentBg: "bg-pastel-skySoft",
+    accentText: "text-[#1971C2]",
   },
   {
     code: "SK_WARIS",
-    title: "5. Surat Keterangan Waris",
-    subtitle:
-      "Keterangan daftar ahli waris sah beserta data Pewaris yang telah wafat",
+    title: "Surat Keterangan Waris",
+    shortTag: "Keterangan Daftar Ahli Waris Keluarga",
     classCode: "474",
-    accent: "text-[#C92A2A]",
-    bgSoft: "bg-pastel-roseSoft",
+    accentBg: "bg-pastel-roseSoft",
+    accentText: "text-[#C92A2A]",
   },
 ];
 
 const TARGET_OFFICIAL_OPTIONS = [
-  "Perbekel Ringdikit (I Made Sumadi)",
-  "Sekretaris Desa Ringdikit",
-  "Loket Pelayanan & Persuratan Desa",
-  "Kasi Pemerintahan & Kependudukan",
+  "Perbekel Ringdikit",
+  "Sekretaris Desa",
+  "Loket Pelayanan Surat",
+  "Kasi Pemerintahan",
   "Kelian Banjar Dinas",
-  "BPD / Lembaga Kemasyarakatan Desa",
+  "BPD / Lembaga Desa",
 ];
 
 const PURPOSE_CATEGORY_OPTIONS = [
-  "Pelayanan Surat & Administrasi",
-  "Konsultasi / Audiensi Pimpinan",
-  "Pelaporan Mutasi Kependudukan",
-  "Kunjungan Dinas / Instansi / Kampus",
-  "Pengaduan & Aspirasi Masyarakat",
+  "Mengurus Surat Desa",
+  "Konsultasi Pimpinan",
+  "Lapor Data Penduduk",
+  "Kunjungan Dinas / Kampus",
+  "Aspirasi / Pengaduan",
   "Keperluan Lainnya",
 ];
 
 const QUICK_LETTER_PURPOSES = [
-  "Persyaratan Administrasi Bank",
-  "Persyaratan Pendaftaran Sekolah / Beasiswa",
-  "Kelengkapan Administrasi Usaha / UMKM",
-  "Pengurusan Dokumen Kependudukan (KTP / KK / Akta)",
-  "Keperluan Administrasi Keluarga / Adat",
+  "Administrasi Bank",
+  "Persyaratan Sekolah / Beasiswa",
+  "Administrasi Usaha / UMKM",
+  "Pengurusan KTP / KK / Akta",
+  "Keperluan Keluarga / Adat",
 ];
 
 function formatDateTimeID(iso?: string): string {
@@ -170,15 +158,56 @@ export default function KioskWorkspaceManager({
   const [adminTab, setAdminTab] = useState<KioskAdminTab>("kiosk_screen");
   const [fullScreenKiosk, setFullScreenKiosk] = useState(false);
 
-  // Jam digital live di Kiosk
+  // Sinkronisasi Fullscreen API Browser (agar benar-benar 100% layar penuh di Tablet)
+  const enterFullscreen = useCallback(async () => {
+    setFullScreenKiosk(true);
+    try {
+      if (
+        typeof document !== "undefined" &&
+        !document.fullscreenElement &&
+        document.documentElement.requestFullscreen
+      ) {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch {
+      /* tetap gunakan fixed inset-0 apabila browser membatasi requestFullscreen */
+    }
+  }, []);
+
+  const exitFullscreen = useCallback(async () => {
+    setFullScreenKiosk(false);
+    try {
+      if (
+        typeof document !== "undefined" &&
+        document.fullscreenElement &&
+        document.exitFullscreen
+      ) {
+        await document.exitFullscreen();
+      }
+    } catch {
+      /* abaikan */
+    }
+  }, []);
+
+  useEffect(() => {
+    const onFsChange = () => {
+      if (typeof document !== "undefined" && !document.fullscreenElement) {
+        // Biarkan tombol bisa mengontrol state secara konsisten
+      }
+    };
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
+  // Jam digital live di Kiosk Tablet
   const [clockStr, setClockStr] = useState<string>("");
   useEffect(() => {
     const updateClock = () => {
       setClockStr(
         new Date().toLocaleString("id-ID", {
-          weekday: "long",
+          weekday: "short",
           day: "2-digit",
-          month: "long",
+          month: "short",
           year: "numeric",
           hour: "2-digit",
           minute: "2-digit",
@@ -208,8 +237,9 @@ export default function KioskWorkspaceManager({
   const [guestbookMethodFilter, setGuestbookMethodFilter] = useState("");
   const [loadingGuestbook, setLoadingGuestbook] = useState(false);
 
-  // State Kiosk Interaktif
+  // State Kiosk Interaktif (Tablet-Friendly Wizard)
   const [serviceMode, setServiceMode] = useState<KioskServiceMode>("home");
+  const [letterStep, setLetterStep] = useState<LetterWizardStep>("pick_type");
   const [identifiedResident, setIdentifiedResident] =
     useState<ApiResidentItem | null>(null);
   const [identifiedMethod, setIdentifiedMethod] = useState<"RFID" | "NIK">(
@@ -224,19 +254,13 @@ export default function KioskWorkspaceManager({
   // State Alur 1: Persuratan Kiosk
   const [kioskLetterCode, setKioskLetterCode] = useState<string>("SK_UMUM");
   const [kioskIdTab, setKioskIdTab] = useState<"RFID" | "NIK">("RFID");
-  const [kioskLetterPurpose, setKioskLetterPurpose] = useState<string>(
-    "Persyaratan Administrasi Bank"
-  );
-  const [kioskLetterStatement, setKioskLetterStatement] = useState<string>(
-    "Sepengetahuan kami memang benar orang tersebut di atas adalah penduduk Desa Ringdikit Kecamatan Seririt Kabupaten Buleleng."
-  );
-  // Field tambahan untuk surat khusus di Kiosk
+  const [kioskLetterPurpose, setKioskLetterPurpose] =
+    useState<string>("Administrasi Bank");
   const [kioskChildName, setKioskChildName] = useState("");
   const [kioskChildOrder, setKioskChildOrder] = useState("1 (Satu)");
   const [kioskChildBirthPlace, setKioskChildBirthPlace] = useState(
     "Puskesmas Seririt I"
   );
-  const [kioskFatherName, setKioskFatherName] = useState("");
   const [kioskDeathDate, setKioskDeathDate] = useState(
     "Kamis, 19 November 2026"
   );
@@ -335,12 +359,15 @@ export default function KioskWorkspaceManager({
         ? `Warga Banjar Dinas ${res.dusun_name}`
         : "Warga Desa Ringdikit"
     );
+    if (serviceMode === "letter" && letterStep === "identify") {
+      setLetterStep("confirm");
+    }
   };
 
   const handleScanRFID = async (uidToScan?: string) => {
     const cleanUid = (uidToScan ?? rfidInput).trim().toUpperCase();
     if (!cleanUid) {
-      setLookupError("Tempelkan KTP-el pada alat pembaca RFID terlebih dahulu.");
+      setLookupError("Tempelkan KTP-el pada alat scan RFID terlebih dahulu.");
       return;
     }
     setRfidInput(cleanUid);
@@ -351,7 +378,7 @@ export default function KioskWorkspaceManager({
     if (!res.ok || !res.data.resident) {
       setLookupError(
         res.data.error ||
-          `Kartu RFID (${cleanUid}) belum terdaftar. Silakan gunakan pencarian NIK atau isi manual.`
+          `Kartu RFID (${cleanUid}) belum terdaftar. Silakan gunakan pencarian NIK atau Isi Manual.`
       );
       return;
     }
@@ -361,7 +388,7 @@ export default function KioskWorkspaceManager({
   const handleLookupByNIK = async (nikToSearch?: string) => {
     const cleanNik = (nikToSearch ?? nikInput).replace(/\D/g, "").trim();
     if (cleanNik.length !== 16) {
-      setLookupError("Masukkan tepat 16 digit angka NIK KTP Anda.");
+      setLookupError("Masukkan tepat 16 angka NIK KTP Anda.");
       return;
     }
     setNikInput(cleanNik);
@@ -371,8 +398,7 @@ export default function KioskWorkspaceManager({
     setLookupLoading(false);
     if (!res.ok || !res.data.resident) {
       setLookupError(
-        res.data.error ||
-          `NIK ${cleanNik} tidak ditemukan di database penduduk Desa Ringdikit.`
+        res.data.error || `NIK ${cleanNik} tidak ditemukan di Desa Ringdikit.`
       );
       return;
     }
@@ -381,6 +407,7 @@ export default function KioskWorkspaceManager({
 
   const resetKioskSession = () => {
     setServiceMode("home");
+    setLetterStep("pick_type");
     setIdentifiedResident(null);
     setRfidInput("");
     setNikInput("");
@@ -400,9 +427,7 @@ export default function KioskWorkspaceManager({
   const handleKioskIssueLetter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifiedResident) {
-      setLookupError(
-        "Silakan scan KTP-el RFID atau cari NIK Anda terlebih dahulu."
-      );
+      setLookupError("Silakan scan KTP-el atau masukkan NIK terlebih dahulu.");
       return;
     }
     setSubmittingKioskLetter(true);
@@ -411,6 +436,9 @@ export default function KioskWorkspaceManager({
     const addr = r.dusun_name
       ? `BD. ${r.dusun_name} Desa Ringdikit`
       : "Desa Ringdikit";
+
+    const statementText =
+      "Sepengetahuan kami memang benar orang tersebut di atas adalah penduduk Desa Ringdikit Kecamatan Seririt Kabupaten Buleleng.";
 
     const dynamicPayload: Record<string, unknown> = {
       applicant_name: r.full_name,
@@ -422,8 +450,8 @@ export default function KioskWorkspaceManager({
       applicant_marital: (r.marital_status || "KAWIN").toUpperCase(),
       applicant_occupation: (r.occupation || "WIRASWASTA").toUpperCase(),
       applicant_address: addr,
-      statement_text: kioskLetterStatement,
-      extra_statement: kioskLetterStatement,
+      statement_text: statementText,
+      extra_statement: statementText,
       kiosk_identification_method: identifiedMethod,
       kiosk_rfid_uid: r.rfid_uid || "",
 
@@ -439,10 +467,7 @@ export default function KioskWorkspaceManager({
       mother_ttl: r.gender === "P" ? ttl : "-",
       mother_address: addr,
       father_nik: r.gender === "L" ? r.nik : "",
-      father_name:
-        r.gender === "L"
-          ? r.full_name
-          : kioskFatherName || r.father_name || "-",
+      father_name: r.gender === "L" ? r.full_name : r.father_name || "-",
       father_ttl: r.gender === "L" ? ttl : "-",
       father_address: addr,
 
@@ -511,7 +536,7 @@ export default function KioskWorkspaceManager({
     e.preventDefault();
     if (gbMethod !== "MANUAL" && !identifiedResident && !gbFullName.trim()) {
       setLookupError(
-        "Silakan scan RFID KTP-el, cari NIK Anda, atau pilih tab Isi Manual."
+        "Silakan scan RFID KTP-el, cari NIK, atau pilih Isi Manual."
       );
       return;
     }
@@ -552,7 +577,7 @@ export default function KioskWorkspaceManager({
     setSubmittingGuestbook(false);
 
     if (!res.ok || !res.data.entry) {
-      setLookupError(res.data.error || "Gagal menyimpan data buku tamu.");
+      setLookupError(res.data.error || "Gagal menyimpan buku tamu.");
       return;
     }
     setCompletedGuestbook(res.data.entry);
@@ -619,180 +644,100 @@ export default function KioskWorkspaceManager({
     setPairRfidUid(`04A2${hex}`);
   };
 
+  const activeLetterMeta =
+    KIOSK_LETTER_OPTIONS.find((o) => o.code === kioskLetterCode) ||
+    KIOSK_LETTER_OPTIONS[0];
+
   // ===========================================================================
-  // RENDER KOMPONEN LAYAR KIOSK UTAMA (BISA INLINE ATAU FULLSCREEN)
+  // RENDER TERMINAL KIOSK TABLET (100% MEMENUHI LAYAR SAAT FULLSCREEN)
   // ===========================================================================
   const renderKioskTerminal = () => (
     <div
       className={
         fullScreenKiosk
-          ? "fixed inset-0 z-50 bg-[#EEF2FA] overflow-y-auto p-4 sm:p-8 flex flex-col"
-          : "rounded-3xl bg-gradient-to-b from-[#162347] via-[#1B2B56] to-[#121D3B] text-white p-5 sm:p-7 shadow-xl border border-white/10 space-y-6"
+          ? "fixed inset-0 z-[100] w-screen h-screen overflow-y-auto bg-gradient-to-b from-[#132247] via-[#172955] to-[#0F1B38] text-white flex flex-col justify-between p-6 sm:p-10 select-none"
+          : "rounded-3xl bg-gradient-to-b from-[#132247] via-[#172955] to-[#0F1B38] text-white p-6 sm:p-8 shadow-xl border border-white/10 space-y-6"
       }
     >
-      <div
-        className={
-          fullScreenKiosk
-            ? "max-w-6xl w-full mx-auto rounded-3xl bg-gradient-to-b from-[#162347] via-[#1B2B56] to-[#121D3B] text-white p-6 sm:p-9 shadow-2xl border border-white/10 space-y-6 flex-1"
-            : "space-y-6"
-        }
-      >
-        {/* HEADER ANJUNGAN KIOSK */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-white/15">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-white p-1.5 shadow-md flex items-center justify-center shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/logo-buleleng.jpg"
-                alt="Logo Kabupaten Buleleng"
-                className="w-11 h-11 object-contain"
-              />
-            </div>
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 border border-emerald-400/30 px-3 py-0.5 text-[11px] font-semibold text-emerald-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                ANJUNGAN MANDIRI & RFID KTP-EL SIAP MELAYANI
-              </div>
-              <h2 className="font-display text-lg sm:text-2xl font-extrabold tracking-tight text-white mt-1">
-                Kiosk Pelayanan Mandiri & Buku Tamu — Desa Ringdikit
-              </h2>
-              <p className="text-xs text-slate-300">
-                Kecamatan Seririt • Kabupaten Buleleng • {clockStr}
-              </p>
-            </div>
+      {/* 1. HEADER TABLET KIOSK — BERSIH, TULISAN BESAR & JELAS */}
+      <div className="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-white/15">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-white p-2 shadow-lg flex items-center justify-center shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo-buleleng.jpg"
+              alt="Logo Kabupaten Buleleng"
+              className="w-12 h-12 object-contain"
+            />
           </div>
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 border border-emerald-400/35 px-3.5 py-1 text-xs sm:text-sm font-bold text-emerald-300">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+              ANJUNGAN LAYANAN MANDIRI • RFID KTP-EL AKTIF
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-1">
+              Pemerintah Desa Ringdikit
+            </h2>
+            <p className="text-sm sm:text-base text-slate-300 font-medium">
+              {clockStr}
+            </p>
+          </div>
+        </div>
 
-          <div className="flex items-center gap-2">
-            {serviceMode !== "home" && (
-              <button
-                type="button"
-                onClick={resetKioskSession}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 px-3.5 py-2 text-xs font-bold text-white transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" /> Layar Utama Kiosk
-              </button>
-            )}
+        <div className="flex items-center gap-3">
+          {serviceMode !== "home" && (
             <button
               type="button"
-              onClick={() => setFullScreenKiosk((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-[#FFD43B] hover:bg-[#FCC419] text-[#111A30] px-3.5 py-2 text-xs font-extrabold shadow-sm transition-colors"
+              onClick={resetKioskSession}
+              className="inline-flex items-center gap-2 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/20 px-5 py-3.5 text-base font-extrabold text-white transition-all active:scale-95"
             >
-              {fullScreenKiosk ? (
-                <>
-                  <Minimize2 className="w-4 h-4" /> Keluar Layar Penuh
-                </>
-              ) : (
-                <>
-                  <Maximize2 className="w-4 h-4" /> Buka Layar Penuh Kiosk
-                </>
-              )}
+              <ArrowLeft className="w-5 h-5" /> Menu Utama
             </button>
-          </div>
-        </div>
-
-        {/* BAR SIMULASI & SCANNER RFID CEPAT (MEMUDAHKAN DEMO & USB READER) */}
-        <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 p-4 space-y-3">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#FFD43B]/20 border border-[#FFD43B]/40 text-[#FFD43B] flex items-center justify-center shrink-0">
-                <Radio className="w-5 h-5 animate-pulse" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-white flex items-center gap-2">
-                  <span>Scanner RFID E-KTP (13.56 MHz / Keyboard Wedge)</span>
-                  <span className="text-[10px] font-semibold bg-white/15 px-2 py-0.5 rounded text-[#FFD43B]">
-                    {totalMappedRfid} Kartu RFID Terdaftar
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-300">
-                  Tempelkan E-KTP pada RFID Reader USB atau klik salah satu{" "}
-                  <strong>Kartu E-KTP Demo</strong> di bawah untuk mensimulasikan
-                  scan KTP warga secara instan.
-                </p>
-              </div>
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleScanRFID();
-              }}
-              className="flex items-center gap-2"
-            >
-              <input
-                ref={rfidInputRef}
-                type="text"
-                value={rfidInput}
-                onChange={(e) => setRfidInput(e.target.value.toUpperCase())}
-                placeholder="UID RFID (cth: 04A28F01)..."
-                className="rounded-xl bg-[#0F1830] border border-white/20 px-3.5 py-2 text-xs font-mono text-white placeholder:text-slate-400 focus:outline-none focus:border-[#FFD43B] w-48"
-              />
-              <button
-                type="submit"
-                disabled={lookupLoading}
-                className="rounded-xl bg-emerald-500 hover:bg-emerald-400 text-[#091826] font-extrabold text-xs px-4 py-2 transition-colors"
-              >
-                {lookupLoading ? "Memindai..." : "Scan RFID"}
-              </button>
-            </form>
-          </div>
-
-          {/* KARTU TAP CEPAT DEMO E-KTP WARGA RINGDIKIT */}
-          {rfidMappings.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-white/10">
-              <span className="text-[11px] font-semibold text-[#FFD43B] mr-1">
-                Simulasi Tap E-KTP Warga:
-              </span>
-              {rfidMappings.slice(0, 6).map((m) => {
-                const isSelected =
-                  identifiedResident?.id === m.id &&
-                  identifiedMethod === "RFID";
-                return (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => handleScanRFID(m.rfid_uid)}
-                    className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all ${
-                      isSelected
-                        ? "bg-[#FFD43B] text-[#111A30] shadow-sm font-bold"
-                        : "bg-white/10 hover:bg-white/20 text-white border border-white/10"
-                    }`}
-                  >
-                    <CreditCard className="w-3 h-3" />
-                    <span className="font-mono">{m.rfid_uid}</span>
-                    <span>• {m.full_name}</span>
-                  </button>
-                );
-              })}
-            </div>
           )}
+          <button
+            type="button"
+            onClick={() =>
+              fullScreenKiosk ? exitFullscreen() : enterFullscreen()
+            }
+            className="inline-flex items-center gap-2 rounded-2xl bg-[#FFD43B] hover:bg-[#FCC419] text-[#111A30] px-5 py-3.5 text-base font-extrabold shadow-md transition-all active:scale-95"
+          >
+            {fullScreenKiosk ? (
+              <>
+                <Minimize2 className="w-5 h-5" /> Tutup Layar Penuh
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-5 h-5" /> Layar Penuh Tablet
+              </>
+            )}
+          </button>
         </div>
+      </div>
 
-        {/* BANNER IDENTITAS WARGA YANG SUDAH TERDETEKSI KTP-EL */}
+      {/* 2. KONTEN TENGAH TABLET KIOSK (FOKUS, TULISAN BESAR, MINIM TEKS) */}
+      <div className="w-full max-w-6xl mx-auto my-auto py-4 space-y-6">
+        {/* KARTU SAPAAN WARGA APABILA KTP-EL SUDAH DI-TAP */}
         {identifiedResident && (
-          <div className="rounded-2xl bg-emerald-500/15 border border-emerald-400/35 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-400 text-[#0B1F17] font-extrabold text-sm flex items-center justify-center shrink-0">
-                <UserCheck className="w-6 h-6" />
+          <div className="rounded-3xl bg-emerald-500/20 border-2 border-emerald-400/50 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-400 text-[#072116] flex items-center justify-center shrink-0 shadow">
+                <UserCheck className="w-9 h-9" />
               </div>
               <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-300">
-                    KTP-el Warga Terverifikasi ({identifiedMethod})
-                  </span>
-                  {identifiedResident.rfid_uid && (
-                    <span className="font-mono text-[11px] font-bold bg-white/15 px-2 py-0.5 rounded text-white">
-                      UID: {identifiedResident.rfid_uid}
-                    </span>
-                  )}
+                <div className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-300">
+                  KTP-el Warga Terdeteksi ({identifiedMethod}
+                  {identifiedResident.rfid_uid
+                    ? ` • ${identifiedResident.rfid_uid}`
+                    : ""}
+                  )
                 </div>
-                <div className="text-base sm:text-lg font-extrabold text-white">
-                  Om Swastiastu, {identifiedResident.full_name}
+                <div className="text-2xl sm:text-3xl font-extrabold text-white mt-0.5">
+                  {identifiedResident.full_name}
                 </div>
-                <div className="text-xs text-slate-200 font-mono">
-                  NIK: {identifiedResident.nik} • KK:{" "}
-                  {identifiedResident.no_kk || "-"} • Banjar Dinas{" "}
-                  {identifiedResident.dusun_name || "Ringdikit"}
+                <div className="text-sm sm:text-base text-slate-200 font-medium mt-0.5">
+                  Banjar Dinas {identifiedResident.dusun_name || "Ringdikit"} •
+                  NIK:{" "}
+                  <span className="font-mono">{identifiedResident.nik}</span>
                 </div>
               </div>
             </div>
@@ -804,20 +749,21 @@ export default function KioskWorkspaceManager({
                 setRfidInput("");
                 setNikInput("");
               }}
-              className="rounded-xl bg-white/10 hover:bg-white/20 px-3 py-1.5 text-xs font-semibold text-white self-start sm:self-center"
+              className="rounded-2xl bg-white/15 hover:bg-white/25 px-5 py-3 text-sm sm:text-base font-bold text-white shrink-0 active:scale-95"
             >
-              Ganti Warga / Reset KTP
+              Ganti KTP Warga
             </button>
           </div>
         )}
 
+        {/* PESAN PERINGATAN / ERROR DENGAN FONT BESAR */}
         {lookupError && (
-          <div className="rounded-2xl bg-rose-500/20 border border-rose-400/40 p-3.5 text-xs font-semibold text-rose-200 flex items-center justify-between">
+          <div className="rounded-2xl bg-rose-500/25 border-2 border-rose-400/50 p-4 sm:p-5 text-base sm:text-lg font-bold text-rose-100 flex items-center justify-between gap-4">
             <span>{lookupError}</span>
             <button
               type="button"
               onClick={() => setLookupError(null)}
-              className="text-rose-200 hover:text-white underline ml-3"
+              className="rounded-xl bg-white/15 px-4 py-2 text-sm font-extrabold text-white shrink-0"
             >
               Tutup
             </button>
@@ -825,61 +771,51 @@ export default function KioskWorkspaceManager({
         )}
 
         {/* ===================================================================
-            MODE 0: BERANDA ANJUNGAN KIOSK (PILIH 2 LAYANAN UTAMA)
+            LAYAR BERANDA TABLET: 2 TOMBOL RAKSASA (SURAT & BUKU TAMU)
            =================================================================== */}
         {serviceMode === "home" && (
-          <div className="space-y-5">
-            <div className="text-center space-y-1">
-              <h3 className="font-display text-xl sm:text-2xl font-extrabold text-white">
-                Silakan Pilih Layanan Anjungan Desa Ringdikit
+          <div className="space-y-8">
+            <div className="text-center space-y-2">
+              <h3 className="font-display text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+                Selamat Datang, Silakan Pilih Layanan
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300">
-                Sentuh salah satu kartu layanan di bawah ini untuk mengurus
-                surat keterangan atau mengisi buku tamu desa
+              <p className="text-base sm:text-xl text-slate-300 font-medium">
+                Sentuh salah satu menu di bawah ini atau tempelkan E-KTP Anda
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* KARTU 1: LAYANAN PERSURATAN MANDIRI */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+              {/* TOMBOL RAKSASA 1: BUAT SURAT */}
               <button
                 type="button"
                 onClick={() => {
                   setServiceMode("letter");
+                  setLetterStep("pick_type");
                   setIssuedKioskLetter(null);
                   setLookupError(null);
                 }}
-                className="group text-left rounded-3xl bg-white text-ink p-6 sm:p-7 shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-5 border-2 border-transparent hover:border-[#FFD43B]"
+                className="group text-left rounded-[2rem] bg-white text-ink p-8 sm:p-10 shadow-2xl hover:ring-4 hover:ring-[#FFD43B] transition-all active:scale-[0.98] flex flex-col justify-between min-h-[260px] sm:min-h-[300px]"
               >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="w-14 h-14 rounded-2xl bg-pastel-violetSoft text-[#6741D9] flex items-center justify-center">
-                      <FileText className="w-7 h-7" />
-                    </div>
-                    <span className="rounded-full bg-pastel-violetSoft text-[#6741D9] px-3 py-1 text-xs font-extrabold">
-                      5 Format Surat Resmi (.PDF & .DOCX)
-                    </span>
+                <div className="space-y-4">
+                  <div className="w-20 h-20 rounded-3xl bg-pastel-violetSoft text-[#6741D9] flex items-center justify-center shadow-sm">
+                    <FileText className="w-11 h-11" />
                   </div>
-                  <h4 className="font-display text-xl font-extrabold text-ink group-hover:text-[#6741D9] transition-colors">
-                    1. Layanan Pembuatan Surat Desa
-                  </h4>
-                  <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-                    Pilih jenis surat (Surat Keterangan Umum, Kelahiran,
-                    Kematian, Beda Nama, atau Ahli Waris). Cukup{" "}
-                    <strong>Tap KTP-el RFID</strong> atau masukkan{" "}
-                    <strong>NIK</strong>, biodata terisi otomatis dan siap
-                    dicetak!
+                  <div className="font-display text-2xl sm:text-4xl font-extrabold text-ink group-hover:text-[#6741D9] transition-colors">
+                    Buat & Cetak Surat
+                  </div>
+                  <p className="text-base sm:text-lg text-ink-secondary font-medium leading-snug">
+                    Surat Keterangan Umum, Kelahiran, Kematian, Beda Nama, &
+                    Ahli Waris
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-line text-xs font-extrabold text-[#6741D9]">
-                  <span>Pilih Jenis Surat & Cetak Dokumen →</span>
-                  <span className="rounded-lg bg-pastel-violetSoft px-2.5 py-1">
-                    Mulai Layanan Surat
-                  </span>
+                <div className="mt-6 inline-flex items-center gap-2 text-lg sm:text-xl font-extrabold text-[#6741D9]">
+                  <span>Pilih Jenis Surat</span>
+                  <ArrowRight className="w-6 h-6" />
                 </div>
               </button>
 
-              {/* KARTU 2: BUKU TAMU DIGITAL (RFID / NIK / MANUAL) */}
+              {/* TOMBOL RAKSASA 2: ISI BUKU TAMU */}
               <button
                 type="button"
                 onClick={() => {
@@ -890,33 +826,23 @@ export default function KioskWorkspaceManager({
                     setGbMethod(identifiedMethod);
                   }
                 }}
-                className="group text-left rounded-3xl bg-white text-ink p-6 sm:p-7 shadow-lg hover:shadow-2xl hover:-translate-y-0.5 transition-all flex flex-col justify-between gap-5 border-2 border-transparent hover:border-[#FFD43B]"
+                className="group text-left rounded-[2rem] bg-white text-ink p-8 sm:p-10 shadow-2xl hover:ring-4 hover:ring-[#FFD43B] transition-all active:scale-[0.98] flex flex-col justify-between min-h-[260px] sm:min-h-[300px]"
               >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="w-14 h-14 rounded-2xl bg-pastel-mintSoft text-[#087F5B] flex items-center justify-center">
-                      <BookOpen className="w-7 h-7" />
-                    </div>
-                    <span className="rounded-full bg-pastel-mintSoft text-[#087F5B] px-3 py-1 text-xs font-extrabold">
-                      Scan RFID • Cari NIK • Isi Manual
-                    </span>
+                <div className="space-y-4">
+                  <div className="w-20 h-20 rounded-3xl bg-pastel-mintSoft text-[#087F5B] flex items-center justify-center shadow-sm">
+                    <BookOpen className="w-11 h-11" />
                   </div>
-                  <h4 className="font-display text-xl font-extrabold text-ink group-hover:text-[#087F5B] transition-colors">
-                    2. Isi Buku Tamu Digital Desa
-                  </h4>
-                  <p className="text-xs sm:text-sm text-ink-secondary leading-relaxed">
-                    Catat kunjungan Anda ke Kantor Perbekel Ringdikit. Warga
-                    desa cukup <strong>Tap KTP-el RFID</strong> atau memasukkan{" "}
-                    <strong>NIK</strong>; tamu dinas/instansi luar desa dapat
-                    memilih <strong>Isi Manual</strong>.
+                  <div className="font-display text-2xl sm:text-4xl font-extrabold text-ink group-hover:text-[#087F5B] transition-colors">
+                    Isi Buku Tamu Desa
+                  </div>
+                  <p className="text-base sm:text-lg text-ink-secondary font-medium leading-snug">
+                    Scan E-KTP RFID, Cari Nomor NIK Warga, atau Isi Manual Tamu
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-line text-xs font-extrabold text-[#087F5B]">
-                  <span>Buka Formulir Buku Tamu →</span>
-                  <span className="rounded-lg bg-pastel-mintSoft px-2.5 py-1">
-                    Check-In Buku Tamu
-                  </span>
+                <div className="mt-6 inline-flex items-center gap-2 text-lg sm:text-xl font-extrabold text-[#087F5B]">
+                  <span>Mulai Isi Buku Tamu</span>
+                  <ArrowRight className="w-6 h-6" />
                 </div>
               </button>
             </div>
@@ -924,446 +850,457 @@ export default function KioskWorkspaceManager({
         )}
 
         {/* ===================================================================
-            MODE 1: ALUR PERSURATAN KIOSK (SURAT -> PILIH JENIS SURAT)
+            LAYAR LAYANAN 1: BUAT SURAT (WIZARD 3 LANGKAH TABLET BESAR)
            =================================================================== */}
         {serviceMode === "letter" && (
-          <div className="rounded-3xl bg-white text-ink p-6 sm:p-8 shadow-xl space-y-6">
+          <div className="rounded-[2rem] bg-white text-ink p-6 sm:p-10 shadow-2xl space-y-6">
             {issuedKioskLetter ? (
-              /* LAYAR SUKSES TERBIT SURAT DI KIOSK */
-              <div className="text-center max-w-2xl mx-auto py-4 space-y-5">
-                <div className="w-16 h-16 rounded-3xl bg-pastel-mintSoft text-[#087F5B] flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-9 h-9" />
+              /* LAYAR SELESAI CETAK SURAT */
+              <div className="text-center max-w-2xl mx-auto py-6 space-y-6">
+                <div className="w-24 h-24 rounded-full bg-pastel-mintSoft text-[#087F5B] flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-14 h-14" />
                 </div>
-                <div className="space-y-1">
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-[#087F5B]">
-                    Surat Desa Berhasil Diterbitkan & Tercatat di Historis Warga
-                  </span>
-                  <h3 className="font-display text-2xl font-extrabold text-ink">
+                <div className="space-y-2">
+                  <div className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-[#087F5B]">
+                    SURAT BERHASIL DITERBITKAN
+                  </div>
+                  <h3 className="font-display text-3xl sm:text-4xl font-extrabold text-ink">
                     {issuedKioskLetter.template_title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-ink-secondary">
-                    Pemohon: <strong>{issuedKioskLetter.applicant_name}</strong>{" "}
-                    (NIK:{" "}
-                    <span className="font-mono">
-                      {issuedKioskLetter.applicant_nik}
-                    </span>
-                    )
+                  <p className="text-lg sm:text-xl font-bold text-ink-secondary">
+                    {issuedKioskLetter.applicant_name}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-2xl bg-[#F8FAFD] border border-line p-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-3xl bg-[#F8FAFD] border-2 border-line p-6">
                   <div>
-                    <div className="text-ink-muted">Nomor Surat Resmi</div>
-                    <div className="font-mono font-bold text-ink text-sm mt-0.5">
+                    <div className="text-sm text-ink-muted font-semibold">
+                      Nomor Surat Resmi
+                    </div>
+                    <div className="font-mono text-xl sm:text-2xl font-extrabold text-ink mt-1">
                       {issuedKioskLetter.letter_number}
                     </div>
                   </div>
                   <div>
-                    <div className="text-ink-muted">Kode Tiket Antrean</div>
-                    <div className="font-mono font-bold text-[#6741D9] text-sm mt-0.5">
-                      {issuedKioskLetter.ticket_code}
+                    <div className="text-sm text-ink-muted font-semibold">
+                      Kode Tiket Layanan
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-ink-muted">Token QR Keaslian</div>
-                    <div className="font-mono font-semibold text-[#087F5B] text-xs mt-0.5">
-                      {issuedKioskLetter.verify_qr_token}
+                    <div className="font-mono text-xl sm:text-2xl font-extrabold text-[#6741D9] mt-1">
+                      {issuedKioskLetter.ticket_code}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                   <a
                     href={getLetterPdfUrl(issuedKioskLetter.id)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-2xl bg-[#087F5B] hover:bg-[#066649] text-white font-extrabold text-sm px-6 py-3.5 shadow-md transition-colors"
+                    className="inline-flex items-center gap-3 rounded-2xl bg-[#087F5B] hover:bg-[#066649] text-white font-extrabold text-lg sm:text-xl px-8 py-5 shadow-lg active:scale-95 transition-all"
                   >
-                    <Download className="w-4 h-4" /> Unduh / Cetak PDF (.pdf)
+                    <Download className="w-6 h-6" /> Cetak / Unduh PDF
                   </a>
                   <a
                     href={getLetterDocxUrl(issuedKioskLetter.id)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-2xl bg-[#1971C2] hover:bg-[#145A9E] text-white font-extrabold text-sm px-6 py-3.5 shadow-md transition-colors"
+                    className="inline-flex items-center gap-3 rounded-2xl bg-[#1971C2] hover:bg-[#145A9E] text-white font-extrabold text-lg sm:text-xl px-8 py-5 shadow-lg active:scale-95 transition-all"
                   >
-                    <FileSpreadsheet className="w-4 h-4" /> Unduh Word (.docx)
+                    <FileSpreadsheet className="w-6 h-6" /> Unduh Word (DOCX)
                   </a>
                   <button
                     type="button"
                     onClick={resetKioskSession}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-[#F4F6FB] hover:bg-line text-ink font-bold text-sm px-5 py-3.5 transition-colors"
+                    className="inline-flex items-center gap-2 rounded-2xl bg-[#F1F5F9] hover:bg-line text-ink font-extrabold text-lg px-7 py-5 active:scale-95 transition-all"
                   >
-                    Selesai & Kembali ke Beranda
+                    Selesai
                   </button>
                 </div>
               </div>
-            ) : (
-              /* FORM PILIH JENIS SURAT & IDENTIFIKASI KTP DI KIOSK */
-              <form onSubmit={handleKioskIssueLetter} className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-4">
+            ) : letterStep === "pick_type" ? (
+              /* STEP 1: PILIH JENIS SURAT (TOMBOL BESAR TABLET) */
+              <div className="space-y-6">
+                <div className="flex items-center justify-between border-b border-line pb-4">
                   <div>
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-[#6741D9]">
-                      Anjungan Persuratan Mandiri Desa Ringdikit
-                    </span>
-                    <h3 className="text-lg sm:text-xl font-extrabold text-ink">
-                      Langkah 1: Pilih Jenis Surat Keterangan
+                    <div className="text-sm font-extrabold uppercase tracking-wider text-[#6741D9]">
+                      LANGKAH 1 DARI 3
+                    </div>
+                    <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-ink">
+                      Pilih Jenis Surat yang Ingin Dibuat
                     </h3>
                   </div>
                   <button
                     type="button"
                     onClick={() => setServiceMode("home")}
-                    className="soft-btn-secondary text-xs"
+                    className="rounded-2xl bg-[#F1F5F9] hover:bg-line px-5 py-3 text-base font-bold text-ink"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" /> Kembali
+                    Kembali
                   </button>
                 </div>
 
-                {/* PILIH 5 JENIS SURAT */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                  {KIOSK_LETTER_OPTIONS.map((opt) => {
-                    const active = kioskLetterCode === opt.code;
-                    return (
-                      <button
-                        key={opt.code}
-                        type="button"
-                        onClick={() => setKioskLetterCode(opt.code)}
-                        className={`text-left rounded-2xl p-4 border-2 transition-all flex flex-col justify-between gap-2 ${
-                          active
-                            ? "border-[#6741D9] bg-pastel-violetSoft/60 shadow-sm"
-                            : "border-line bg-white hover:bg-[#F8FAFD]"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span
-                            className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${opt.bgSoft} ${opt.accent}`}
-                          >
-                            Kode {opt.classCode}
-                          </span>
-                          {active && (
-                            <CheckCircle2 className="w-4 h-4 text-[#6741D9]" />
-                          )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {KIOSK_LETTER_OPTIONS.map((opt, idx) => (
+                    <button
+                      key={opt.code}
+                      type="button"
+                      onClick={() => {
+                        setKioskLetterCode(opt.code);
+                        if (identifiedResident) {
+                          setLetterStep("confirm");
+                        } else {
+                          setLetterStep("identify");
+                        }
+                      }}
+                      className="text-left rounded-3xl border-2 border-line hover:border-[#6741D9] bg-[#F8FAFD] hover:bg-pastel-violetSoft/40 p-6 transition-all active:scale-[0.99] flex items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`w-14 h-14 rounded-2xl ${opt.accentBg} ${opt.accentText} font-display text-2xl font-extrabold flex items-center justify-center shrink-0`}
+                        >
+                          {idx + 1}
                         </div>
-                        <div className="font-bold text-xs sm:text-sm text-ink">
-                          {opt.title}
+                        <div>
+                          <div className="font-display text-xl sm:text-2xl font-extrabold text-ink">
+                            {opt.title}
+                          </div>
+                          <div className="text-sm sm:text-base text-ink-secondary font-medium mt-0.5">
+                            {opt.shortTag}
+                          </div>
                         </div>
-                        <div className="text-[11px] text-ink-muted leading-snug">
-                          {opt.subtitle}
-                        </div>
-                      </button>
-                    );
-                  })}
+                      </div>
+                      <ArrowRight className="w-7 h-7 text-[#6741D9] shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : letterStep === "identify" ? (
+              /* STEP 2: SCAN KTP-EL ATAU MASUKKAN NIK */
+              <div className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+                  <div>
+                    <div className="text-sm font-extrabold uppercase tracking-wider text-[#6741D9]">
+                      LANGKAH 2 DARI 3 • {activeLetterMeta.title.toUpperCase()}
+                    </div>
+                    <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-ink">
+                      Scan KTP-el atau Masukkan NIK Anda
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setLetterStep("pick_type")}
+                    className="rounded-2xl bg-[#F1F5F9] hover:bg-line px-5 py-3 text-base font-bold text-ink"
+                  >
+                    ← Ganti Jenis Surat
+                  </button>
                 </div>
 
-                {/* LANGKAH 2: IDENTIFIKASI PEMOHON (RFID ATAU NIK) */}
-                <div className="rounded-2xl bg-[#F8FAFD] border border-line p-5 space-y-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <h4 className="text-sm sm:text-base font-extrabold text-ink">
-                        Langkah 2: Identifikasi KTP-el Pemohon
+                {/* 2 TAB BESAR: SCAN RFID VS CARI NIK */}
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setKioskIdTab("RFID")}
+                    className={`rounded-2xl py-4 px-5 text-base sm:text-xl font-extrabold flex items-center justify-center gap-3 border-2 transition-all ${
+                      kioskIdTab === "RFID"
+                        ? "border-[#6741D9] bg-[#6741D9] text-white shadow-md"
+                        : "border-line bg-[#F8FAFD] text-ink-secondary"
+                    }`}
+                  >
+                    <Nfc className="w-6 h-6" /> 1. Scan RFID KTP-el
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKioskIdTab("NIK")}
+                    className={`rounded-2xl py-4 px-5 text-base sm:text-xl font-extrabold flex items-center justify-center gap-3 border-2 transition-all ${
+                      kioskIdTab === "NIK"
+                        ? "border-[#6741D9] bg-[#6741D9] text-white shadow-md"
+                        : "border-line bg-[#F8FAFD] text-ink-secondary"
+                    }`}
+                  >
+                    <Search className="w-6 h-6" /> 2. Ketik NIK / Nama
+                  </button>
+                </div>
+
+                {kioskIdTab === "RFID" ? (
+                  <div className="rounded-3xl bg-[#F8FAFD] border-2 border-line p-6 sm:p-8 text-center space-y-5">
+                    <div className="w-20 h-20 rounded-full bg-pastel-violetSoft text-[#6741D9] flex items-center justify-center mx-auto">
+                      <Radio className="w-10 h-10 animate-pulse" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="text-xl sm:text-2xl font-extrabold text-ink">
+                        Tempelkan E-KTP pada Alat Pembaca RFID
                       </h4>
-                      <p className="text-xs text-ink-muted">
-                        Gunakan Scan RFID E-KTP atau ketik 16 digit NIK untuk
-                        menarik biodata resmi Desa Ringdikit
+                      <p className="text-sm sm:text-base text-ink-secondary">
+                        Atau sentuh salah satu kartu KTP warga di bawah untuk
+                        simulasi
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1.5 bg-white border border-line p-1 rounded-xl">
-                      <button
-                        type="button"
-                        onClick={() => setKioskIdTab("RFID")}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                          kioskIdTab === "RFID"
-                            ? "bg-[#6741D9] text-white"
-                            : "text-ink-secondary hover:bg-[#F4F6FB]"
-                        }`}
-                      >
-                        1. Scan RFID KTP-el
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setKioskIdTab("NIK")}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-                          kioskIdTab === "NIK"
-                            ? "bg-[#6741D9] text-white"
-                            : "text-ink-secondary hover:bg-[#F4F6FB]"
-                        }`}
-                      >
-                        2. Masukkan NIK
-                      </button>
-                    </div>
-                  </div>
-
-                  {kioskIdTab === "RFID" ? (
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                      <div className="flex-1 flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={rfidInput}
-                          onChange={(e) =>
-                            setRfidInput(e.target.value.toUpperCase())
-                          }
-                          placeholder="Tempelkan KTP-el pada RFID Reader (UID cth: 04A28F01)..."
-                          className="soft-input bg-white font-mono text-xs"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleScanRFID()}
-                          className="soft-btn-primary text-xs shrink-0"
-                        >
-                          <Nfc className="w-4 h-4" /> Baca RFID
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          maxLength={16}
-                          value={nikInput}
-                          onChange={(e) =>
-                            setNikInput(e.target.value.replace(/\D/g, ""))
-                          }
-                          placeholder="Ketik 16 digit NIK KTP Anda..."
-                          className="soft-input bg-white font-mono text-xs"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleLookupByNIK()}
-                          className="soft-btn-primary text-xs shrink-0"
-                        >
-                          <Search className="w-4 h-4" /> Cari NIK
-                        </button>
-                      </div>
-                      <ResidentAutocomplete
-                        placeholder="Atau ketik nama / NIK warga di sini..."
-                        onSelect={(r) => {
-                          if (r) applyResidentToKioskState(r, "NIK");
-                        }}
+                    <div className="max-w-lg mx-auto flex items-center gap-3">
+                      <input
+                        type="text"
+                        value={rfidInput}
+                        onChange={(e) =>
+                          setRfidInput(e.target.value.toUpperCase())
+                        }
+                        placeholder="UID RFID (cth: 04A28F01)..."
+                        className="soft-input bg-white font-mono text-lg py-3.5 px-4 text-center"
                       />
+                      <button
+                        type="button"
+                        onClick={() => handleScanRFID()}
+                        className="rounded-2xl bg-[#6741D9] hover:bg-[#5633B8] text-white font-extrabold text-base sm:text-lg px-6 py-3.5 shrink-0"
+                      >
+                        Scan
+                      </button>
                     </div>
-                  )}
-
-                  {identifiedResident && (
-                    <div className="rounded-xl bg-white border border-pastel-mint/50 p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                      <div>
-                        <span className="text-ink-muted block">
-                          Nama Lengkap
-                        </span>
-                        <strong className="text-ink">
-                          {identifiedResident.full_name}
-                        </strong>
-                      </div>
-                      <div>
-                        <span className="text-ink-muted block">
-                          NIK / No. KK
-                        </span>
-                        <span className="font-mono font-semibold text-ink">
-                          {identifiedResident.nik}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-ink-muted block">
-                          Tempat, Tgl Lahir
-                        </span>
-                        <span className="text-ink">
-                          {identifiedResident.birth_place},{" "}
-                          {identifiedResident.birth_date}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-ink-muted block">
-                          Banjar Dinas & Pekerjaan
-                        </span>
-                        <span className="text-ink">
-                          BD. {identifiedResident.dusun_name || "-"} •{" "}
-                          {identifiedResident.occupation || "-"}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* LANGKAH 3: RINCIAN & KEPERLUAN SURAT */}
-                <div className="space-y-4">
-                  <h4 className="text-sm sm:text-base font-extrabold text-ink">
-                    Langkah 3: Isi Keperluan & Rincian Surat
-                  </h4>
-
-                  {kioskLetterCode === "SK_KELAHIRAN" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-xl bg-[#F8FAFD] border border-line p-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Nama Lengkap Anak *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={kioskChildName}
-                          onChange={(e) => setKioskChildName(e.target.value)}
-                          placeholder="Contoh: Kadek Ayu Lestari"
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Anak Ke-
-                        </label>
-                        <input
-                          type="text"
-                          value={kioskChildOrder}
-                          onChange={(e) => setKioskChildOrder(e.target.value)}
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Dilahirkan di / Tanggal
-                        </label>
-                        <input
-                          type="text"
-                          value={kioskChildBirthPlace}
-                          onChange={(e) =>
-                            setKioskChildBirthPlace(e.target.value)
-                          }
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {kioskLetterCode === "SK_KEMATIAN" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-xl bg-[#F8FAFD] border border-line p-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Hari / Tanggal Meninggal Dunia
-                        </label>
-                        <input
-                          type="text"
-                          value={kioskDeathDate}
-                          onChange={(e) => setKioskDeathDate(e.target.value)}
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Sebab Kematian
-                        </label>
-                        <input
-                          type="text"
-                          value={kioskDeathCause}
-                          onChange={(e) => setKioskDeathCause(e.target.value)}
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {kioskLetterCode === "SK_BEDA_NAMA" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-xl bg-[#F8FAFD] border border-line p-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Dokumen yang Berbeda Penulisan
-                        </label>
-                        <input
-                          type="text"
-                          value={kioskDiffDoc}
-                          onChange={(e) => setKioskDiffDoc(e.target.value)}
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Nama Tertulis pada Dokumen Tersebut
-                        </label>
-                        <input
-                          type="text"
-                          value={kioskDiffName}
-                          onChange={(e) => setKioskDiffName(e.target.value)}
-                          placeholder="Nama yang berbeda ejaan..."
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {kioskLetterCode === "SK_WARIS" && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-xl bg-[#F8FAFD] border border-line p-4">
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Nama Pewaris (Almarhum/ah) *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={kioskPewarisName}
-                          onChange={(e) => setKioskPewarisName(e.target.value)}
-                          placeholder="Nama orang tua / pewaris..."
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Tanggal Meninggal Pewaris
-                        </label>
-                        <input
-                          type="text"
-                          value={kioskPewarisDate}
-                          onChange={(e) => setKioskPewarisDate(e.target.value)}
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <label className="block text-xs font-semibold text-ink-secondary">
-                      Keperluan Penggunaan Surat * (Pilih Cepat atau Ketik)
-                    </label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {QUICK_LETTER_PURPOSES.map((p) => (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => setKioskLetterPurpose(p)}
-                          className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
-                            kioskLetterPurpose === p
-                              ? "bg-[#6741D9] text-white"
-                              : "bg-[#F4F6FB] text-ink-secondary hover:bg-pastel-violetSoft"
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      ))}
-                    </div>
-                    <input
-                      type="text"
-                      required
-                      value={kioskLetterPurpose}
-                      onChange={(e) => setKioskLetterPurpose(e.target.value)}
-                      className="soft-input text-xs"
-                    />
                   </div>
-                </div>
-
-                <div className="pt-3 border-t border-line flex items-center justify-end gap-3">
+                ) : (
+                  <div className="rounded-3xl bg-[#F8FAFD] border-2 border-line p-6 sm:p-8 space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-base font-bold text-ink mb-2">
+                          Masukkan 16 Angka NIK KTP
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            maxLength={16}
+                            value={nikInput}
+                            onChange={(e) =>
+                              setNikInput(e.target.value.replace(/\D/g, ""))
+                            }
+                            placeholder="510802xxxxxxxxxx"
+                            className="soft-input bg-white font-mono text-lg py-3.5 px-4"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleLookupByNIK()}
+                            className="rounded-2xl bg-[#6741D9] text-white font-extrabold text-base px-6 py-3.5 shrink-0"
+                          >
+                            Cari
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-base font-bold text-ink mb-2">
+                          Atau Cari Nama Warga
+                        </label>
+                        <ResidentAutocomplete
+                          placeholder="Ketik nama warga Desa Ringdikit..."
+                          onSelect={(r) => {
+                            if (r) applyResidentToKioskState(r, "NIK");
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* STEP 3: KONFIRMASI & CETAK SURAT */
+              <form onSubmit={handleKioskIssueLetter} className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+                  <div>
+                    <div className="text-sm font-extrabold uppercase tracking-wider text-[#087F5B]">
+                      LANGKAH 3 DARI 3 • KONFIRMASI & CETAK
+                    </div>
+                    <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-ink">
+                      {activeLetterMeta.title}
+                    </h3>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setServiceMode("home")}
-                    className="soft-btn-secondary text-xs"
+                    onClick={() => setLetterStep("pick_type")}
+                    className="rounded-2xl bg-[#F1F5F9] hover:bg-line px-5 py-3 text-base font-bold text-ink"
                   >
-                    Batal
+                    ← Ganti Jenis Surat
                   </button>
+                </div>
+
+                {identifiedResident && (
+                  <div className="rounded-3xl bg-pastel-mintSoft/50 border-2 border-pastel-mint/40 p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <span className="text-sm text-ink-muted font-semibold block">
+                        Nama Pemohon
+                      </span>
+                      <strong className="text-xl sm:text-2xl font-extrabold text-ink">
+                        {identifiedResident.full_name}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-sm text-ink-muted font-semibold block">
+                        Nomor NIK
+                      </span>
+                      <span className="font-mono text-lg sm:text-xl font-bold text-ink">
+                        {identifiedResident.nik}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm text-ink-muted font-semibold block">
+                        Banjar Dinas
+                      </span>
+                      <span className="text-lg sm:text-xl font-bold text-ink">
+                        BD. {identifiedResident.dusun_name || "Ringdikit"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {kioskLetterCode === "SK_KELAHIRAN" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-3xl bg-[#F8FAFD] border border-line p-5">
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        Nama Lengkap Anak *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={kioskChildName}
+                        onChange={(e) => setKioskChildName(e.target.value)}
+                        placeholder="Ketik nama bayi / anak..."
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        Tempat & Tanggal Lahir Anak
+                      </label>
+                      <input
+                        type="text"
+                        value={kioskChildBirthPlace}
+                        onChange={(e) =>
+                          setKioskChildBirthPlace(e.target.value)
+                        }
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {kioskLetterCode === "SK_KEMATIAN" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-3xl bg-[#F8FAFD] border border-line p-5">
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        Hari / Tanggal Meninggal
+                      </label>
+                      <input
+                        type="text"
+                        value={kioskDeathDate}
+                        onChange={(e) => setKioskDeathDate(e.target.value)}
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        Sebab Kematian
+                      </label>
+                      <input
+                        type="text"
+                        value={kioskDeathCause}
+                        onChange={(e) => setKioskDeathCause(e.target.value)}
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {kioskLetterCode === "SK_BEDA_NAMA" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-3xl bg-[#F8FAFD] border border-line p-5">
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        Dokumen yang Berbeda Nama
+                      </label>
+                      <input
+                        type="text"
+                        value={kioskDiffDoc}
+                        onChange={(e) => setKioskDiffDoc(e.target.value)}
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        Nama Tertulis di Dokumen Tersebut
+                      </label>
+                      <input
+                        type="text"
+                        value={kioskDiffName}
+                        onChange={(e) => setKioskDiffName(e.target.value)}
+                        placeholder="Ketik nama yang berbeda..."
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {kioskLetterCode === "SK_WARIS" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-3xl bg-[#F8FAFD] border border-line p-5">
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        Nama Pewaris (Almarhum/ah) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={kioskPewarisName}
+                        onChange={(e) => setKioskPewarisName(e.target.value)}
+                        placeholder="Ketik nama pewaris..."
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        Tanggal Meninggal Pewaris
+                      </label>
+                      <input
+                        type="text"
+                        value={kioskPewarisDate}
+                        onChange={(e) => setKioskPewarisDate(e.target.value)}
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* PILIH KEPERLUAN SURAT DENGAN TOMBOL SENTUH BESAR */}
+                <div className="space-y-3">
+                  <label className="block text-base sm:text-lg font-extrabold text-ink">
+                    Pilih Keperluan Surat:
+                  </label>
+                  <div className="flex flex-wrap gap-2.5">
+                    {QUICK_LETTER_PURPOSES.map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setKioskLetterPurpose(p)}
+                        className={`rounded-2xl px-4 py-3 text-sm sm:text-base font-bold transition-all active:scale-95 ${
+                          kioskLetterPurpose === p
+                            ? "bg-[#6741D9] text-white shadow-md"
+                            : "bg-[#F1F5F9] text-ink hover:bg-pastel-violetSoft"
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={kioskLetterPurpose}
+                    onChange={(e) => setKioskLetterPurpose(e.target.value)}
+                    className="soft-input text-lg py-3.5 px-4"
+                  />
+                </div>
+
+                <div className="pt-4 border-t border-line flex items-center justify-end gap-4">
                   <button
                     type="submit"
                     disabled={submittingKioskLetter || !identifiedResident}
-                    className="soft-btn-primary text-xs sm:text-sm px-6 py-3 disabled:opacity-50"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-[#6741D9] hover:bg-[#5633B8] text-white font-extrabold text-lg sm:text-xl px-8 py-5 shadow-xl disabled:opacity-50 active:scale-95 transition-all"
                   >
-                    <Printer className="w-4 h-4" />
+                    <Printer className="w-6 h-6" />
                     {submittingKioskLetter
-                      ? "Memproses & Mencetak Surat..."
-                      : "Terbitkan & Cetak Surat Sekarang (PDF & DOCX)"}
+                      ? "Memproses Surat..."
+                      : "Terbitkan & Cetak Surat Sekarang"}
                   </button>
                 </div>
               </form>
@@ -1372,153 +1309,105 @@ export default function KioskWorkspaceManager({
         )}
 
         {/* ===================================================================
-            MODE 2: ALUR BUKU TAMU DIGITAL (SCAN RFID / CARI NIK / ISI MANUAL)
+            LAYAR LAYANAN 2: ISI BUKU TAMU (TOMBOL BESAR & SEDERHANA DI TABLET)
            =================================================================== */}
         {serviceMode === "guestbook" && (
-          <div className="rounded-3xl bg-white text-ink p-6 sm:p-8 shadow-xl space-y-6">
+          <div className="rounded-[2rem] bg-white text-ink p-6 sm:p-10 shadow-2xl space-y-6">
             {completedGuestbook ? (
-              /* BUKTI KUNJUNGAN BUKU TAMU */
-              <div className="text-center max-w-xl mx-auto py-4 space-y-5">
-                <div className="w-16 h-16 rounded-3xl bg-pastel-mintSoft text-[#087F5B] flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-9 h-9" />
+              /* LAYAR BUKTI CHECK-IN BUKU TAMU */
+              <div className="text-center max-w-xl mx-auto py-6 space-y-6">
+                <div className="w-24 h-24 rounded-full bg-pastel-mintSoft text-[#087F5B] flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-14 h-14" />
                 </div>
-                <div className="space-y-1">
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-[#087F5B]">
-                    Check-In Buku Tamu Desa Berhasil Tercatat
-                  </span>
-                  <h3 className="font-display text-2xl font-extrabold text-ink">
+                <div className="space-y-2">
+                  <div className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-[#087F5B]">
+                    BUKU TAMU BERHASIL DISIMPAN
+                  </div>
+                  <h3 className="font-display text-3xl sm:text-4xl font-extrabold text-ink">
                     Selamat Datang, {completedGuestbook.full_name}
                   </h3>
-                  <p className="text-xs sm:text-sm text-ink-secondary">
-                    Terima kasih telah berkunjung ke Kantor Perbekel Ringdikit.
-                    Kunjungan Anda telah terdokumentasi di Buku Tamu Digital.
+                  <p className="text-base sm:text-lg text-ink-secondary font-medium">
+                    Silakan menuju ke{" "}
+                    <strong>{completedGuestbook.target_official}</strong>
                   </p>
                 </div>
 
-                <div className="rounded-2xl bg-[#F8FAFD] border border-line p-4 text-left grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="text-ink-muted block">
-                      Metode Identifikasi
-                    </span>
-                    <strong className="text-[#6741D9]">
-                      {completedGuestbook.identification_method === "RFID"
-                        ? `Scan RFID KTP-el (${completedGuestbook.rfid_uid})`
-                        : completedGuestbook.identification_method === "NIK"
-                        ? `Pencarian NIK (${completedGuestbook.nik})`
-                        : "Input Manual Tamu"}
-                    </strong>
-                  </div>
-                  <div>
-                    <span className="text-ink-muted block">
-                      Pejabat / Unit Dituju
-                    </span>
-                    <strong className="text-ink">
-                      {completedGuestbook.target_official}
-                    </strong>
-                  </div>
-                  <div>
-                    <span className="text-ink-muted block">
-                      Asal / Banjar Dinas
-                    </span>
-                    <span className="text-ink">
-                      {completedGuestbook.dusun_name
-                        ? `Banjar Dinas ${completedGuestbook.dusun_name}`
-                        : completedGuestbook.institution ||
-                          completedGuestbook.address ||
-                          "-"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-ink-muted block">
-                      Keperluan Kunjungan
-                    </span>
-                    <span className="text-ink">
-                      {completedGuestbook.purpose_detail}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  <button
-                    type="button"
-                    onClick={resetKioskSession}
-                    className="soft-btn-primary text-sm px-6 py-3"
-                  >
-                    Selesai & Kembali ke Beranda Kiosk
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={resetKioskSession}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#087F5B] hover:bg-[#066649] text-white font-extrabold text-lg sm:text-xl px-10 py-5 shadow-lg active:scale-95 transition-all"
+                >
+                  Selesai & Kembali ke Layar Awal
+                </button>
               </div>
             ) : (
-              /* FORM BUKU TAMU DENGAN 3 METODE IDENTITAS (RFID, NIK, MANUAL) */
+              /* FORM BUKU TAMU TABLET */
               <form onSubmit={handleKioskGuestbookSubmit} className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-4">
-                  <div>
-                    <span className="text-xs font-extrabold uppercase tracking-wider text-[#087F5B]">
-                      Buku Tamu Elektronik Kantor Perbekel Ringdikit
-                    </span>
-                    <h3 className="text-lg sm:text-xl font-extrabold text-ink">
-                      Pilih Cara Pengisian Identitas Buku Tamu
-                    </h3>
-                  </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+                  <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-ink">
+                    Buku Tamu Kantor Desa Ringdikit
+                  </h3>
                   <button
                     type="button"
                     onClick={() => setServiceMode("home")}
-                    className="soft-btn-secondary text-xs"
+                    className="rounded-2xl bg-[#F1F5F9] hover:bg-line px-5 py-3 text-base font-bold text-ink"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" /> Kembali
+                    Kembali
                   </button>
                 </div>
 
-                {/* 3 PILIHAN METODE IDENTITAS BUKU TAMU */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* 3 TOMBOL METODE IDENTITAS BESAR */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                   <button
                     type="button"
                     onClick={() => setGbMethod("RFID")}
-                    className={`text-left rounded-2xl p-4 border-2 transition-all ${
+                    className={`rounded-2xl p-4 sm:p-5 border-2 text-left flex items-center gap-3.5 transition-all ${
                       gbMethod === "RFID"
-                        ? "border-[#6741D9] bg-pastel-violetSoft/60"
-                        : "border-line bg-white hover:bg-[#F8FAFD]"
+                        ? "border-[#6741D9] bg-[#6741D9] text-white shadow-md"
+                        : "border-line bg-[#F8FAFD] text-ink"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="w-9 h-9 rounded-xl bg-pastel-violetSoft text-[#6741D9] flex items-center justify-center">
-                        <Nfc className="w-5 h-5" />
-                      </span>
-                      <span className="text-[11px] font-bold text-[#6741D9]">
-                        Otomatis & Cepat
-                      </span>
+                    <Nfc className="w-8 h-8 shrink-0" />
+                    <div>
+                      <div className="text-base sm:text-lg font-extrabold">
+                        1. Scan RFID KTP
+                      </div>
+                      <div
+                        className={`text-xs ${
+                          gbMethod === "RFID"
+                            ? "text-white/80"
+                            : "text-ink-muted"
+                        }`}
+                      >
+                        Tempel E-KTP Warga
+                      </div>
                     </div>
-                    <div className="font-bold text-sm text-ink mt-2">
-                      1. Scan RFID KTP-el
-                    </div>
-                    <p className="text-xs text-ink-muted mt-0.5">
-                      Tempelkan KTP-el pada RFID reader, biodata langsung terisi
-                    </p>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setGbMethod("NIK")}
-                    className={`text-left rounded-2xl p-4 border-2 transition-all ${
+                    className={`rounded-2xl p-4 sm:p-5 border-2 text-left flex items-center gap-3.5 transition-all ${
                       gbMethod === "NIK"
-                        ? "border-[#087F5B] bg-pastel-mintSoft/60"
-                        : "border-line bg-white hover:bg-[#F8FAFD]"
+                        ? "border-[#087F5B] bg-[#087F5B] text-white shadow-md"
+                        : "border-line bg-[#F8FAFD] text-ink"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="w-9 h-9 rounded-xl bg-pastel-mintSoft text-[#087F5B] flex items-center justify-center">
-                        <Search className="w-5 h-5" />
-                      </span>
-                      <span className="text-[11px] font-bold text-[#087F5B]">
-                        Database Desa
-                      </span>
+                    <Search className="w-8 h-8 shrink-0" />
+                    <div>
+                      <div className="text-base sm:text-lg font-extrabold">
+                        2. Cari NIK Warga
+                      </div>
+                      <div
+                        className={`text-xs ${
+                          gbMethod === "NIK"
+                            ? "text-white/80"
+                            : "text-ink-muted"
+                        }`}
+                      >
+                        Ketik NIK / Nama
+                      </div>
                     </div>
-                    <div className="font-bold text-sm text-ink mt-2">
-                      2. Cari Nomor NIK Warga
-                    </div>
-                    <p className="text-xs text-ink-muted mt-0.5">
-                      Masukkan 16 digit NIK atau cari nama warga Desa Ringdikit
-                    </p>
                   </button>
 
                   <button
@@ -1527,62 +1416,74 @@ export default function KioskWorkspaceManager({
                       setGbMethod("MANUAL");
                       setIdentifiedResident(null);
                     }}
-                    className={`text-left rounded-2xl p-4 border-2 transition-all ${
+                    className={`rounded-2xl p-4 sm:p-5 border-2 text-left flex items-center gap-3.5 transition-all ${
                       gbMethod === "MANUAL"
-                        ? "border-[#D97706] bg-pastel-honeySoft/60"
-                        : "border-line bg-white hover:bg-[#F8FAFD]"
+                        ? "border-[#D97706] bg-[#D97706] text-white shadow-md"
+                        : "border-line bg-[#F8FAFD] text-ink"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="w-9 h-9 rounded-xl bg-pastel-honeySoft text-[#D97706] flex items-center justify-center">
-                        <Edit3 className="w-5 h-5" />
-                      </span>
-                      <span className="text-[11px] font-bold text-[#D97706]">
-                        Tamu Umum / Instansi
-                      </span>
+                    <Edit3 className="w-8 h-8 shrink-0" />
+                    <div>
+                      <div className="text-base sm:text-lg font-extrabold">
+                        3. Isi Manual
+                      </div>
+                      <div
+                        className={`text-xs ${
+                          gbMethod === "MANUAL"
+                            ? "text-white/80"
+                            : "text-ink-muted"
+                        }`}
+                      >
+                        Tamu Luar / Instansi
+                      </div>
                     </div>
-                    <div className="font-bold text-sm text-ink mt-2">
-                      3. Isi Manual Buku Tamu
-                    </div>
-                    <p className="text-xs text-ink-muted mt-0.5">
-                      Untuk tamu luar desa, instansi pemerintah, atau kampus
-                    </p>
                   </button>
                 </div>
 
-                {/* PANEL IDENTITAS SESUAI METODE YANG DIPILIH */}
-                {gbMethod === "RFID" && (
-                  <div className="rounded-2xl bg-[#F8FAFD] border border-line p-4 space-y-3">
-                    <div className="text-xs font-bold text-ink">
-                      Identifikasi Tamu dengan Scan RFID KTP-el
+                {/* INPUT IDENTITAS SESUAI METODE */}
+                {gbMethod === "RFID" && !identifiedResident && (
+                  <div className="rounded-3xl bg-[#F8FAFD] border-2 border-line p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-pastel-violetSoft text-[#6741D9] flex items-center justify-center shrink-0">
+                        <Radio className="w-8 h-8 animate-pulse" />
+                      </div>
+                      <div>
+                        <div className="text-lg sm:text-xl font-extrabold text-ink">
+                          Silakan Tempelkan E-KTP pada Alat Scan RFID
+                        </div>
+                        <div className="text-sm text-ink-secondary">
+                          Atau pilih tombol simulasi KTP warga di bagian bawah
+                          layar
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
                       <input
                         type="text"
                         value={rfidInput}
                         onChange={(e) =>
                           setRfidInput(e.target.value.toUpperCase())
                         }
-                        placeholder="Tempelkan KTP-el pada RFID Reader atau pilih kartu demo di atas..."
-                        className="soft-input bg-white font-mono text-xs flex-1"
+                        placeholder="UID RFID..."
+                        className="soft-input bg-white font-mono text-base py-3 px-4 w-44"
                       />
                       <button
                         type="button"
                         onClick={() => handleScanRFID()}
-                        className="soft-btn-primary text-xs shrink-0"
+                        className="rounded-2xl bg-[#6741D9] text-white font-extrabold text-base px-5 py-3"
                       >
-                        <Nfc className="w-4 h-4" /> Pindai RFID KTP-el
+                        Scan
                       </button>
                     </div>
                   </div>
                 )}
 
-                {gbMethod === "NIK" && (
-                  <div className="rounded-2xl bg-[#F8FAFD] border border-line p-4 space-y-3">
-                    <div className="text-xs font-bold text-ink">
-                      Pencarian Identitas Warga Berdasarkan NIK
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {gbMethod === "NIK" && !identifiedResident && (
+                  <div className="rounded-3xl bg-[#F8FAFD] border-2 border-line p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-2">
+                        Ketik 16 Digit NIK KTP
+                      </label>
                       <div className="flex items-center gap-2">
                         <input
                           type="text"
@@ -1591,19 +1492,24 @@ export default function KioskWorkspaceManager({
                           onChange={(e) =>
                             setNikInput(e.target.value.replace(/\D/g, ""))
                           }
-                          placeholder="Masukkan 16 digit NIK KTP..."
-                          className="soft-input bg-white font-mono text-xs"
+                          placeholder="510802xxxxxxxxxx"
+                          className="soft-input bg-white font-mono text-lg py-3.5 px-4"
                         />
                         <button
                           type="button"
                           onClick={() => handleLookupByNIK()}
-                          className="soft-btn-primary text-xs shrink-0"
+                          className="rounded-2xl bg-[#087F5B] text-white font-extrabold text-base px-6 py-3.5"
                         >
-                          <Search className="w-4 h-4" /> Cari NIK
+                          Cari
                         </button>
                       </div>
+                    </div>
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-2">
+                        Atau Cari Nama Warga
+                      </label>
                       <ResidentAutocomplete
-                        placeholder="Atau ketik nama / NIK warga Desa Ringdikit..."
+                        placeholder="Ketik nama warga Desa Ringdikit..."
                         onSelect={(r) => {
                           if (r) applyResidentToKioskState(r, "NIK");
                         }}
@@ -1612,125 +1518,68 @@ export default function KioskWorkspaceManager({
                   </div>
                 )}
 
-                {gbMethod === "MANUAL" ? (
-                  /* FORM INPUT MANUAL BUKU TAMU */
-                  <div className="rounded-2xl bg-[#F8FAFD] border border-line p-5 space-y-4">
-                    <div className="text-xs font-bold text-[#D97706] uppercase tracking-wider">
-                      Formulir Pengisian Manual Identitas Tamu
+                {gbMethod === "MANUAL" && (
+                  <div className="rounded-3xl bg-[#F8FAFD] border-2 border-line p-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        Nama Lengkap Anda *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={gbFullName}
+                        onChange={(e) => setGbFullName(e.target.value)}
+                        placeholder="Ketik nama lengkap..."
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Nama Lengkap Pengunjung *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={gbFullName}
-                          onChange={(e) => setGbFullName(e.target.value)}
-                          placeholder="Ketik nama lengkap Anda..."
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Asal Instansi / Desa / Lembaga *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={gbInstitution}
-                          onChange={(e) => setGbInstitution(e.target.value)}
-                          placeholder="Contoh: Kecamatan Seririt / Undiksha / Umum"
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Nomor HP / WhatsApp
-                        </label>
-                        <input
-                          type="text"
-                          value={gbPhone}
-                          onChange={(e) => setGbPhone(e.target.value)}
-                          placeholder="0812xxxxxxxx"
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                          Alamat Lengkap *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={gbAddress}
-                          onChange={(e) => setGbAddress(e.target.value)}
-                          placeholder="Alamat domisili / kantor..."
-                          className="soft-input bg-white text-xs"
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        Asal Instansi / Alamat *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={gbInstitution}
+                        onChange={(e) => {
+                          setGbInstitution(e.target.value);
+                          setGbAddress(e.target.value);
+                        }}
+                        placeholder="Instansi / Desa asal..."
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-base font-bold text-ink mb-1.5">
+                        No. HP / WhatsApp
+                      </label>
+                      <input
+                        type="text"
+                        value={gbPhone}
+                        onChange={(e) => setGbPhone(e.target.value)}
+                        placeholder="0812xxxxxxxx"
+                        className="soft-input bg-white text-lg py-3.5 px-4"
+                      />
                     </div>
                   </div>
-                ) : (
-                  /* RINGKASAN DATA OTOMATIS DARI RFID / NIK */
-                  identifiedResident && (
-                    <div className="rounded-2xl bg-pastel-mintSoft/50 border border-pastel-mint/40 p-4 grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-                      <div>
-                        <span className="text-ink-muted block">
-                          Nama Pengunjung
-                        </span>
-                        <strong className="text-ink text-sm">
-                          {identifiedResident.full_name}
-                        </strong>
-                      </div>
-                      <div>
-                        <span className="text-ink-muted block">NIK Warga</span>
-                        <span className="font-mono font-bold text-ink">
-                          {identifiedResident.nik}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-ink-muted block">
-                          Banjar Dinas
-                        </span>
-                        <span className="font-semibold text-ink">
-                          Banjar Dinas{" "}
-                          {identifiedResident.dusun_name || "Ringdikit"}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-ink-muted block">
-                          No. HP / WhatsApp (Opsional)
-                        </span>
-                        <input
-                          type="text"
-                          value={gbPhone}
-                          onChange={(e) => setGbPhone(e.target.value)}
-                          placeholder="Isi No. WA bila ada..."
-                          className="soft-input bg-white text-xs py-1 mt-0.5"
-                        />
-                      </div>
-                    </div>
-                  )
                 )}
 
-                {/* DETAIL KUNJUNGAN: PEJABAT DITUJU & KEPERLUAN */}
-                <div className="space-y-4">
+                {/* PILIH PEJABAT & KEPERLUAN DENGAN TOMBOL SENTUH BESAR */}
+                <div className="space-y-5">
                   <div>
-                    <label className="block text-xs font-bold text-ink mb-1.5">
-                      Pejabat / Unit Pelayanan yang Ditemui *
+                    <label className="block text-base sm:text-lg font-extrabold text-ink mb-2.5">
+                      Bertemu dengan Siapa?
                     </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {TARGET_OFFICIAL_OPTIONS.map((off) => (
                         <button
                           key={off}
                           type="button"
                           onClick={() => setGbTargetOfficial(off)}
-                          className={`text-left rounded-xl px-3.5 py-2.5 text-xs font-semibold border transition-all ${
+                          className={`rounded-2xl px-4 py-3.5 text-sm sm:text-base font-extrabold border-2 transition-all active:scale-95 ${
                             gbTargetOfficial === off
-                              ? "border-[#6741D9] bg-pastel-violetSoft text-[#6741D9] font-bold"
-                              : "border-line bg-white text-ink-secondary hover:bg-[#F8FAFD]"
+                              ? "border-[#6741D9] bg-pastel-violetSoft text-[#6741D9]"
+                              : "border-line bg-white text-ink-secondary"
                           }`}
                         >
                           {off}
@@ -1740,22 +1589,22 @@ export default function KioskWorkspaceManager({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-ink mb-1.5">
-                      Kategori Keperluan Kunjungan *
+                    <label className="block text-base sm:text-lg font-extrabold text-ink mb-2.5">
+                      Keperluan Kunjungan:
                     </label>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {PURPOSE_CATEGORY_OPTIONS.map((cat) => (
                         <button
                           key={cat}
                           type="button"
                           onClick={() => {
                             setGbPurposeCategory(cat);
-                            if (!gbPurposeDetail) setGbPurposeDetail(cat);
+                            setGbPurposeDetail(cat);
                           }}
-                          className={`rounded-xl px-3 py-1.5 text-xs font-semibold border transition-all ${
+                          className={`rounded-2xl px-4 py-3.5 text-sm sm:text-base font-extrabold border-2 transition-all active:scale-95 ${
                             gbPurposeCategory === cat
-                              ? "border-[#087F5B] bg-pastel-mintSoft text-[#087F5B] font-bold"
-                              : "border-line bg-white text-ink-secondary hover:bg-[#F8FAFD]"
+                              ? "border-[#087F5B] bg-pastel-mintSoft text-[#087F5B]"
+                              : "border-line bg-white text-ink-secondary"
                           }`}
                         >
                           {cat}
@@ -1763,48 +1612,59 @@ export default function KioskWorkspaceManager({
                       ))}
                     </div>
                   </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-ink-secondary mb-1">
-                      Uraian / Rincian Keperluan Kunjungan *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={gbPurposeDetail}
-                      onChange={(e) => setGbPurposeDetail(e.target.value)}
-                      placeholder="Contoh: Mengurus pengantar SKCK / Konsultasi program pemberdayaan masyarakat..."
-                      className="soft-input text-xs"
-                    />
-                  </div>
                 </div>
 
-                <div className="pt-3 border-t border-line flex items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setServiceMode("home")}
-                    className="soft-btn-secondary text-xs"
-                  >
-                    Batal
-                  </button>
+                <div className="pt-4 border-t border-line flex items-center justify-end">
                   <button
                     type="submit"
                     disabled={
                       submittingGuestbook ||
                       (gbMethod !== "MANUAL" && !identifiedResident)
                     }
-                    className="soft-btn-primary text-xs sm:text-sm px-6 py-3 disabled:opacity-50"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-[#087F5B] hover:bg-[#066649] text-white font-extrabold text-lg sm:text-xl px-10 py-5 shadow-xl disabled:opacity-50 active:scale-95 transition-all"
                   >
-                    <CheckCircle2 className="w-4 h-4" />
+                    <CheckCircle2 className="w-6 h-6" />
                     {submittingGuestbook
-                      ? "Menyimpan Buku Tamu..."
-                      : "Simpan & Check-In Buku Tamu Desa"}
+                      ? "Menyimpan..."
+                      : "Simpan & Check-In Buku Tamu"}
                   </button>
                 </div>
               </form>
             )}
           </div>
         )}
+      </div>
+
+      {/* 3. FOOTER SIMULASI TAP E-KTP WARGA (TOMBOL SENTUH BESAR UNTUK DEMO TABLET) */}
+      <div className="w-full max-w-6xl mx-auto pt-4 border-t border-white/15 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-[#FFD43B] mr-1">
+            <Nfc className="w-4 h-4" /> Simulasi Tap E-KTP Warga:
+          </span>
+          {rfidMappings.slice(0, 5).map((m) => {
+            const isSelected =
+              identifiedResident?.id === m.id && identifiedMethod === "RFID";
+            return (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => handleScanRFID(m.rfid_uid)}
+                className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-bold transition-all active:scale-95 ${
+                  isSelected
+                    ? "bg-[#FFD43B] text-[#111A30] shadow-md font-extrabold"
+                    : "bg-white/10 hover:bg-white/20 text-white border border-white/15"
+                }`}
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>{m.full_name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <span className="text-xs text-slate-400 font-medium">
+          SIDECI Desa Ringdikit • Undiksha
+        </span>
       </div>
     </div>
   );
@@ -1826,7 +1686,7 @@ export default function KioskWorkspaceManager({
             }`}
           >
             <Nfc className="w-4 h-4" />
-            1. Layar Anjungan Kiosk Mandiri (Surat & Buku Tamu)
+            1. Layar Anjungan Kiosk Tablet (Surat & Buku Tamu)
           </button>
 
           <button
@@ -1860,11 +1720,11 @@ export default function KioskWorkspaceManager({
           type="button"
           onClick={() => {
             setAdminTab("kiosk_screen");
-            setFullScreenKiosk(true);
+            enterFullscreen();
           }}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-pastel-violetSoft text-[#6741D9] hover:bg-[#6741D9] hover:text-white px-3.5 py-2 text-xs font-bold transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-[#6741D9] text-white hover:bg-[#5633B8] px-4 py-2 text-xs font-bold shadow-sm transition-colors"
         >
-          <Maximize2 className="w-3.5 h-3.5" /> Mode Layar Penuh Kiosk
+          <Maximize2 className="w-3.5 h-3.5" /> Buka Layar Penuh Tablet
         </button>
       </div>
 
@@ -1892,8 +1752,7 @@ export default function KioskWorkspaceManager({
               </h3>
               <p className="text-xs text-ink-muted mt-0.5">
                 Hubungkan UID chip RFID KTP-el warga dengan data NIK pada
-                database kependudukan Desa Ringdikit agar saat warga menempelkan
-                KTP di Kiosk, identitasnya langsung dikenali.
+                database kependudukan Desa Ringdikit.
               </p>
             </div>
 
@@ -1944,10 +1803,6 @@ export default function KioskWorkspaceManager({
                 placeholder="Klik di sini lalu tap KTP-el di RFID Reader (cth: 04A28F09)..."
                 className="soft-input font-mono text-xs"
               />
-              <p className="text-[11px] text-ink-muted mt-1">
-                Tips: Arahkan kursor ke kolom di atas lalu tempelkan fisik
-                KTP-el pada USB RFID Reader; nomor UID akan terketik otomatis.
-              </p>
             </div>
 
             <button
@@ -1970,9 +1825,8 @@ export default function KioskWorkspaceManager({
                   Daftar Pemetaan Aktif RFID KTP-el ({totalMappedRfid} Warga)
                 </h3>
                 <p className="text-xs text-ink-muted">
-                  Klik tombol <strong>Uji Tap di Kiosk</strong> pada baris mana
-                  pun untuk langsung mencoba pemindaian kartu warga tersebut di
-                  layar Kiosk.
+                  Klik <strong>Uji Tap di Kiosk</strong> untuk langsung mencoba
+                  pemindaian kartu warga tersebut.
                 </p>
               </div>
               <div className="relative">

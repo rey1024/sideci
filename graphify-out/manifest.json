@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/KioskWorkspaceManager.tsx": {
-    "mtime": 1795093968.134792,
-    "seen": 1795101335.746166,
-    "ast_hash": "12a80152cdb750aa23d5dc893fe16eab",
+    "mtime": 1795101898.239902,
+    "seen": 1795101952.139041,
+    "ast_hash": "7072c3bc98a5d4ccdd7607c912a2da6a",
     "semantic_hash": ""
   },
   "frontend/src/components/LetterStudioManager.tsx": {
