@@ -1,17 +1,17 @@
-# Graph Report - sideci  (2026-11-19)
+# Graph Report - sideci  (2026-11-20)
 
 ## Corpus Check
-- 93 files · ~108,041 words
+- 93 files · ~109,070 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: (none) 7, .example 3, .css 1)
 
 ## Summary
-- 797 nodes · 1865 edges · 46 communities (39 shown, 7 thin omitted)
+- 797 nodes · 1865 edges · 53 communities (46 shown, 7 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 91 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `446f3076`
+- Built from commit: `67becfcf`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -30,13 +30,20 @@
 - compilerOptions
 - next
 - ResidentAutocomplete
+- lucide-react
+- [villageSlug]/page.tsx
 - LetterStudioManager.tsx
 - deploy.ps1
 - docs/README.md
 - app/panel/page.tsx
-- lucide-react
+- ringdikit-data.ts
+- SuperadminView.tsx
+- [...path]/route.ts
+- ResidentAutocomplete
 - Detail Storyboard & Naskah Narasi Per Adegan
+- react
 - api.ts
+- middleware.ts
 - AGENTS.md — SIDECI AI Software Engineering Guidelines
 - System Architecture — SIDECI
 - Feature Specification Template
@@ -80,13 +87,13 @@
   docs/security/AUDIT-2026-11-19-prod.md → backend/internal/handler/residents_test.go
 - `Ringkasan Pemeriksaan Keamanan` --references--> `RateLimiter`  [INFERRED]
   docs/security/AUDIT-2026-11-19-prod.md → backend/internal/middleware/ratelimit.go
-- `main()` --calls--> `ParseSIAKXLSX()`  [EXTRACTED]
-  backend/cmd/seed-prod/main.go → backend/internal/importer/siak_xlsx.go
+- `openResidentDetail()` --calls--> `fetchResidentDetail()`  [EXTRACTED]
+  frontend/src/components/KepalaDusunWorkspace.tsx → frontend/src/lib/api.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (46 total, 7 thin omitted)
+## Communities (53 total, 7 thin omitted)
 
 ### Community 0 - "api/main.go"
 Cohesion: 0.12
@@ -109,16 +116,16 @@ Cohesion: 0.15
 Nodes (22): appendAnomaly(), buildDusunMatcher(), cleanDash(), defaultIfEmpty(), digitsOnly(), extractColLetters(), NormalizedResident, matchDusun() (+14 more)
 
 ### Community 5 - "KioskWorkspaceManager.tsx"
-Cohesion: 0.14
-Nodes (21): formatBirthDateDDMMYYYY(), formatDateTimeID(), GuestbookIdMethod, KIOSK_LETTER_OPTIONS, KioskAdminTab, KioskServiceMode, KioskTemplateOption, KioskWorkspaceManager() (+13 more)
+Cohesion: 0.13
+Nodes (22): formatBirthDateDDMMYYYY(), formatDateTimeID(), GuestbookIdMethod, KIOSK_LETTER_OPTIONS, KioskAdminTab, KioskServiceMode, KioskTemplateOption, KioskWorkspaceManager() (+14 more)
 
 ### Community 6 - "OperatorPopulationManager.tsx"
-Cohesion: 0.12
-Nodes (25): openResidentDetail(), EDUCATION_OPTIONS, EMPTY_FORM, EVENT_TYPE_LABELS, MARITAL_OPTIONS, OperatorPopulationManager(), handleConfirmDelete(), handleSaveEvent() (+17 more)
+Cohesion: 0.14
+Nodes (20): EDUCATION_OPTIONS, EMPTY_FORM, EVENT_TYPE_LABELS, MARITAL_OPTIONS, OperatorPopulationManager(), handleConfirmDelete(), handleSaveEvent(), handleSaveResident() (+12 more)
 
 ### Community 7 - "KepalaDusunWorkspace.tsx"
-Cohesion: 0.12
-Nodes (22): DirectorySubMode, EDUCATION_OPTIONS, KadusMenuTab, KepalaDusunWorkspace(), handleSubmitReport(), KepalaDusunWorkspaceProps, SHDK_OPTIONS, statusBadgeClass() (+14 more)
+Cohesion: 0.13
+Nodes (19): DirectorySubMode, EDUCATION_OPTIONS, KadusMenuTab, KepalaDusunWorkspace(), handleSubmitReport(), openResidentDetail(), KepalaDusunWorkspaceProps, SHDK_OPTIONS (+11 more)
 
 ### Community 8 - "docgen.go"
 Cohesion: 0.09
@@ -137,15 +144,23 @@ Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+10 more)
 
 ### Community 12 - "next"
-Cohesion: 0.06
-Nodes (18): backendOrigin(), DELETE, dynamic, GET, PATCH, POST, proxyToBackend(), PUT (+10 more)
+Cohesion: 0.14
+Nodes (5): dynamic, metadata, RootLayout(), DemoAccessGate(), next
 
 ### Community 13 - "ResidentAutocomplete"
 Cohesion: 0.18
-Nodes (15): ExtractedKtpResult, extractNameFromOcrText(), extractNikCandidatesFromOcrText(), KioskCameraKtpScanner(), KioskCameraKtpScannerProps, measureSharpnessAndPreprocessOcr(), normalizeOcrDigits(), OcrFailureInfo (+7 more)
+Nodes (15): autoSegmentAndCropBlueKtpCard(), ExtractedKtpResult, extractNikAndNameCandidates(), KioskCameraKtpScanner(), KioskCameraKtpScannerProps, measureSharpnessAndPreprocessOcr(), normalizeOcrDigits(), OcrFailureInfo (+7 more)
+
+### Community 14 - "lucide-react"
+Cohesion: 0.13
+Nodes (11): VerifyPageProps, ApiVillageOverview, dynamic, loadVillageIdentity(), metadata, PrivacyPolicyPage(), TenantVerifyPageProps, Slide (+3 more)
+
+### Community 15 - "[villageSlug]/page.tsx"
+Cohesion: 0.36
+Nodes (11): ApiVillageOverview, dynamic, loadVillageOverview(), VillageTenantPortalPage(), HeroCarousel(), MultiSegmentDonut(), PastelBarChart(), SmoothHoneyAreaChart() (+3 more)
 
 ### Community 16 - "LetterStudioManager.tsx"
-Cohesion: 0.17
+Cohesion: 0.19
 Nodes (15): DiffDocRow, formatBirthDateDDMMYYYY(), formatDateID(), HeirRow, LetterStudioManager(), LetterStudioManagerProps, OFFICIAL_TEMPLATES, PersuratanSubTab (+7 more)
 
 ### Community 17 - "deploy.ps1"
@@ -157,20 +172,40 @@ Cohesion: 0.29
 Nodes (3): Product Requirements Document (PRD), Dokumentasi Proyek SIDECI, Urutan Baca yang Direkomendasikan
 
 ### Community 19 - "app/panel/page.tsx"
-Cohesion: 0.18
-Nodes (22): ActiveRole, InternalWorkspacePage(), SUBMISSION_TYPE_LABELS, Workspace(), updateSubmissionStatus(), ApiVillageOverview, dynamic, loadVillageOverview() (+14 more)
+Cohesion: 0.24
+Nodes (12): ActiveRole, InternalWorkspacePage(), SUBMISSION_TYPE_LABELS, Workspace(), updateSubmissionStatus(), fetchDusuns(), fetchMe(), fetchPopulationStats() (+4 more)
 
-### Community 20 - "lucide-react"
-Cohesion: 0.10
-Nodes (24): TenantLoginPage(), handleSubmit(), ApiVillageOverview, dynamic, loadVillageIdentity(), metadata, PrivacyPolicyPage(), Slide (+16 more)
+### Community 20 - "ringdikit-data.ts"
+Cohesion: 0.20
+Nodes (11): CreatedTicket, PublicLetterSection(), handleSubmit(), BanjarStat, DEMO_RESIDENTS, DemoResident, INITIAL_SUBMISSIONS, KadusSubmission (+3 more)
+
+### Community 21 - "SuperadminView.tsx"
+Cohesion: 0.27
+Nodes (9): AVAILABLE_VILLAGE_ROLES, SuperadminView(), handleCreateUser(), handleCreateVillage(), AdminVillageSummary, createAdminUser(), createAdminVillage(), fetchAdminVillages() (+1 more)
+
+### Community 22 - "[...path]/route.ts"
+Cohesion: 0.25
+Nodes (8): backendOrigin(), DELETE, dynamic, GET, PATCH, POST, proxyToBackend(), PUT
+
+### Community 23 - "ResidentAutocomplete"
+Cohesion: 0.39
+Nodes (6): calcAgeYears(), HighlightMatch(), ResidentAutocomplete(), chooseItem(), handleKeyDown(), fetchResidents()
 
 ### Community 24 - "Detail Storyboard & Naskah Narasi Per Adegan"
 Cohesion: 0.18
 Nodes (10): ADEGAN 1 — Hook Pembuka & Portal Publik SIDECI Desa Ringdikit, ADEGAN 2 — Dashboard Eksekutif Perbekel & Analitik Satu Data, ADEGAN 3 — Manajemen 5.392 Penduduk, Mutasi & Timeline Historis, ADEGAN 4 — Studio Persuratan Resmi Format PDF & Word (.DOCX), ADEGAN 5 — Buku Register Digital & Dokumentasi Arsip Sah TTD / TTE, ADEGAN 6 — Anjungan Kiosk Mandiri, Pemetaan RFID KTP-el & Buku Tamu Digital, ADEGAN 7 — Sinergi 5 Banjar Dinas & Kredit Pengabdian Kepada Masyarakat Undiksha, Detail Storyboard & Naskah Narasi Per Adegan (+2 more)
 
+### Community 25 - "react"
+Cohesion: 0.60
+Nodes (4): TenantLoginPage(), handleSubmit(), login(), react
+
 ### Community 26 - "api.ts"
-Cohesion: 0.13
-Nodes (21): SmartImportBox(), runImport(), AVAILABLE_VILLAGE_ROLES, SuperadminView(), handleCreateUser(), handleCreateVillage(), activeVillageSlugFromPath(), AdminVillageSummary (+13 more)
+Cohesion: 0.20
+Nodes (12): SmartImportBox(), runImport(), activeVillageSlugFromPath(), API_BASE, ApiLetterStats, ApiPopulationEvent, CreateUserPayload, CreateVillagePayload (+4 more)
+
+### Community 27 - "middleware.ts"
+Cohesion: 0.40
+Nodes (3): config, CUSTOM_DOMAIN_MAP, RESERVED_SEGMENTS
 
 ### Community 28 - "AGENTS.md — SIDECI AI Software Engineering Guidelines"
 Cohesion: 0.25

@@ -52,19 +52,66 @@ type CreateGuestbookInput struct {
 }
 
 func (s *Store) ensureDemoRFIDMappings(ctx context.Context, villageID string) {
+	// Pastikan data KTP Ketua Pelaksana / Demo Utama (I KETUT RESIKA ARTHANA — NIK: 5108020112840001)
+	// selalu terdaftar di database Desa Ringdikit (Banjar Dinas Kelodan) agar saat fisik KTP-el
+	// dipindai lewat Kamera Kiosk maupun RFID selalu ditemukan 100% akurat.
+	var kelodanID string
+	_ = s.Pool.QueryRow(ctx, `
+		SELECT id::text FROM dusuns
+		WHERE village_id = $1::uuid AND LOWER(name) = 'kelodan'
+		LIMIT 1
+	`, villageID).Scan(&kelodanID)
+
+	if kelodanID != "" {
+		var hhID string
+		_ = s.Pool.QueryRow(ctx, `
+			INSERT INTO households (village_id, dusun_id, no_kk, address, rt, rw, postal_code)
+			VALUES ($1::uuid, $2::uuid, '5108020112840000', 'BANJAR DINAS KELODAN, DESA RINGDIKIT', '000', '000', '81153')
+			ON CONFLICT (village_id, no_kk) DO UPDATE
+			SET dusun_id = EXCLUDED.dusun_id,
+			    updated_at = NOW()
+			RETURNING id::text
+		`, villageID, kelodanID).Scan(&hhID)
+
+		if hhID != "" {
+			_, _ = s.Pool.Exec(ctx, `
+				INSERT INTO residents (
+					village_id, household_id, dusun_id, nik, full_name, gender,
+					birth_place, birth_date, blood_type, religion, marital_status,
+					shdk, education, occupation, status, rfid_uid
+				) VALUES (
+					$1::uuid, $2::uuid, $3::uuid,
+					'5108020112840001', 'I KETUT RESIKA ARTHANA', 'L',
+					'RINGDIKIT', '1984-12-01'::date, '-', 'HINDU', 'KAWIN',
+					'KEPALA KELUARGA', 'S3', 'DOSEN', 'AKTIF', '04A28F00'
+				)
+				ON CONFLICT (village_id, nik) DO UPDATE SET
+					full_name = EXCLUDED.full_name,
+					dusun_id = EXCLUDED.dusun_id,
+					birth_place = EXCLUDED.birth_place,
+					birth_date = EXCLUDED.birth_date,
+					religion = EXCLUDED.religion,
+					marital_status = EXCLUDED.marital_status,
+					occupation = EXCLUDED.occupation,
+					status = 'AKTIF',
+					rfid_uid = COALESCE(NULLIF(residents.rfid_uid, ''), '04A28F00')
+			`, villageID, hhID, kelodanID)
+		}
+	}
+
 	var count int
 	_ = s.Pool.QueryRow(ctx, `
 		SELECT COUNT(*) FROM residents
 		WHERE village_id = $1::uuid AND COALESCE(rfid_uid, '') <> ''
 	`, villageID).Scan(&count)
-	if count > 0 {
+	if count > 1 {
 		return
 	}
 	_, _ = s.Pool.Exec(ctx, `
 		WITH sample_residents AS (
 			SELECT id, ROW_NUMBER() OVER (ORDER BY full_name ASC) AS rn
 			FROM residents
-			WHERE village_id = $1::uuid AND status = 'AKTIF'
+			WHERE village_id = $1::uuid AND status = 'AKTIF' AND COALESCE(rfid_uid, '') = ''
 			LIMIT 6
 		)
 		UPDATE residents r

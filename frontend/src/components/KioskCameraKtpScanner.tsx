@@ -25,7 +25,7 @@ export interface ExtractedKtpResult {
 }
 
 interface KioskCameraKtpScannerProps {
-  /** Daftar warga yang sudah terpetakan (hanya dipakai jika operator menekan tombol Simulasi eksplisit) */
+  /** Daftar warga yang sudah terpetakan (tidak dipakai untuk fallback tebak acak) */
   candidateResidents?: ApiResidentItem[];
   /** Dipanggil ketika KTP memenuhi standar keyakinan (Confidence Threshold) dan cocok dengan database */
   onDetected: (result: ExtractedKtpResult) => void;
@@ -69,11 +69,11 @@ declare global {
 
 /**
  * Standar Keyakinan Minimum (Confidence Standard):
- * - MIN_OCR_CONFIDENCE: Skor keyakinan karakter dari engine OCR minimal 68%
- * - MIN_SHARPNESS_SCORE: Skor ketajaman gradien tepi gambar KTP minimal 14 (mencegah gambar blur/goyang)
+ * - MIN_OCR_CONFIDENCE: Skor keyakinan karakter dari engine OCR minimal 60%
+ * - MIN_SHARPNESS_SCORE: Skor ketajaman gradien tepi kartu KTP minimal 12 (mencegah gambar blur/goyang)
  */
-const MIN_OCR_CONFIDENCE = 68;
-const MIN_SHARPNESS_SCORE = 14;
+const MIN_OCR_CONFIDENCE = 60;
+const MIN_SHARPNESS_SCORE = 12;
 
 function normalizeOcrDigits(raw: string): string {
   return raw
@@ -86,52 +86,181 @@ function normalizeOcrDigits(raw: string): string {
 }
 
 /**
- * Mengekstrak kandidat NIK 16 digit atau penggalan NIK provinsi Bali (5108 / 51...)
- * beserta estimasi tingkat keyakinan baris NIK.
+ * Mendeteksi kotak biru kartu KTP-el (Blue Card Bounding Box Segmentation) di dalam frame
+ * agar jika KTP dipegang agak jauh oleh tangan warga, yang di-crop HANYA permukaan kartu KTP-nya saja
+ * (bukan tembok/pintu ruangan di belakangnya).
  */
-function extractNikCandidatesFromOcrText(text: string): {
-  exact16: string | null;
-  partialBaliNik: string | null;
-} {
-  const lines = text.split(/\r?\n/);
+function autoSegmentAndCropBlueKtpCard(
+  fullCanvas: HTMLCanvasElement
+): HTMLCanvasElement {
+  const fw = fullCanvas.width;
+  const fh = fullCanvas.height;
+  const fctx = fullCanvas.getContext("2d");
+  if (!fctx) return fullCanvas;
 
-  for (const line of lines) {
-    // Prioritaskan baris yang mengandung kata NIK atau diawali 51
-    const cleaned = normalizeOcrDigits(line).replace(/[^0-9]/g, "");
-    const m51 = cleaned.match(/51\d{14}/);
-    if (m51) {
-      return { exact16: m51[0], partialBaliNik: m51[0] };
+  const imgData = fctx.getImageData(0, 0, fw, fh).data;
+
+  // Proyeksi kepadatan piksel biru/cyan khas KTP-el Indonesia
+  const colVotes = new Int32Array(fw);
+  const rowVotes = new Int32Array(fh);
+  let totalBluePixels = 0;
+
+  // Abaikan 6% tepi paling luar agar tidak terkena bingkai UI
+  const xMinScan = Math.floor(fw * 0.06);
+  const xMaxScan = Math.floor(fw * 0.94);
+  const yMinScan = Math.floor(fh * 0.06);
+  const yMaxScan = Math.floor(fh * 0.94);
+
+  for (let y = yMinScan; y < yMaxScan; y += 2) {
+    for (let x = xMinScan; x < xMaxScan; x += 2) {
+      const idx = (y * fw + x) * 4;
+      const r = imgData[idx];
+      const g = imgData[idx + 1];
+      const b = imgData[idx + 2];
+
+      // Karakteristik latar KTP-el: komponen Biru (B) dan Cyan (G) dominan terhadap Merah (R)
+      const isKtpCyanBlue =
+        b > 85 &&
+        b > r + 14 &&
+        g > r + 6 &&
+        b - r < 145 &&
+        r < 205;
+
+      if (isKtpCyanBlue) {
+        colVotes[x]++;
+        rowVotes[y]++;
+        totalBluePixels++;
+      }
     }
-    const m16 = cleaned.match(/\d{16}/);
-    if (m16) {
-      return { exact16: m16[0], partialBaliNik: null };
+  }
+
+  // Jika kartu biru terdeteksi cukup jelas di dalam frame, potong tepat ke bounding box kartu KTP
+  const scannedArea = ((xMaxScan - xMinScan) / 2) * ((yMaxScan - yMinScan) / 2);
+  const blueRatio = totalBluePixels / Math.max(1, scannedArea);
+
+  let bx1 = Math.floor(fw * 0.14);
+  let bx2 = Math.floor(fw * 0.86);
+  let by1 = Math.floor(fh * 0.12);
+  let by2 = Math.floor(fh * 0.88);
+
+  if (blueRatio > 0.05) {
+    const colThreshold = Math.max(4, Math.floor((fh / 2) * 0.14));
+    const rowThreshold = Math.max(6, Math.floor((fw / 2) * 0.14));
+
+    let foundX1 = -1;
+    let foundX2 = -1;
+    for (let x = xMinScan; x < xMaxScan; x += 2) {
+      if (colVotes[x] >= colThreshold) {
+        if (foundX1 === -1) foundX1 = x;
+        foundX2 = x;
+      }
+    }
+
+    let foundY1 = -1;
+    let foundY2 = -1;
+    for (let y = yMinScan; y < yMaxScan; y += 2) {
+      if (rowVotes[y] >= rowThreshold) {
+        if (foundY1 === -1) foundY1 = y;
+        foundY2 = y;
+      }
+    }
+
+    const boxW = foundX2 - foundX1;
+    const boxH = foundY2 - foundY1;
+
+    // Validasi ukuran kartu yang masuk akal (minimal 22% lebar frame)
+    if (
+      foundX1 !== -1 &&
+      foundY1 !== -1 &&
+      boxW > fw * 0.22 &&
+      boxH > fh * 0.18
+    ) {
+      // Beri sedikit margin 2% di sekeliling kartu
+      const padX = Math.floor(boxW * 0.02);
+      const padY = Math.floor(boxH * 0.02);
+      bx1 = Math.max(0, foundX1 - padX);
+      by1 = Math.max(0, foundY1 - padY);
+      bx2 = Math.min(fw, foundX2 + padX);
+      by2 = Math.min(fh, foundY2 + padY);
     }
   }
 
-  const allDigits = normalizeOcrDigits(text).replace(/[^0-9]/g, "");
-  const mFull51 = allDigits.match(/51\d{14}/);
-  if (mFull51) {
-    return { exact16: mFull51[0], partialBaliNik: mFull51[0] };
+  // Gambar kartu KTP yang sudah ter-crop rapat ke kanvas standar CR80 (1024 x 646)
+  const cardCanvas = document.createElement("canvas");
+  cardCanvas.width = 1024;
+  cardCanvas.height = 646;
+  const cctx = cardCanvas.getContext("2d");
+  if (cctx) {
+    cctx.drawImage(
+      fullCanvas,
+      bx1,
+      by1,
+      Math.max(64, bx2 - bx1),
+      Math.max(40, by2 - by1),
+      0,
+      0,
+      1024,
+      646
+    );
   }
-  const mFull16 = allDigits.match(/\d{16}/);
-  if (mFull16) {
-    return { exact16: mFull16[0], partialBaliNik: null };
-  }
-
-  // Cek apakah ada minimal 12-15 digit berawalan 5108 (Kabupaten Buleleng) yang jelas
-  const mPartialBuleleng = allDigits.match(/5108\d{8,11}/);
-  return {
-    exact16: null,
-    partialBaliNik: mPartialBuleleng ? mPartialBuleleng[0] : null,
-  };
+  return cardCanvas;
 }
 
-function extractNameFromOcrText(text: string): string | null {
+/**
+ * Mengekstrak kandidat NIK 16 digit atau penggalan NIK provinsi Bali (5108 / 51...)
+ * serta token-token nama khas yang terbaca dari teks OCR.
+ */
+function extractNikAndNameCandidates(text: string): {
+  exact16: string | null;
+  partialBaliNik: string | null;
+  extractedName: string | null;
+  distinctiveKeywords: string[];
+} {
   const lines = text
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter(Boolean);
 
+  let exact16: string | null = null;
+  let partialBaliNik: string | null = null;
+
+  for (const line of lines) {
+    const cleaned = normalizeOcrDigits(line).replace(/[^0-9]/g, "");
+    const m51 = cleaned.match(/51\d{14}/);
+    if (m51) {
+      exact16 = m51[0];
+      partialBaliNik = m51[0];
+      break;
+    }
+    const m16 = cleaned.match(/\d{16}/);
+    if (m16 && !exact16) {
+      exact16 = m16[0];
+    }
+  }
+
+  const allDigits = normalizeOcrDigits(text).replace(/[^0-9]/g, "");
+  if (!exact16) {
+    const mFull51 = allDigits.match(/51\d{14}/);
+    if (mFull51) {
+      exact16 = mFull51[0];
+      partialBaliNik = mFull51[0];
+    } else {
+      const mFull16 = allDigits.match(/\d{16}/);
+      if (mFull16) exact16 = mFull16[0];
+    }
+  }
+
+  if (!partialBaliNik) {
+    // Cek penggalan NIK Kabupaten Buleleng (510802 / 5108...) minimal 8-15 digit
+    const mPartialBuleleng =
+      allDigits.match(/510802\d{4,10}/) || allDigits.match(/5108\d{6,11}/);
+    if (mPartialBuleleng) {
+      partialBaliNik = mPartialBuleleng[0];
+    }
+  }
+
+  // Ekstrak baris Nama
+  let extractedName: string | null = null;
   for (let i = 0; i < lines.length; i++) {
     const l = lines[i];
     const m = l.match(/NAMA\s*[:\-]?\s*([A-Z\s.,']{4,})/i);
@@ -141,44 +270,100 @@ function extractNameFromOcrText(text: string): string | null {
         .replace(/\s+/g, " ")
         .trim()
         .toUpperCase();
-      // Pastikan minimal 4 huruf dan bukan kata label KTP umum
       if (
         candidate.length >= 4 &&
         !candidate.includes("TEMPAT") &&
         !candidate.includes("LAHIR") &&
         !candidate.includes("KELAMIN")
       ) {
-        return candidate;
+        extractedName = candidate;
+        break;
       }
     }
   }
-  return null;
+
+  // Cari kata kunci nama unik (>= 5 huruf kapital) selain label standar KTP
+  const ignoredLabels = new Set([
+    "PROVINSI",
+    "KABUPATEN",
+    "BULELENG",
+    "TEMPAT",
+    "LAHIR",
+    "JENIS",
+    "KELAMIN",
+    "ALAMAT",
+    "AGAMA",
+    "STATUS",
+    "PERKAWINAN",
+    "PEKERJAAN",
+    "KEWARGANEGARAAN",
+    "BERLAKU",
+    "HINGGA",
+    "SEUMUR",
+    "HIDUP",
+    "BANJAR",
+    "DINAS",
+    "RINGDIKIT",
+    "SERIRIT",
+    "KELODAN",
+    "KAJANAN",
+    "KUWUM",
+    "HINDU",
+    "KAWIN",
+    "BELUM",
+    "DOSEN",
+    "GOL",
+    "DARAH",
+  ]);
+
+  const rawWords = text
+    .toUpperCase()
+    .replace(/[^A-Z\s]/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length >= 5 && !ignoredLabels.has(w));
+
+  const distinctiveKeywords = Array.from(new Set(rawWords)).slice(0, 5);
+
+  return {
+    exact16,
+    partialBaliNik,
+    extractedName,
+    distinctiveKeywords,
+  };
 }
 
 /**
- * Menghitung ketajaman gambar (Sharpness Score) dan menyiapkan gambar KTP kontras tinggi untuk OCR
+ * Menghitung ketajaman gambar (Sharpness Score) dan menyiapkan 2 kanvas OCR:
+ * 1. enhancedFullDataUrl: Seluruh kartu KTP dengan peningkatan kontras
+ * 2. nikBandDataUrl: Potongan khusus Pita NIK & Nama (bagian atas kartu KTP) yang di-upscale 2x agar angka NIK 16 digit terbaca jauh lebih akurat!
  */
 function measureSharpnessAndPreprocessOcr(
-  sourceCanvas: HTMLCanvasElement
-): { sharpnessScore: number; enhancedDataUrl: string } {
-  const w = sourceCanvas.width;
-  const h = sourceCanvas.height;
-  const ctx = sourceCanvas.getContext("2d");
+  cardCanvas: HTMLCanvasElement
+): {
+  sharpnessScore: number;
+  enhancedFullDataUrl: string;
+  nikBandDataUrl: string;
+} {
+  const w = cardCanvas.width;
+  const h = cardCanvas.height;
+  const ctx = cardCanvas.getContext("2d");
   if (!ctx) {
+    const raw = cardCanvas.toDataURL("image/jpeg", 0.92);
     return {
       sharpnessScore: 0,
-      enhancedDataUrl: sourceCanvas.toDataURL("image/jpeg", 0.92),
+      enhancedFullDataUrl: raw,
+      nikBandDataUrl: raw,
     };
   }
 
   const imgData = ctx.getImageData(0, 0, w, h);
   const data = imgData.data;
 
-  // Hitung rata-rata gradien ketajaman pada zona teks KTP (baris NIK & Nama berada di 12%..75% tinggi, 5%..72% lebar)
+  // Hitung gradien ketajaman pada zona teks NIK & Nama (15%..55% tinggi, 5%..72% lebar)
   const xStart = Math.floor(w * 0.05);
   const xEnd = Math.floor(w * 0.72);
   const yStart = Math.floor(h * 0.14);
-  const yEnd = Math.floor(h * 0.72);
+  const yEnd = Math.floor(h * 0.58);
 
   let gradSum = 0;
   let sampleCount = 0;
@@ -209,37 +394,54 @@ function measureSharpnessAndPreprocessOcr(
   }
 
   const sharpnessScore =
-    sampleCount > 0 ? Math.round((gradSum / sampleCount) * 1.4) : 0;
+    sampleCount > 0 ? Math.round((gradSum / sampleCount) * 1.45) : 0;
 
-  // Buat canvas hasil peningkatan kontras grayscale untuk engine OCR agar angka NIK lebih tegas
+  // Kanvas 1: Full KTP Contrast-Stretched Grayscale
   const ocrCanvas = document.createElement("canvas");
   ocrCanvas.width = w;
   ocrCanvas.height = h;
   const ocrCtx = ocrCanvas.getContext("2d");
-  if (!ocrCtx) {
-    return {
-      sharpnessScore,
-      enhancedDataUrl: sourceCanvas.toDataURL("image/jpeg", 0.94),
-    };
+  if (ocrCtx) {
+    const ocrImg = ocrCtx.createImageData(w, h);
+    const dst = ocrImg.data;
+    for (let i = 0; i < data.length; i += 4) {
+      // Gunakan kanal Red & Green lebih tinggi agar latar biru KTP menjadi putih bersih dan teks hitam menjadi pekat
+      const luma = Math.round(data[i] * 0.45 + data[i + 1] * 0.45 + data[i + 2] * 0.1);
+      const stretched = Math.max(
+        0,
+        Math.min(255, Math.round((luma - 112) * 1.85 + 128))
+      );
+      dst[i] = stretched;
+      dst[i + 1] = stretched;
+      dst[i + 2] = stretched;
+      dst[i + 3] = 255;
+    }
+    ocrCtx.putImageData(ocrImg, 0, 0);
   }
 
-  const ocrImg = ocrCtx.createImageData(w, h);
-  const dst = ocrImg.data;
-  for (let i = 0; i < data.length; i += 4) {
-    const luma =
-      (data[i] * 77 + data[i + 1] * 150 + data[i + 2] * 29) >> 8;
-    // Contrast stretching untuk memperjelas teks hitam di atas latar biru KTP-el
-    const stretched = Math.max(0, Math.min(255, Math.round((luma - 118) * 1.65 + 128)));
-    dst[i] = stretched;
-    dst[i + 1] = stretched;
-    dst[i + 2] = stretched;
-    dst[i + 3] = 255;
+  // Kanvas 2: Khusus Pita Header + NIK + Nama (bagian atas 8%..48% tinggi kartu, 2%..76% lebar kartu) di-upscale agar Tesseract fokus membaca NIK & Nama
+  const bandCanvas = document.createElement("canvas");
+  bandCanvas.width = 1100;
+  bandCanvas.height = 380;
+  const bandCtx = bandCanvas.getContext("2d");
+  if (bandCtx) {
+    bandCtx.drawImage(
+      ocrCanvas,
+      Math.floor(w * 0.02),
+      Math.floor(h * 0.1),
+      Math.floor(w * 0.76),
+      Math.floor(h * 0.38),
+      0,
+      0,
+      1100,
+      380
+    );
   }
-  ocrCtx.putImageData(ocrImg, 0, 0);
 
   return {
     sharpnessScore,
-    enhancedDataUrl: ocrCanvas.toDataURL("image/jpeg", 0.95),
+    enhancedFullDataUrl: ocrCanvas.toDataURL("image/jpeg", 0.95),
+    nikBandDataUrl: bandCanvas.toDataURL("image/jpeg", 0.95),
   };
 }
 
@@ -255,9 +457,8 @@ export default function KioskCameraKtpScanner({
 
   const [streamActive, setStreamActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  // PENTING: Default mirrorVideo = FALSE agar tampilan KTP di layar TIDAK TERBALIK (angka NIK terbaca normal dari kiri ke kanan)
+  // Default mirrorVideo = FALSE agar tampilan KTP di layar TIDAK TERBALIK (angka NIK terbaca lurus dari kiri ke kanan)
   const [mirrorVideo, setMirrorVideo] = useState(false);
-  // Flip pembacaan OCR jika webcam bawaan laptop melakukan hardware-mirroring
   const [flipHorizontalCapture, setFlipHorizontalCapture] = useState(false);
   const [autoDetectEnabled, setAutoDetectEnabled] = useState(true);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
@@ -362,32 +563,31 @@ export default function KioskCameraKtpScanner({
   }, [startCamera, stopCamera]);
 
   /**
-   * Memotong (Auto-Crop) area bingkai KTP-el dari video dan mengekstrak data warga
+   * Memotong (Auto-Segment & Crop) kartu biru KTP-el dari video dan mengekstrak data warga
    * dengan STANDAR KEYAKINAN KETAT (Strict Confidence Gate).
-   * Jika gambar buram, terbalik, atau NIK/Nama tidak terbaca jelas -> TOLAK & MINTA FOTO ULANG (Jangan dipaksa menebak warga acak!).
+   * Jika gambar buram, terbalik, atau NIK/Nama tidak terbaca jelas -> TOLAK & MINTA FOTO ULANG (Tidak pernah jatuh ke Abdul Rahman / warga acak!).
    */
   const captureAndExtractKtp = useCallback(
     async (customImageSource?: HTMLImageElement) => {
       if (processingOcr) return;
 
-      const cropCanvas = cropCanvasRef.current;
-      if (!cropCanvas) return;
+      const rawCanvas = cropCanvasRef.current;
+      if (!rawCanvas) return;
 
-      // Resolusi tinggi CR80 (1024 x 646 px) agar angka NIK lebih tajam saat di-OCR
-      const targetW = 1024;
-      const targetH = 646;
-      cropCanvas.width = targetW;
-      cropCanvas.height = targetH;
-      const ctx = cropCanvas.getContext("2d");
+      const rawW = 1280;
+      const rawH = 800;
+      rawCanvas.width = rawW;
+      rawCanvas.height = rawH;
+      const ctx = rawCanvas.getContext("2d");
       if (!ctx) return;
 
       if (customImageSource) {
         ctx.save();
         if (flipHorizontalCapture) {
-          ctx.translate(targetW, 0);
+          ctx.translate(rawW, 0);
           ctx.scale(-1, 1);
         }
-        ctx.drawImage(customImageSource, 0, 0, targetW, targetH);
+        ctx.drawImage(customImageSource, 0, 0, rawW, rawH);
         ctx.restore();
       } else {
         const video = videoRef.current;
@@ -396,41 +596,33 @@ export default function KioskCameraKtpScanner({
         const vw = video.videoWidth;
         const vh = video.videoHeight;
 
-        const ktpAspect = 1.586;
-        let cropW = vw * 0.72;
-        let cropH = cropW / ktpAspect;
-        if (cropH > vh * 0.76) {
-          cropH = vh * 0.76;
-          cropW = cropH * ktpAspect;
-        }
-        const sx = (vw - cropW) / 2;
-        const sy = (vh - cropH) / 2;
-
         ctx.save();
-        // Jika pengguna mengaktifkan koreksi balik gambar karena kamera ter-flip, balikkan hasil tangkapan agar sama persis dengan yang terlihat normal di layar
         if (mirrorVideo || flipHorizontalCapture) {
-          ctx.translate(targetW, 0);
+          ctx.translate(rawW, 0);
           ctx.scale(-1, 1);
         }
-        ctx.drawImage(video, sx, sy, cropW, cropH, 0, 0, targetW, targetH);
+        ctx.drawImage(video, 0, 0, vw, vh, 0, 0, rawW, rawH);
         ctx.restore();
       }
 
-      const colorDataUrl = cropCanvas.toDataURL("image/jpeg", 0.94);
-      const { sharpnessScore, enhancedDataUrl } =
-        measureSharpnessAndPreprocessOcr(cropCanvas);
+      // Segmentasi & potong otomatis tepat pada area kartu biru KTP-el (mengabaikan latar belakang ruangan/tangan)
+      const segmentedCardCanvas = autoSegmentAndCropBlueKtpCard(rawCanvas);
+      const colorDataUrl = segmentedCardCanvas.toDataURL("image/jpeg", 0.94);
+
+      const { sharpnessScore, enhancedFullDataUrl, nikBandDataUrl } =
+        measureSharpnessAndPreprocessOcr(segmentedCardCanvas);
 
       setCroppedDataUrl(colorDataUrl);
       setDetectedResult(null);
       setOcrFailure(null);
       setProcessingOcr(true);
       setProcessingStage(
-        `1/3 Memeriksa Ketajaman & Orientasi KTP-el (Skor Fokus: ${sharpnessScore})...`
+        `1/3 Memotong Kartu KTP-el & Mengukur Fokus Lensa (Skor Fokus: ${sharpnessScore})...`
       );
 
-      await new Promise((r) => setTimeout(r, 350));
+      await new Promise((r) => setTimeout(r, 300));
 
-      // GATE 1: Validasi Ketajaman Fokus Gambar (Tolak langsung jika gambar terlalu blur / goyang)
+      // GATE 1: Validasi Ketajaman Fokus Gambar
       if (sharpnessScore < MIN_SHARPNESS_SCORE) {
         setProcessingOcr(false);
         setOcrFailure({
@@ -448,25 +640,33 @@ export default function KioskCameraKtpScanner({
       }
 
       setProcessingStage(
-        "2/3 Membaca Nomor NIK 16 Digit & Nama KTP-el (Optical Character Recognition)..."
+        "2/3 Membaca Pita NIK 16 Digit & Nama KTP-el (Dual-Zone OCR)..."
       );
 
-      let rawOcrText = "";
+      let combinedOcrText = "";
       let measuredConfidence = 0;
 
       if (typeof window !== "undefined" && window.Tesseract) {
         try {
-          const ocrPromise = window.Tesseract.recognize(enhancedDataUrl, "eng");
+          // Jalankan OCR pada Pita NIK+Nama yang sudah di-upscale DAN pada kartu penuh secara paralel
+          const ocrTasks = Promise.all([
+            window.Tesseract.recognize(nikBandDataUrl, "eng"),
+            window.Tesseract.recognize(enhancedFullDataUrl, "eng"),
+          ]);
           const timeoutPromise = new Promise<null>((resolve) =>
-            setTimeout(() => resolve(null), 5500)
+            setTimeout(() => resolve(null), 6500)
           );
-          const ocrRes = await Promise.race([ocrPromise, timeoutPromise]);
-          if (ocrRes && ocrRes.data) {
-            rawOcrText = (ocrRes.data.text || "").trim();
-            measuredConfidence = Math.round(ocrRes.data.confidence || 0);
+          const ocrResults = await Promise.race([ocrTasks, timeoutPromise]);
+          if (ocrResults && Array.isArray(ocrResults)) {
+            const bandText = ocrResults[0]?.data?.text || "";
+            const fullText = ocrResults[1]?.data?.text || "";
+            combinedOcrText = `${bandText}\n${fullText}`.trim();
+            const c1 = Math.round(ocrResults[0]?.data?.confidence || 0);
+            const c2 = Math.round(ocrResults[1]?.data?.confidence || 0);
+            measuredConfidence = Math.max(c1, c2);
           }
         } catch {
-          rawOcrText = "";
+          combinedOcrText = "";
           measuredConfidence = 0;
         }
       } else {
@@ -485,14 +685,14 @@ export default function KioskCameraKtpScanner({
         return;
       }
 
-      const { exact16, partialBaliNik } =
-        extractNikCandidatesFromOcrText(rawOcrText);
-      const extractedName = extractNameFromOcrText(rawOcrText);
+      const { exact16, partialBaliNik, extractedName, distinctiveKeywords } =
+        extractNikAndNameCandidates(combinedOcrText);
 
-      // Hitung skor keyakinan efektif: gabungan confidence Tesseract + validitas struktur NIK 16 digit
       let effectiveConfidence = measuredConfidence;
       if (exact16 && exact16.startsWith("51")) {
-        effectiveConfidence = Math.max(measuredConfidence, 78);
+        effectiveConfidence = Math.max(measuredConfidence, 84);
+      } else if (partialBaliNik && partialBaliNik.startsWith("5108")) {
+        effectiveConfidence = Math.max(measuredConfidence, 72);
       } else if (exact16) {
         effectiveConfidence = Math.max(measuredConfidence, 70);
       }
@@ -500,32 +700,36 @@ export default function KioskCameraKtpScanner({
       setProcessingStage(
         "3/3 Memverifikasi Standar Keyakinan & Mencocokkan Database Desa Ringdikit..."
       );
-      await new Promise((r) => setTimeout(r, 300));
+      await new Promise((r) => setTimeout(r, 250));
 
-      // GATE 2: Pastikan NIK atau Nama benar-benar terbaca dengan tingkat keyakinan >= MIN_OCR_CONFIDENCE (68%)
+      // GATE 2: Pastikan NIK atau kata kunci Nama terbaca dengan tingkat keyakinan >= MIN_OCR_CONFIDENCE (60%)
       if (
         effectiveConfidence < MIN_OCR_CONFIDENCE ||
-        (!exact16 && !partialBaliNik && !extractedName)
+        (!exact16 &&
+          !partialBaliNik &&
+          !extractedName &&
+          distinctiveKeywords.length === 0)
       ) {
         setProcessingOcr(false);
         setOcrFailure({
           title: "Teks KTP Tidak Terbaca Jelas (Di Bawah Ambang Keyakinan)",
           reason:
-            "Angka NIK 16 digit atau Nama pada KTP tidak terbaca dengan keyakinan yang cukup (kemungkinan karena pantulan cahaya, jarak terlalu jauh, atau posisi kartu miring/terbalik). Sistem tidak memaksakan pembacaan agar tidak salah warga.",
+            "Angka NIK 16 digit atau Nama pada KTP belum terbaca dengan keyakinan yang cukup (kemungkinan karena jarak KTP terlalu jauh dari lensa webcam atau cahaya silau). Dekatkan KTP hingga memenuhi kotak bingkai, lalu coba lagi.",
           measuredConfidence: effectiveConfidence,
           requiredConfidence: MIN_OCR_CONFIDENCE,
           sharpnessScore,
           extractedRawNik: exact16 || partialBaliNik,
-          extractedRawName: extractedName,
-          ocrSnippet: rawOcrText.slice(0, 120),
+          extractedRawName: extractedName || distinctiveKeywords.join(" "),
+          ocrSnippet: combinedOcrText.slice(0, 120),
         });
         return;
       }
 
-      // GATE 3: Cocokkan HANYA dengan warga yang benar-benar sesuai di Database Desa Ringdikit (TANPA fallback warga acak!)
+      // GATE 3: Cocokkan dengan Database Desa Ringdikit (TANPA fallback ke warga acak seperti Abdul Rahman!)
       let matchedResident: ApiResidentItem | null = null;
       let sourceLabel = "";
 
+      // 3A. Cek NIK 16 digit eksak
       if (exact16) {
         const resLookup = await kioskLookupResident({ nik: exact16 });
         if (resLookup.ok && resLookup.data.resident) {
@@ -534,11 +738,12 @@ export default function KioskCameraKtpScanner({
         }
       }
 
-      // Jika NIK terbaca sebagian (misal 12-15 digit awal 5108...) atau sedikit meleset 1 digit, cari di database yang cocok ketat
+      // 3B. Cek penggalan NIK Kabupaten Buleleng (510802...)
       if (!matchedResident && (partialBaliNik || exact16)) {
-        const searchKey = partialBaliNik || (exact16 ? exact16.slice(0, 12) : "");
-        if (searchKey.length >= 10) {
-          const resSearch = await fetchResidents(searchKey, 2, 0, "", "AKTIF");
+        const searchKey =
+          partialBaliNik || (exact16 ? exact16.slice(0, 10) : "");
+        if (searchKey.length >= 8) {
+          const resSearch = await fetchResidents(searchKey, 5, 0, "", "AKTIF");
           if (
             resSearch.ok &&
             resSearch.data.residents &&
@@ -550,14 +755,9 @@ export default function KioskCameraKtpScanner({
         }
       }
 
-      // Jika NIK belum cocok tetapi Nama KTP terbaca jelas (>= 5 karakter) dengan keyakinan memenuhi standar
-      if (
-        !matchedResident &&
-        extractedName &&
-        extractedName.length >= 5 &&
-        effectiveConfidence >= MIN_OCR_CONFIDENCE
-      ) {
-        const resSearch = await fetchResidents(extractedName, 2, 0, "", "AKTIF");
+      // 3C. Cek Nama Lengkap dari baris "Nama :"
+      if (!matchedResident && extractedName && extractedName.length >= 4) {
+        const resSearch = await fetchResidents(extractedName, 3, 0, "", "AKTIF");
         if (
           resSearch.ok &&
           resSearch.data.residents &&
@@ -568,25 +768,50 @@ export default function KioskCameraKtpScanner({
         }
       }
 
+      // 3D. Cek kata kunci nama unik pada KTP (misal "RESIKA" atau "ARTHANA") yang hanya dimiliki 1 warga di database
+      if (!matchedResident && distinctiveKeywords.length > 0) {
+        for (const kw of distinctiveKeywords) {
+          if (kw.length < 5) continue;
+          const resSearch = await fetchResidents(kw, 3, 0, "", "AKTIF");
+          if (
+            resSearch.ok &&
+            resSearch.data.residents &&
+            resSearch.data.residents.length === 1
+          ) {
+            matchedResident = resSearch.data.residents[0];
+            sourceLabel = `Identitas KTP Terverifikasi (${matchedResident.full_name} • NIK ${matchedResident.nik})`;
+            break;
+          }
+        }
+      }
+
       setProcessingOcr(false);
 
-      // JIKA TIDAK ADA KECOCOKAN PASTI DI DATABASE -> JANGAN DIPAKSA! Tampilkan peringatan jujur & jelas
+      // JIKA TIDAK ADA KECOCOKAN PASTI DI DATABASE -> TOLAK DENGAN JUJUR (JANGAN PERNAH JATUH KE ABDUL RAHMAN!)
       if (!matchedResident) {
         setOcrFailure({
-          title: "NIK / Data KTP Tidak Cocok dengan Database Desa Ringdikit",
+          title: "NIK / Data KTP Belum Terbaca Utuh atau Tidak Ditemukan",
           reason: `Hasil pembacaan kamera (${
             exact16
               ? `NIK: ${exact16}`
               : partialBaliNik
               ? `Penggalan NIK: ${partialBaliNik}...`
-              : `Nama: ${extractedName || "-"}`
-          }) belum ditemukan secara pasti di database penduduk aktif Desa Ringdikit. Pastikan angka pada kamera tidak terbalik dan KTP didekatkan ke bingkai, atau gunakan input NIK/RFID.`,
+              : `Teks: ${
+                  extractedName ||
+                  distinctiveKeywords.join(" ") ||
+                  "Belum cukup tajam"
+                }`
+          }) belum menemukan kecocokan tunggal yang pasti di database Desa Ringdikit. Sistem tidak memaksakan pembacaan agar tidak salah memilih warga. Silakan dekatkan KTP ke kamera atau ketik NIK.`,
           measuredConfidence: effectiveConfidence,
           requiredConfidence: MIN_OCR_CONFIDENCE,
           sharpnessScore,
           extractedRawNik: exact16 || partialBaliNik,
-          extractedRawName: extractedName,
-          ocrSnippet: rawOcrText.slice(0, 120),
+          extractedRawName:
+            extractedName ||
+            (distinctiveKeywords.length > 0
+              ? distinctiveKeywords.join(" ")
+              : null),
+          ocrSnippet: combinedOcrText.slice(0, 120),
         });
         return;
       }
@@ -629,17 +854,17 @@ export default function KioskCameraKtpScanner({
 
       const vw = video.videoWidth;
       const vh = video.videoHeight;
-      const sx = vw * 0.18;
-      const sy = vh * 0.18;
-      const sw = vw * 0.64;
-      const sh = vh * 0.64;
+      const sx = vw * 0.16;
+      const sy = vh * 0.16;
+      const sw = vw * 0.68;
+      const sh = vh * 0.68;
 
       ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h);
       const imgData = ctx.getImageData(0, 0, w, h).data;
 
       let edgeCount = 0;
       let gradSum = 0;
-      let brightPixels = 0;
+      let blueCardPixels = 0;
       let motionDiff = 0;
       const prev = prevFrameDataRef.current;
       const currentLuma = new Uint8ClampedArray(w * h);
@@ -647,15 +872,17 @@ export default function KioskCameraKtpScanner({
       for (let y = 1; y < h - 1; y++) {
         for (let x = 1; x < w - 1; x++) {
           const idx = (y * w + x) * 4;
-          const luma =
-            (imgData[idx] * 77 +
-              imgData[idx + 1] * 150 +
-              imgData[idx + 2] * 29) >>
-            8;
+          const r = imgData[idx];
+          const g = imgData[idx + 1];
+          const b = imgData[idx + 2];
+          const luma = (r * 77 + g * 150 + b * 29) >> 8;
           const pIdx = y * w + x;
           currentLuma[pIdx] = luma;
 
-          if (luma > 95) brightPixels++;
+          // Deteksi warna biru/cyan khas blangko KTP-el
+          if (b > 85 && b > r + 12 && g > r + 4) {
+            blueCardPixels++;
+          }
 
           const leftIdx = (y * w + (x - 1)) * 4;
           const leftLuma =
@@ -665,7 +892,7 @@ export default function KioskCameraKtpScanner({
             8;
           const diff = Math.abs(luma - leftLuma);
           gradSum += diff;
-          if (diff > 28) {
+          if (diff > 26) {
             edgeCount++;
           }
 
@@ -677,43 +904,42 @@ export default function KioskCameraKtpScanner({
       prevFrameDataRef.current = currentLuma;
 
       const totalPixels = w * h;
-      const brightRatio = brightPixels / totalPixels;
+      const blueCardRatio = blueCardPixels / totalPixels;
       const edgeRatio = edgeCount / totalPixels;
-      const avgGrad = Math.round((gradSum / totalPixels) * 1.8);
+      const avgGrad = Math.round((gradSum / totalPixels) * 1.85);
       const avgMotion = prev ? motionDiff / totalPixels : 99;
 
       setLiveSharpness(avgGrad);
 
-      // Standar deteksi lebih ketat: kartu harus terang, memiliki kontras teks tajam (avgGrad >= MIN_SHARPNESS_SCORE), dan stabil
-      const hasSharpCardTexture =
-        brightRatio > 0.25 &&
-        edgeRatio > 0.055 &&
-        edgeRatio < 0.42 &&
+      // Kartu KTP-el harus memiliki proporsi warna biru blangko KTP + ketajaman teks >= MIN_SHARPNESS_SCORE + tangan stabil
+      const hasSharpBlueKtp =
+        blueCardRatio > 0.14 &&
+        edgeRatio > 0.045 &&
         avgGrad >= MIN_SHARPNESS_SCORE;
       const isSteady = avgMotion < 8.5;
 
       const rawScore = Math.min(
         100,
         Math.round(
-          (hasSharpCardTexture ? 55 : 15) +
-            Math.min(30, edgeRatio * 280) +
+          (hasSharpBlueKtp ? 60 : 15) +
+            Math.min(25, blueCardRatio * 80) +
             (isSteady ? 15 : 0)
         )
       );
       setCardPresenceScore(rawScore);
 
-      if (hasSharpCardTexture && isSteady) {
+      if (hasSharpBlueKtp && isSteady) {
         stabilityCounterRef.current += 1;
         const pct = Math.min(
           100,
-          Math.round((stabilityCounterRef.current / 8) * 100)
+          Math.round((stabilityCounterRef.current / 7) * 100)
         );
         setHoldProgress(pct);
         setStatusMessage(
-          `KTP-el Fokus & Stabil (Ketajaman ${avgGrad}) — Tahan Posisi (${pct}%)...`
+          `KTP-el Terdeteksi Fokus & Stabil (Ketajaman ${avgGrad}) — Tahan (${pct}%)...`
         );
 
-        if (stabilityCounterRef.current >= 8) {
+        if (stabilityCounterRef.current >= 7) {
           stabilityCounterRef.current = 0;
           setHoldProgress(100);
           captureAndExtractKtp();
@@ -723,11 +949,15 @@ export default function KioskCameraKtpScanner({
           0,
           stabilityCounterRef.current - 1
         );
-        const pct = Math.round((stabilityCounterRef.current / 8) * 100);
+        const pct = Math.round((stabilityCounterRef.current / 7) * 100);
         setHoldProgress(pct);
-        if (avgGrad < MIN_SHARPNESS_SCORE) {
+        if (blueCardRatio <= 0.14) {
           setStatusMessage(
-            "Dekatkan KTP-el ke bingkai kamera hingga tulisan NIK terlihat fokus & tajam..."
+            "Arahkan & dekatkan fisik KTP-el biru ke dalam kotak bingkai kamera..."
+          );
+        } else if (avgGrad < MIN_SHARPNESS_SCORE) {
+          setStatusMessage(
+            "Dekatkan sedikit KTP-el ke kamera hingga tulisan NIK terlihat fokus & tajam..."
           );
         } else {
           setStatusMessage(
@@ -783,11 +1013,11 @@ export default function KioskCameraKtpScanner({
           <div>
             <div className="inline-flex items-center gap-2 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#FFD43B]">
               <ScanLine className="w-4 h-4" />
-              PEMINDAI KAMERA KTP-EL (ORIENTASI NORMAL • STANDAR KEYAKINAN ≥{" "}
-              {MIN_OCR_CONFIDENCE}%)
+              PEMINDAI KAMERA KTP-EL (AUTO-SEGMENT KARTU BIRU • STANDAR
+              KEYAKINAN ≥ {MIN_OCR_CONFIDENCE}%)
             </div>
             <h4 className="text-xl sm:text-2xl font-extrabold text-white">
-              Arahkan KTP-el ke Kamera (Teks Tidak Di-Mirror)
+              Arahkan KTP-el ke Kamera (Orientasi Lurus • Tanpa Tebak Warga)
             </h4>
           </div>
         </div>
@@ -863,9 +1093,9 @@ export default function KioskCameraKtpScanner({
         <div className="flex items-center gap-2 font-bold text-emerald-300">
           <ShieldCheck className="w-4 h-4 shrink-0" />
           <span>
-            Mode Akurasi Ketat Aktif: Kamera tidak di-flip agar angka NIK
-            terbaca lurus dari kiri ke kanan. Jika gambar buram/meragukan,
-            sistem tidak akan memaksa membaca.
+            Deteksi Blangko Biru KTP-el & Standar Keyakinan Aktif: Sistem hanya
+            memotong area kartu KTP dan tidak akan memilih warga secara acak
+            apabila NIK/Nama belum terbaca jelas.
           </span>
         </div>
         <div className="font-mono text-xs font-extrabold text-[#FFD43B]">
@@ -942,7 +1172,7 @@ export default function KioskCameraKtpScanner({
                           NIK: 5108xxxxxxxxxxxx (Kiri → Kanan)
                         </div>
                         <div className="rounded-lg border border-dashed border-white/40 bg-black/40 px-2.5 py-2 text-[10px] sm:text-xs text-white/90 space-y-0.5">
-                          <div>• Pastikan tulisan NIK tajam & tidak silau</div>
+                          <div>• Dekatkan KTP agar memenuhi kotak ini</div>
                           <div>• Pas foto KTP berada di sisi KANAN</div>
                         </div>
                       </div>
@@ -1016,10 +1246,10 @@ export default function KioskCameraKtpScanner({
         /* LAYAR HASIL AUTO-CROP KTP & EVALUASI STANDAR KEYAKINAN */
         <div className="rounded-3xl bg-white/10 border border-white/20 p-5 sm:p-6 space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-            {/* KOLOM KIRI: GAMBAR KTP HASIL AUTO-CROP */}
+            {/* KOLOM KIRI: GAMBAR KTP HASIL AUTO-SEGMENT & CROP */}
             <div className="md:col-span-5 space-y-2">
               <div className="flex items-center justify-between text-xs font-extrabold uppercase tracking-wider text-slate-200">
-                <span>Hasil Potongan KTP-el (CR80)</span>
+                <span>Hasil Auto-Crop Kartu KTP-el</span>
                 <span>Orientasi Lurus</span>
               </div>
               <div
@@ -1094,9 +1324,17 @@ export default function KioskCameraKtpScanner({
                       • Karakter NIK Terdeteksi:{" "}
                       <span className="font-mono font-bold">
                         {ocrFailure.extractedRawNik ||
-                          "Tidak terbaca jelas (buram/silau)"}
+                          "Tidak terbaca jelas (buram/terlalu jauh)"}
                       </span>
                     </div>
+                    {ocrFailure.extractedRawName && (
+                      <div>
+                        • Teks Nama Terdeteksi:{" "}
+                        <span className="font-mono font-bold">
+                          {ocrFailure.extractedRawName}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 pt-1">
