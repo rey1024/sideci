@@ -21,6 +21,7 @@ import {
   Search,
   Settings,
   Sparkles,
+  Star,
   Unlink,
   UserCheck,
 } from "lucide-react";
@@ -37,6 +38,7 @@ import {
   getLetterDocxUrl,
   getLetterPdfUrl,
   kioskLookupResident,
+  submitGuestbookFeedback,
 } from "@/lib/api";
 import ResidentAutocomplete from "@/components/ResidentAutocomplete";
 import KioskCameraKtpScanner, {
@@ -301,6 +303,12 @@ export default function KioskWorkspaceManager({
   const [submittingGuestbook, setSubmittingGuestbook] = useState(false);
   const [completedGuestbook, setCompletedGuestbook] =
     useState<ApiGuestbookEntry | null>(null);
+  // State Form Penilaian Layanan (Rating Bintang 5 & Kesan Pengunjung) setelah Buku Tamu
+  const [gbServiceRating, setGbServiceRating] = useState<number>(5);
+  const [gbHoverRating, setGbHoverRating] = useState<number>(0);
+  const [gbFeedbackImpression, setGbFeedbackImpression] = useState<string>("");
+  const [submittingFeedback, setSubmittingFeedback] = useState<boolean>(false);
+  const [feedbackSaved, setFeedbackSaved] = useState<boolean>(false);
 
   // State Tab 2: Pengaturan Pairing RFID <-> NIK
   const [pairTargetResident, setPairTargetResident] =
@@ -437,6 +445,10 @@ export default function KioskWorkspaceManager({
     setLookupError(null);
     setIssuedKioskLetter(null);
     setCompletedGuestbook(null);
+    setGbServiceRating(5);
+    setGbHoverRating(0);
+    setGbFeedbackImpression("");
+    setFeedbackSaved(false);
     setGbFullName("");
     setGbNIK("");
     setGbRFID("");
@@ -606,8 +618,29 @@ export default function KioskWorkspaceManager({
       return;
     }
     setCompletedGuestbook(res.data.entry);
+    setGbServiceRating(5);
+    setGbHoverRating(0);
+    setGbFeedbackImpression("");
+    setFeedbackSaved(false);
     await loadGuestbook();
     onDataChanged?.();
+  };
+
+  const handleSubmitGuestbookFeedback = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!completedGuestbook) return;
+    setSubmittingFeedback(true);
+    const res = await submitGuestbookFeedback(completedGuestbook.id, {
+      service_rating: gbServiceRating,
+      feedback_impression: gbFeedbackImpression.trim(),
+    });
+    setSubmittingFeedback(false);
+    if (res.ok && res.data.entry) {
+      setCompletedGuestbook(res.data.entry);
+      setFeedbackSaved(true);
+      await loadGuestbook();
+      onDataChanged?.();
+    }
   };
 
   const handleSaveRFIDPairing = async (e: React.FormEvent) => {
@@ -1387,31 +1420,209 @@ export default function KioskWorkspaceManager({
         {serviceMode === "guestbook" && (
           <div className="rounded-[2rem] bg-white text-ink p-6 sm:p-10 shadow-2xl space-y-6">
             {completedGuestbook ? (
-              /* LAYAR BUKTI CHECK-IN BUKU TAMU */
-              <div className="text-center max-w-xl mx-auto py-6 space-y-6">
-                <div className="w-24 h-24 rounded-full bg-pastel-mintSoft text-[#087F5B] flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-14 h-14" />
-                </div>
-                <div className="space-y-2">
-                  <div className="text-sm sm:text-base font-extrabold uppercase tracking-wider text-[#087F5B]">
-                    BUKU TAMU BERHASIL DISIMPAN
+              /* LAYAR BUKTI CHECK-IN BUKU TAMU + FORM RATING BINTANG 5 & KESAN LAYANAN */
+              <div className="max-w-2xl mx-auto py-3 space-y-6">
+                {/* HEADER KONFIRMASI CHECK-IN */}
+                <div className="text-center space-y-3">
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#E6FCF5] to-[#C3FAE8] border-2 border-[#96F2D7] text-[#087F5B] flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-11 h-11" />
                   </div>
-                  <h3 className="font-display text-3xl sm:text-4xl font-extrabold text-ink">
-                    Selamat Datang, {completedGuestbook.full_name}
-                  </h3>
-                  <p className="text-base sm:text-lg text-ink-secondary font-medium">
-                    Silakan menuju ke{" "}
-                    <strong>{completedGuestbook.target_official}</strong>
-                  </p>
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-pastel-mintSoft px-3.5 py-1 text-xs sm:text-sm font-extrabold uppercase tracking-wider text-[#087F5B]">
+                      BUKU TAMU BERHASIL DISIMPAN
+                    </div>
+                    <h3 className="font-display text-2xl sm:text-4xl font-extrabold text-ink">
+                      Selamat Datang, {completedGuestbook.full_name}
+                    </h3>
+                    <p className="text-base sm:text-lg text-ink-secondary font-medium">
+                      Silakan menuju ke{" "}
+                      <strong className="text-[#087F5B]">
+                        {completedGuestbook.target_official}
+                      </strong>{" "}
+                      ({completedGuestbook.purpose_category})
+                    </p>
+                  </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={resetKioskSession}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#087F5B] hover:bg-[#066649] text-white font-extrabold text-lg sm:text-xl px-10 py-5 shadow-lg active:scale-95 transition-all"
-                >
-                  Selesai & Kembali ke Layar Awal
-                </button>
+                {/* FORM ELEGAN PENILAIAN LAYANAN (RATING BINTANG 5 & KESAN PENGUNJUNG) */}
+                {!feedbackSaved ? (
+                  <form
+                    onSubmit={handleSubmitGuestbookFeedback}
+                    className="rounded-3xl bg-gradient-to-br from-[#F8F5FF] via-[#FFFDF7] to-[#F3FBF8] border-2 border-[#E5DBFF] p-6 sm:p-8 shadow-md space-y-6"
+                  >
+                    <div className="text-center space-y-1.5">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF3BF] border border-[#FFE066] px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider text-[#B45309]">
+                        <Sparkles className="w-3.5 h-3.5" /> Indeks Kepuasan
+                        Masyarakat (IKM)
+                      </span>
+                      <h4 className="text-xl sm:text-2xl font-extrabold text-ink">
+                        Bagaimana Penilaian & Kesan Anda atas Pelayanan Desa
+                        Ringdikit?
+                      </h4>
+                      <p className="text-xs sm:text-sm text-ink-secondary">
+                        Sentuh bintang di bawah dan tuliskan kesan/masukan Anda
+                        untuk kemajuan pelayanan cerdas Desa Ringdikit
+                      </p>
+                    </div>
+
+                    {/* BINTANG 5 INTERAKTIF UKURAN BESAR (TABLET TOUCH-FRIENDLY) */}
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="flex items-center justify-center gap-2 sm:gap-4">
+                        {[1, 2, 3, 4, 5].map((star) => {
+                          const activeLevel = gbHoverRating || gbServiceRating;
+                          const isFilled = star <= activeLevel;
+                          return (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setGbServiceRating(star)}
+                              onMouseEnter={() => setGbHoverRating(star)}
+                              onMouseLeave={() => setGbHoverRating(0)}
+                              className={`group rounded-2xl p-3 sm:p-4 border-2 transition-all active:scale-90 ${
+                                isFilled
+                                  ? "bg-[#FFF9DB] border-[#FCC419] shadow-md scale-105"
+                                  : "bg-white border-line hover:border-[#FFE066]"
+                              }`}
+                              aria-label={`Beri ${star} Bintang`}
+                            >
+                              <Star
+                                className={`w-9 h-9 sm:w-12 sm:h-12 transition-transform group-hover:scale-110 ${
+                                  isFilled
+                                    ? "fill-[#FCC419] text-[#F59F00]"
+                                    : "text-slate-300"
+                                }`}
+                              />
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* LABEL PREDIKAT BINTANG */}
+                      <div className="inline-flex items-center gap-2 rounded-xl bg-white border border-line px-4 py-1.5 text-sm sm:text-base font-extrabold text-ink shadow-sm">
+                        <span className="text-[#F59F00]">
+                          {"★".repeat(gbHoverRating || gbServiceRating)}
+                        </span>
+                        <span>
+                          {(gbHoverRating || gbServiceRating) === 5
+                            ? "5/5 — Sangat Puas & Pelayanan Prima!"
+                            : (gbHoverRating || gbServiceRating) === 4
+                            ? "4/5 — Puas & Ramah"
+                            : (gbHoverRating || gbServiceRating) === 3
+                            ? "3/5 — Cukup Baik"
+                            : (gbHoverRating || gbServiceRating) === 2
+                            ? "2/5 — Perlu Peningkatan"
+                            : "1/5 — Kurang Memuaskan"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* CHIP KESAN CEPAT (1-TAP TABLET) */}
+                    <div className="space-y-2">
+                      <div className="text-xs font-extrabold uppercase tracking-wider text-ink-muted">
+                        Pilih Cepat Kesan Pelayanan (Opsional):
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          "Pelayanan cepat, ramah, dan modern!",
+                          "Anjungan Kiosk KTP-el sangat memudahkan warga.",
+                          "Perangkat desa sigap dan informatif.",
+                          "Ruang pelayanan bersih, nyaman, dan tertib.",
+                        ].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() =>
+                              setGbFeedbackImpression((prev) =>
+                                prev.includes(preset)
+                                  ? prev
+                                  : prev
+                                  ? `${prev} ${preset}`
+                                  : preset
+                              )
+                            }
+                            className="rounded-xl bg-white hover:bg-[#F3EFFE] border border-[#D0BFFF] px-3 py-1.5 text-xs sm:text-sm font-bold text-[#5F3DC4] transition-colors active:scale-95"
+                          >
+                            + {preset}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* TEXTAREA KESAN & PESAN */}
+                    <div className="space-y-2">
+                      <label className="block text-sm sm:text-base font-extrabold text-ink">
+                        Kesan & Pesan Anda untuk Pemerintah Desa Ringdikit:
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={gbFeedbackImpression}
+                        onChange={(e) =>
+                          setGbFeedbackImpression(e.target.value)
+                        }
+                        placeholder="Tuliskan kesan, apresiasi, atau saran Anda terhadap pelayanan Desa Ringdikit..."
+                        className="soft-input bg-white text-base sm:text-lg p-4 rounded-2xl border-2 border-[#D0BFFF] focus:border-[#6741D9] w-full"
+                      />
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={resetKioskSession}
+                        className="w-full sm:w-auto rounded-2xl bg-white hover:bg-slate-100 border border-line text-ink-secondary font-bold text-sm sm:text-base px-6 py-4 transition-all"
+                      >
+                        Lewati & Kembali ke Layar Awal
+                      </button>
+
+                      <button
+                        type="submit"
+                        disabled={submittingFeedback}
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#6741D9] to-[#087F5B] hover:opacity-95 text-white font-extrabold text-base sm:text-lg px-8 py-4 shadow-xl active:scale-95 transition-all disabled:opacity-50"
+                      >
+                        <Star className="w-5 h-5 fill-[#FFD43B] text-[#FFD43B]" />
+                        {submittingFeedback
+                          ? "Menyimpan Penilaian..."
+                          : "Kirim Rating & Kesan Layanan"}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  /* KARTU APRESIASI SETELAH RATING & KESAN TERKIRIM */
+                  <div className="rounded-3xl bg-gradient-to-br from-[#FFF9DB] via-[#E6FCF5] to-[#F3EFFE] border-2 border-[#96F2D7] p-6 sm:p-8 text-center space-y-4 shadow-md">
+                    <div className="inline-flex items-center gap-1 text-[#F59F00]">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star
+                          key={s}
+                          className={`w-7 h-7 ${
+                            s <= (completedGuestbook.service_rating || gbServiceRating)
+                              ? "fill-[#FCC419] text-[#F59F00]"
+                              : "text-slate-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <h4 className="text-2xl font-extrabold text-ink">
+                      Matur Suksma! Terima Kasih atas Penilaian Anda
+                    </h4>
+                    {(completedGuestbook.feedback_impression ||
+                      gbFeedbackImpression) && (
+                      <blockquote className="max-w-lg mx-auto rounded-2xl bg-white/85 border border-[#D0BFFF] px-5 py-3.5 text-sm sm:text-base italic font-medium text-ink">
+                        &ldquo;
+                        {completedGuestbook.feedback_impression ||
+                          gbFeedbackImpression}
+                        &rdquo;
+                      </blockquote>
+                    )}
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={resetKioskSession}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#087F5B] hover:bg-[#066649] text-white font-extrabold text-lg sm:text-xl px-10 py-4 shadow-lg active:scale-95 transition-all"
+                      >
+                        Selesai & Kembali ke Layar Awal
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               /* FORM BUKU TAMU TABLET */
@@ -2033,7 +2244,7 @@ export default function KioskWorkspaceManager({
          ===================================================================== */}
       {adminTab === "guestbook_log" && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
             <div className="soft-card p-4">
               <div className="text-xs text-ink-muted">Total Kunjungan</div>
               <div className="font-display text-2xl font-bold text-ink mt-1">
@@ -2053,7 +2264,7 @@ export default function KioskWorkspaceManager({
               </div>
             </div>
             <div className="soft-card p-4">
-              <div className="text-xs text-ink-muted">Via Pencarian NIK</div>
+              <div className="text-xs text-ink-muted">Via Kamera / NIK</div>
               <div className="font-display text-2xl font-bold text-[#1971C2] mt-1">
                 {guestbookStats.nik_count}
               </div>
@@ -2064,17 +2275,30 @@ export default function KioskWorkspaceManager({
                 {guestbookStats.manual_count}
               </div>
             </div>
+            <div className="rounded-2xl bg-[#FFF9DB] border border-[#FFE066] p-4">
+              <div className="text-xs font-bold text-[#B45309]">
+                Rata-rata Rating Layanan
+              </div>
+              <div className="font-display text-2xl font-extrabold text-[#B45309] mt-1 flex items-center gap-1.5">
+                <Star className="w-5 h-5 fill-[#FCC419] text-[#F59F00]" />
+                <span>
+                  {guestbookStats.avg_rating && guestbookStats.avg_rating > 0
+                    ? `${guestbookStats.avg_rating} / 5`
+                    : "5.0 / 5"}
+                </span>
+              </div>
+            </div>
           </div>
 
           <div className="soft-card p-5 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 className="text-base font-bold text-ink">
-                  Buku Register Tamu Kantor Perbekel Ringdikit
+                  Buku Register Tamu & Penilaian Kepuasan Layanan Desa Ringdikit
                 </h3>
                 <p className="text-xs text-ink-muted">
-                  Rekam jejak seluruh warga dan tamu instansi yang berkunjung
-                  melalui Anjungan Kiosk Mandiri.
+                  Rekam jejak seluruh warga dan tamu instansi beserta rating
+                  bintang & kesan pelayanan melalui Anjungan Kiosk Mandiri.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -2082,7 +2306,7 @@ export default function KioskWorkspaceManager({
                   type="text"
                   value={guestbookSearch}
                   onChange={(e) => setGuestbookSearch(e.target.value)}
-                  placeholder="Cari nama tamu, NIK, keperluan..."
+                  placeholder="Cari nama tamu, NIK, kesan..."
                   className="soft-input text-xs w-56"
                 />
                 <select
@@ -2092,7 +2316,7 @@ export default function KioskWorkspaceManager({
                 >
                   <option value="">Semua Metode Identitas</option>
                   <option value="RFID">Scan RFID KTP-el</option>
-                  <option value="NIK">Pencarian NIK</option>
+                  <option value="NIK">Kamera KTP / NIK</option>
                   <option value="MANUAL">Input Manual</option>
                 </select>
               </div>
@@ -2108,13 +2332,14 @@ export default function KioskWorkspaceManager({
                     <th className="py-3 px-3">Asal / Banjar Dinas</th>
                     <th className="py-3 px-3">Pejabat Dituju</th>
                     <th className="py-3 px-3">Keperluan Kunjungan</th>
+                    <th className="py-3 px-3">Rating & Kesan Layanan</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line text-xs">
                   {loadingGuestbook ? (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="py-6 text-center text-ink-muted"
                       >
                         Memuat daftar buku tamu...
@@ -2123,7 +2348,7 @@ export default function KioskWorkspaceManager({
                   ) : guestbookItems.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="py-8 text-center text-ink-muted"
                       >
                         Belum ada data kunjungan di Buku Tamu Digital.
@@ -2174,6 +2399,27 @@ export default function KioskWorkspaceManager({
                           <div className="text-[11px] text-ink-muted">
                             {g.purpose_detail}
                           </div>
+                        </td>
+                        <td className="py-3 px-3">
+                          {g.service_rating && g.service_rating > 0 ? (
+                            <div className="space-y-0.5">
+                              <div className="inline-flex items-center gap-1 rounded-md bg-[#FFF9DB] border border-[#FFE066] px-2 py-0.5 text-[11px] font-extrabold text-[#B45309]">
+                                <span className="text-[#F59F00]">
+                                  {"★".repeat(g.service_rating)}
+                                </span>
+                                <span>({g.service_rating}/5)</span>
+                              </div>
+                              {g.feedback_impression && (
+                                <div className="text-[11px] italic text-ink-secondary max-w-xs">
+                                  &ldquo;{g.feedback_impression}&rdquo;
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-[11px] text-ink-muted">
+                              Belum dinilai
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))

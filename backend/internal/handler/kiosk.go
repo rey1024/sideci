@@ -169,3 +169,36 @@ func (s *Server) handleCreateGuestbook(w http.ResponseWriter, r *http.Request) {
 		"message": "Data kunjungan Buku Tamu Desa berhasil tercatat.",
 	})
 }
+
+func (s *Server) handleSubmitGuestbookFeedback(w http.ResponseWriter, r *http.Request) {
+	c, ok := requireTenantClaims(w, r)
+	if !ok {
+		return
+	}
+	if s.Store == nil {
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Database belum terhubung"})
+		return
+	}
+
+	entryID := strings.TrimSpace(r.PathValue("id"))
+	var req struct {
+		ServiceRating      int    `json:"service_rating"`
+		FeedbackImpression string `json:"feedback_impression"`
+	}
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 32*1024)).Decode(&req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Format permintaan JSON tidak valid"})
+		return
+	}
+
+	entry, err := s.Store.SubmitGuestbookFeedback(r.Context(), c.VillageID, entryID, req.ServiceRating, req.FeedbackImpression)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Gagal menyimpan penilaian layanan: " + err.Error()})
+		return
+	}
+
+	s.Store.Audit(r.Context(), c.VillageID, c.Subject, "GUESTBOOK_FEEDBACK_SUBMITTED", "guestbook_entry", entry.ID, clientIP(r))
+	writeJSON(w, http.StatusOK, map[string]any{
+		"entry":   entry,
+		"message": "Terima kasih atas penilaian dan kesan Anda terhadap pelayanan Desa Ringdikit.",
+	})
+}

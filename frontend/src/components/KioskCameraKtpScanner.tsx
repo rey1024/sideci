@@ -544,6 +544,10 @@ export default function KioskCameraKtpScanner({
 
   const [streamActive, setStreamActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  // Default di Tablet: Kamera Belakang ("environment") agar mudah memotret KTP, dan bisa di-switch ke Kamera Depan ("user")
+  const [facingMode, setFacingMode] = useState<"environment" | "user">(
+    "environment"
+  );
   const [mirrorVideo, setMirrorVideo] = useState(false);
   const [flipHorizontalCapture, setFlipHorizontalCapture] = useState(false);
   const [autoDetectEnabled, setAutoDetectEnabled] = useState(true);
@@ -586,9 +590,10 @@ export default function KioskCameraKtpScanner({
   }, []);
 
   const startCamera = useCallback(
-    async (deviceId?: string) => {
+    async (deviceId?: string, preferredFacing?: "environment" | "user") => {
       stopCamera();
       setCameraError(null);
+      const targetFacing = preferredFacing || facingMode;
       try {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           setCameraError(
@@ -605,7 +610,7 @@ export default function KioskCameraKtpScanner({
                 height: { ideal: 1080 },
               }
             : {
-                facingMode: "environment",
+                facingMode: { ideal: targetFacing },
                 width: { ideal: 1920 },
                 height: { ideal: 1080 },
               },
@@ -629,21 +634,58 @@ export default function KioskCameraKtpScanner({
         const allDevs = await navigator.mediaDevices.enumerateDevices();
         const videoDevs = allDevs.filter((d) => d.kind === "videoinput");
         setDevices(videoDevs);
+
+        const activeTrack = mediaStream.getVideoTracks()[0];
+        const activeDevId = activeTrack?.getSettings?.().deviceId;
+        if (activeDevId) {
+          setSelectedDeviceId(activeDevId);
+        }
       } catch {
         setCameraError(
           "Kamera tidak dapat diakses (pastikan izin kamera browser telah diaktifkan)."
         );
       }
     },
-    [stopCamera]
+    [facingMode, stopCamera]
   );
 
+  const handleToggleFacingCamera = useCallback(async () => {
+    const nextFacing: "environment" | "user" =
+      facingMode === "environment" ? "user" : "environment";
+    setFacingMode(nextFacing);
+
+    // Apabila tablet/perangkat memiliki >1 kamera di daftar devices, pilih kamera depan/belakang yang sesuai atau bergantian
+    if (devices.length > 1) {
+      const keyword =
+        nextFacing === "user"
+          ? /(front|user|depan|facetime)/i
+          : /(back|rear|environment|belakang)/i;
+      const matchedDev = devices.find((d) => keyword.test(d.label || ""));
+      if (matchedDev && matchedDev.deviceId) {
+        setSelectedDeviceId(matchedDev.deviceId);
+        await startCamera(matchedDev.deviceId, nextFacing);
+        return;
+      }
+      const curIdx = devices.findIndex((d) => d.deviceId === selectedDeviceId);
+      const nextDev = devices[(curIdx + 1) % devices.length];
+      if (nextDev && nextDev.deviceId) {
+        setSelectedDeviceId(nextDev.deviceId);
+        await startCamera(nextDev.deviceId, nextFacing);
+        return;
+      }
+    }
+
+    setSelectedDeviceId("");
+    await startCamera(undefined, nextFacing);
+  }, [devices, facingMode, selectedDeviceId, startCamera]);
+
   useEffect(() => {
-    startCamera();
+    startCamera(undefined, "environment");
     return () => {
       stopCamera();
     };
-  }, [startCamera, stopCamera]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Memotong (Auto-Segment & Crop) kartu biru KTP-el dari video dan mengekstrak data warga
@@ -1148,6 +1190,23 @@ export default function KioskCameraKtpScanner({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* TOMBOL SWITCH KAMERA BELAKANG (DEFAULT TABLET) <-> KAMERA DEPAN */}
+          <button
+            type="button"
+            onClick={handleToggleFacingCamera}
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-extrabold transition-colors shadow-sm ${
+              facingMode === "environment"
+                ? "bg-[#FFD43B] text-[#111A30] hover:bg-[#FCC419]"
+                : "bg-sky-400 text-[#072136] hover:bg-sky-300"
+            }`}
+            title="Ganti antara Kamera Belakang (Default Tablet) dan Kamera Depan"
+          >
+            <RefreshCw className="w-4 h-4" />
+            {facingMode === "environment"
+              ? "Kamera: Belakang (Switch ke Depan)"
+              : "Kamera: Depan (Switch ke Belakang)"}
+          </button>
+
           <button
             type="button"
             onClick={() => {

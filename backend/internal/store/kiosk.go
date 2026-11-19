@@ -25,15 +25,28 @@ type GuestbookEntry struct {
 	PurposeCategory      string `json:"purpose_category"`
 	PurposeDetail        string `json:"purpose_detail"`
 	TargetOfficial       string `json:"target_official"`
+	ServiceRating        int    `json:"service_rating,omitempty"`
+	FeedbackImpression   string `json:"feedback_impression,omitempty"`
 	CheckinAt            string `json:"checkin_at"`
 }
 
 type GuestbookStats struct {
-	Total       int `json:"total"`
-	Today       int `json:"today"`
-	RFIDCount   int `json:"rfid_count"`
-	NIKCount    int `json:"nik_count"`
-	ManualCount int `json:"manual_count"`
+	Total       int     `json:"total"`
+	Today       int     `json:"today"`
+	RFIDCount   int     `json:"rfid_count"`
+	NIKCount    int     `json:"nik_count"`
+	ManualCount int     `json:"manual_count"`
+	RatedCount  int     `json:"rated_count"`
+	AvgRating   float64 `json:"avg_rating"`
+}
+
+func (s *Store) ensureGuestbookFeedbackColumns(ctx context.Context) {
+	_, _ = s.Pool.Exec(ctx, `
+		ALTER TABLE guestbook_entries
+			ADD COLUMN IF NOT EXISTS service_rating SMALLINT CHECK (service_rating BETWEEN 1 AND 5),
+			ADD COLUMN IF NOT EXISTS feedback_impression TEXT,
+			ADD COLUMN IF NOT EXISTS rated_at TIMESTAMPTZ
+	`)
 }
 
 type CreateGuestbookInput struct {
@@ -277,6 +290,7 @@ func (s *Store) BindResidentRFID(ctx context.Context, villageID, actorUserID, re
 }
 
 func (s *Store) ListGuestbookEntries(ctx context.Context, villageID, search, methodFilter string, limit int) ([]GuestbookEntry, GuestbookStats, error) {
+	s.ensureGuestbookFeedbackColumns(ctx)
 	if limit <= 0 || limit > 200 {
 		limit = 100
 	}
@@ -287,10 +301,12 @@ func (s *Store) ListGuestbookEntries(ctx context.Context, villageID, search, met
 			COUNT(*) FILTER (WHERE checkin_at::date = CURRENT_DATE),
 			COUNT(*) FILTER (WHERE identification_method = 'RFID'),
 			COUNT(*) FILTER (WHERE identification_method = 'NIK'),
-			COUNT(*) FILTER (WHERE identification_method = 'MANUAL')
+			COUNT(*) FILTER (WHERE identification_method = 'MANUAL'),
+			COUNT(*) FILTER (WHERE service_rating IS NOT NULL AND service_rating > 0),
+			COALESCE(ROUND(AVG(service_rating)::numeric, 1), 0)::float8
 		FROM guestbook_entries
 		WHERE village_id = $1::uuid
-	`, villageID).Scan(&stats.Total, &stats.Today, &stats.RFIDCount, &stats.NIKCount, &stats.ManualCount)
+	`, villageID).Scan(&stats.Total, &stats.Today, &stats.RFIDCount, &stats.NIKCount, &stats.ManualCount, &stats.RatedCount, &stats.AvgRating)
 
 	rows, err := s.Pool.Query(ctx, `
 		SELECT
@@ -308,6 +324,8 @@ func (s *Store) ListGuestbookEntries(ctx context.Context, villageID, search, met
 			purpose_category,
 			purpose_detail,
 			target_official,
+			COALESCE(service_rating, 0),
+			COALESCE(feedback_impression, ''),
 			TO_CHAR(checkin_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
 		FROM guestbook_entries
 		WHERE village_id = $1::uuid
@@ -320,6 +338,7 @@ func (s *Store) ListGuestbookEntries(ctx context.Context, villageID, search, met
 		      OR COALESCE(dusun_name, '') ILIKE '%' || $3 || '%'
 		      OR purpose_detail ILIKE '%' || $3 || '%'
 		      OR target_official ILIKE '%' || $3 || '%'
+		      OR COALESCE(feedback_impression, '') ILIKE '%' || $3 || '%'
 		  )
 		ORDER BY checkin_at DESC
 		LIMIT $4
@@ -347,6 +366,8 @@ func (s *Store) ListGuestbookEntries(ctx context.Context, villageID, search, met
 			&g.PurposeCategory,
 			&g.PurposeDetail,
 			&g.TargetOfficial,
+			&g.ServiceRating,
+			&g.FeedbackImpression,
 			&g.CheckinAt,
 		); err != nil {
 			return nil, stats, err
@@ -354,6 +375,70 @@ func (s *Store) ListGuestbookEntries(ctx context.Context, villageID, search, met
 		list = append(list, g)
 	}
 	return list, stats, rows.Err()
+}
+
+func (s *Store) SubmitGuestbookFeedback(ctx context.Context, villageID, entryID string, rating int, impression string) (*GuestbookEntry, error) {
+	s.ensureGuestbookFeedbackColumns(ctx)
+	entryID = strings.TrimSpace(entryID)
+	if entryID == "" {
+		return nil, fmt.Errorf("id kunjungan buku tamu wajib diisi")
+	}
+	if rating < 1 || rating > 5 {
+		return nil, fmt.Errorf("rating layanan wajib bernilai antara 1 sampai 5 bintang")
+	}
+	impression = strings.TrimSpace(impression)
+
+	var g GuestbookEntry
+	err := s.Pool.QueryRow(ctx, `
+		UPDATE guestbook_entries
+		SET service_rating = $3,
+		    feedback_impression = NULLIF($4, ''),
+		    rated_at = NOW()
+		WHERE village_id = $1::uuid AND id = $2::uuid
+		RETURNING
+			id::text,
+			village_id::text,
+			COALESCE(resident_id::text, ''),
+			identification_method,
+			COALESCE(rfid_uid, ''),
+			COALESCE(nik, ''),
+			full_name,
+			COALESCE(dusun_name, ''),
+			COALESCE(address, ''),
+			COALESCE(phone, ''),
+			COALESCE(institution, ''),
+			purpose_category,
+			purpose_detail,
+			target_official,
+			COALESCE(service_rating, 0),
+			COALESCE(feedback_impression, ''),
+			TO_CHAR(checkin_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"')
+	`, villageID, entryID, rating, impression).Scan(
+		&g.ID,
+		&g.VillageID,
+		&g.ResidentID,
+		&g.IdentificationMethod,
+		&g.RFIDUID,
+		&g.NIK,
+		&g.FullName,
+		&g.DusunName,
+		&g.Address,
+		&g.Phone,
+		&g.Institution,
+		&g.PurposeCategory,
+		&g.PurposeDetail,
+		&g.TargetOfficial,
+		&g.ServiceRating,
+		&g.FeedbackImpression,
+		&g.CheckinAt,
+	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &g, nil
 }
 
 func (s *Store) CreateGuestbookEntry(ctx context.Context, villageID, actorUserID string, in CreateGuestbookInput) (*GuestbookEntry, error) {

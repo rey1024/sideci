@@ -1,17 +1,17 @@
 # Graph Report - sideci  (2026-11-20)
 
 ## Corpus Check
-- 93 files · ~109,894 words
+- 93 files · ~111,351 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 11 file(s) not represented in the graph (top: (none) 7, .example 3, .css 1)
 
 ## Summary
-- 798 nodes · 1868 edges · 52 communities (45 shown, 7 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 91 edges (avg confidence: 0.86)
+- 802 nodes · 1883 edges · 55 communities (47 shown, 8 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 94 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c698aa76`
+- Built from commit: `373ced53`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -30,19 +30,20 @@
 - compilerOptions
 - next
 - ResidentAutocomplete
-- lucide-react
-- [villageSlug]/page.tsx
+- .CreateOrIssueLetter
+- defaultStr
 - LetterStudioManager.tsx
 - deploy.ps1
 - docs/README.md
 - app/panel/page.tsx
-- ringdikit-data.ts
+- [villageSlug]/page.tsx
 - SuperadminView.tsx
-- [...path]/route.ts
+- ResidentItem
 - ResidentAutocomplete
 - Detail Storyboard & Naskah Narasi Per Adegan
 - lucide-react
 - api.ts
+- GuestbookEntry
 - AGENTS.md — SIDECI AI Software Engineering Guidelines
 - System Architecture — SIDECI
 - Feature Specification Template
@@ -57,6 +58,8 @@
 - SIDECI — Sistem Desa Cerdas Terintegrasi
 - SIDECI Backend API (Golang + PostgreSQL + `golang-migrate`)
 - Research & Domain Insights — Studi Kasus Desa Ringdikit
+- VillageStats
+- .ListDusuns
 - pull_request_template.md
 - Panduan Infrastruktur & Operasional Deployment SIDECI
 - Security Posture & Pre-Production Audit Guide
@@ -66,13 +69,13 @@
 - 000001_init_sideci_schema.up.sql
 
 ## God Nodes (most connected - your core abstractions)
-1. `Server` - 49 edges
-2. `writeJSON()` - 40 edges
-3. `requireTenantClaims()` - 31 edges
-4. `request()` - 26 edges
+1. `Server` - 50 edges
+2. `writeJSON()` - 41 edges
+3. `requireTenantClaims()` - 32 edges
+4. `request()` - 27 edges
 5. `OperatorPopulationManager()` - 22 edges
 6. `ParseSIAKXLSX()` - 21 edges
-7. `clientIP()` - 18 edges
+7. `clientIP()` - 19 edges
 8. `lucide-react` - 18 edges
 9. `next` - 16 edges
 10. `Workspace()` - 16 edges
@@ -92,15 +95,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (52 total, 7 thin omitted)
+## Communities (55 total, 8 thin omitted)
 
 ### Community 0 - "api/main.go"
 Cohesion: 0.12
-Nodes (11): PublicVillageOverview, CategoryStat, DusunStat, PublicLetterSubmitRequest, PublicLetterTicketResponse, cachedOverview, createSubmissionReq, createVillageRequest (+3 more)
+Nodes (10): PublicVillageOverview, CategoryStat, DusunStat, PublicLetterSubmitRequest, PublicLetterTicketResponse, createSubmissionReq, createVillageRequest, loginRequest (+2 more)
 
 ### Community 1 - "testing.T"
 Cohesion: 0.05
-Nodes (51): bootstrapSuperadmin(), main(), main(), CheckPassword(), Manager, HashPassword(), NewManager(), TestIssueAndParseRoundTrip() (+43 more)
+Nodes (52): bootstrapSuperadmin(), main(), main(), CheckPassword(), Manager, HashPassword(), NewManager(), TestIssueAndParseRoundTrip() (+44 more)
 
 ### Community 2 - "Server"
 Cohesion: 0.13
@@ -111,28 +114,28 @@ Cohesion: 0.06
 Nodes (32): dependencies, lucide-react, next, react, react-dom, devDependencies, autoprefixer, postcss (+24 more)
 
 ### Community 4 - "siak_xlsx.go"
-Cohesion: 0.09
-Nodes (27): appendAnomaly(), buildDusunMatcher(), cleanDash(), defaultIfEmpty(), digitsOnly(), extractColLetters(), NormalizedResident, matchDusun() (+19 more)
+Cohesion: 0.15
+Nodes (22): appendAnomaly(), buildDusunMatcher(), cleanDash(), defaultIfEmpty(), digitsOnly(), extractColLetters(), NormalizedResident, matchDusun() (+14 more)
 
 ### Community 5 - "KioskWorkspaceManager.tsx"
-Cohesion: 0.14
-Nodes (22): formatBirthDateDDMMYYYY(), formatDateTimeID(), GuestbookIdMethod, KIOSK_LETTER_OPTIONS, KioskAdminTab, KioskServiceMode, KioskTemplateOption, KioskWorkspaceManager() (+14 more)
+Cohesion: 0.13
+Nodes (23): formatBirthDateDDMMYYYY(), formatDateTimeID(), GuestbookIdMethod, KIOSK_LETTER_OPTIONS, KioskAdminTab, KioskServiceMode, KioskTemplateOption, KioskWorkspaceManager() (+15 more)
 
 ### Community 6 - "OperatorPopulationManager.tsx"
-Cohesion: 0.14
-Nodes (18): EDUCATION_OPTIONS, EMPTY_FORM, EVENT_TYPE_LABELS, MARITAL_OPTIONS, OperatorPopulationManager(), handleConfirmDelete(), handleSaveEvent(), handleSaveResident() (+10 more)
+Cohesion: 0.13
+Nodes (21): openResidentDetail(), EDUCATION_OPTIONS, EMPTY_FORM, EVENT_TYPE_LABELS, MARITAL_OPTIONS, OperatorPopulationManager(), handleConfirmDelete(), handleSaveEvent() (+13 more)
 
 ### Community 7 - "KepalaDusunWorkspace.tsx"
-Cohesion: 0.11
-Nodes (23): DirectorySubMode, EDUCATION_OPTIONS, KadusMenuTab, KepalaDusunWorkspace(), handleSubmitReport(), openResidentDetail(), KepalaDusunWorkspaceProps, SHDK_OPTIONS (+15 more)
+Cohesion: 0.13
+Nodes (18): DirectorySubMode, EDUCATION_OPTIONS, KadusMenuTab, KepalaDusunWorkspace(), handleSubmitReport(), KepalaDusunWorkspaceProps, SHDK_OPTIONS, statusBadgeClass() (+10 more)
 
 ### Community 8 - "docgen.go"
 Cohesion: 0.22
 Nodes (17): buildElements(), BuildLetterDOCX(), BuildLetterPDF(), LetterDocData, nonEmpty(), pdfEsc(), pdfTextAt(), pdfTextCentered() (+9 more)
 
 ### Community 9 - "context.Context"
-Cohesion: 0.05
-Nodes (24): indonesianDateStr(), randomHexToken(), romanMonth(), strFromMap(), AuthUser, Count, CreateGuestbookInput, CreateLetterInput (+16 more)
+Cohesion: 0.12
+Nodes (6): AuthUser, CreateSubmissionInput, HouseholdItem, SubmissionItem, VillageProfile, VillageSummary
 
 ### Community 10 - "SIDECI — Sistem Desa Cerdas Terintegrasi"
 Cohesion: 0.11
@@ -143,23 +146,23 @@ Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+10 more)
 
 ### Community 12 - "next"
-Cohesion: 0.10
-Nodes (8): dynamic, metadata, RootLayout(), DemoAccessGate(), config, CUSTOM_DOMAIN_MAP, RESERVED_SEGMENTS, next
+Cohesion: 0.07
+Nodes (17): backendOrigin(), DELETE, dynamic, GET, PATCH, POST, proxyToBackend(), PUT (+9 more)
 
 ### Community 13 - "ResidentAutocomplete"
-Cohesion: 0.19
-Nodes (15): autoSegmentAndCropBlueKtpCard(), ExtractedKtpResult, extractNikAndNameCandidates(), KioskCameraKtpScanner(), KioskCameraKtpScannerProps, measureSharpnessAndPreprocessOcr(), normalizeOcrDigits(), OcrFailureInfo (+7 more)
+Cohesion: 0.18
+Nodes (16): autoSegmentAndCropBlueKtpCard(), ExtractedKtpResult, extractNikAndNameCandidates(), KioskCameraKtpScanner(), KioskCameraKtpScannerProps, measureSharpnessAndPreprocessOcr(), normalizeOcrDigits(), OcrFailureInfo (+8 more)
 
-### Community 14 - "lucide-react"
+### Community 14 - ".CreateOrIssueLetter"
 Cohesion: 0.20
-Nodes (9): ApiVillageOverview, dynamic, loadVillageIdentity(), metadata, PrivacyPolicyPage(), Slide, SLIDES, RINGDIKIT_OVERVIEW (+1 more)
+Nodes (7): indonesianDateStr(), randomHexToken(), romanMonth(), strFromMap(), CreateLetterInput, LetterRecord, LetterStats
 
-### Community 15 - "[villageSlug]/page.tsx"
-Cohesion: 0.36
-Nodes (11): ApiVillageOverview, dynamic, loadVillageOverview(), VillageTenantPortalPage(), HeroCarousel(), MultiSegmentDonut(), PastelBarChart(), SmoothHoneyAreaChart() (+3 more)
+### Community 15 - "defaultStr"
+Cohesion: 0.18
+Nodes (5): isUniqueViolation(), defaultStr(), NewVillage, RecordEventInput, UpsertResidentInput
 
 ### Community 16 - "LetterStudioManager.tsx"
-Cohesion: 0.17
+Cohesion: 0.19
 Nodes (15): DiffDocRow, formatBirthDateDDMMYYYY(), formatDateID(), HeirRow, LetterStudioManager(), LetterStudioManagerProps, OFFICIAL_TEMPLATES, PersuratanSubTab (+7 more)
 
 ### Community 17 - "deploy.ps1"
@@ -171,20 +174,20 @@ Cohesion: 0.29
 Nodes (3): Product Requirements Document (PRD), Dokumentasi Proyek SIDECI, Urutan Baca yang Direkomendasikan
 
 ### Community 19 - "app/panel/page.tsx"
-Cohesion: 0.26
-Nodes (11): ActiveRole, InternalWorkspacePage(), SUBMISSION_TYPE_LABELS, Workspace(), updateSubmissionStatus(), fetchDusuns(), fetchMe(), fetchSubmissions() (+3 more)
+Cohesion: 0.24
+Nodes (12): ActiveRole, InternalWorkspacePage(), SUBMISSION_TYPE_LABELS, Workspace(), updateSubmissionStatus(), fetchDusuns(), fetchMe(), fetchPopulationStats() (+4 more)
 
-### Community 20 - "ringdikit-data.ts"
-Cohesion: 0.20
-Nodes (11): CreatedTicket, PublicLetterSection(), handleSubmit(), BanjarStat, DEMO_RESIDENTS, DemoResident, INITIAL_SUBMISSIONS, KadusSubmission (+3 more)
+### Community 20 - "[villageSlug]/page.tsx"
+Cohesion: 0.10
+Nodes (30): ApiVillageOverview, dynamic, loadVillageOverview(), VillageTenantPortalPage(), ApiVillageOverview, dynamic, loadVillageIdentity(), metadata (+22 more)
 
 ### Community 21 - "SuperadminView.tsx"
 Cohesion: 0.27
 Nodes (9): AVAILABLE_VILLAGE_ROLES, SuperadminView(), handleCreateUser(), handleCreateVillage(), AdminVillageSummary, createAdminUser(), createAdminVillage(), fetchAdminVillages() (+1 more)
 
-### Community 22 - "[...path]/route.ts"
+### Community 22 - "ResidentItem"
 Cohesion: 0.25
-Nodes (8): backendOrigin(), DELETE, dynamic, GET, PATCH, POST, proxyToBackend(), PUT
+Nodes (3): PopulationEventItem, ResidentDetail, ResidentItem
 
 ### Community 23 - "ResidentAutocomplete"
 Cohesion: 0.39
@@ -195,12 +198,16 @@ Cohesion: 0.18
 Nodes (10): ADEGAN 1 — Hook Pembuka & Portal Publik SIDECI Desa Ringdikit, ADEGAN 2 — Dashboard Eksekutif Perbekel & Analitik Satu Data, ADEGAN 3 — Manajemen 5.392 Penduduk, Mutasi & Timeline Historis, ADEGAN 4 — Studio Persuratan Resmi Format PDF & Word (.DOCX), ADEGAN 5 — Buku Register Digital & Dokumentasi Arsip Sah TTD / TTE, ADEGAN 6 — Anjungan Kiosk Mandiri, Pemetaan RFID KTP-el & Buku Tamu Digital, ADEGAN 7 — Sinergi 5 Banjar Dinas & Kredit Pengabdian Kepada Masyarakat Undiksha, Detail Storyboard & Naskah Narasi Per Adegan (+2 more)
 
 ### Community 25 - "lucide-react"
-Cohesion: 0.29
-Nodes (3): VerifyPageProps, TenantVerifyPageProps, lucide-react
+Cohesion: 0.28
+Nodes (6): VerifyPageProps, TenantLoginPage(), handleSubmit(), login(), lucide-react, react
 
 ### Community 26 - "api.ts"
-Cohesion: 0.17
-Nodes (15): TenantLoginPage(), handleSubmit(), SmartImportBox(), runImport(), activeVillageSlugFromPath(), API_BASE, ApiPopulationEvent, CreateUserPayload (+7 more)
+Cohesion: 0.20
+Nodes (12): SmartImportBox(), runImport(), activeVillageSlugFromPath(), API_BASE, ApiLetterStats, ApiPopulationEvent, CreateUserPayload, CreateVillagePayload (+4 more)
+
+### Community 27 - "GuestbookEntry"
+Cohesion: 0.33
+Nodes (3): CreateGuestbookInput, GuestbookEntry, GuestbookStats
 
 ### Community 28 - "AGENTS.md — SIDECI AI Software Engineering Guidelines"
 Cohesion: 0.25
@@ -258,6 +265,10 @@ Nodes (4): Menjalankan Migrasi Database (`golang-migrate`), Menjalankan Pengujia
 Cohesion: 0.40
 Nodes (5): 1. Profil Wilayah Studi Kasus (Desa Ringdikit), 2. Temuan Kualitas Data Ekspor SIAK (`Data_Kependudukan_Desa_Ringdikit.xlsx`), 3. Temuan Struktur 5 Template Surat Desa (`docs/referensi/format-surat/`), 4. Pelajaran Keamanan dari `db_sideci.sql` Lama, Research & Domain Insights — Studi Kasus Desa Ringdikit
 
+### Community 42 - "VillageStats"
+Cohesion: 0.50
+Nodes (3): Count, DusunCount, VillageStats
+
 ### Community 44 - "pull_request_template.md"
 Cohesion: 0.40
 Nodes (4): Bukti Verifikasi, Daftar Periksa Kualitas & Keamanan (Wajib), Referensi Tugas / Fitur, Ringkasan Perubahan
@@ -277,22 +288,22 @@ Nodes (26): audit_logs, dusuns, households, idx_audit_village_created, idx_dusun
 ## Knowledge Gaps
 - **8 isolated node(s):** `github.com/rey1024/sideci/backend`, `react-dom`, `@types/node`, `@types/react`, `@types/react-dom` (+3 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 273 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `SIDECI — Development Backlog & Task Tracker` connect `SIDECI — Development Backlog & Task Tracker` to `docs/README.md`?**
   _High betweenness centrality (0.064) - this node is a cross-community bridge._
-- **Are the 36 inferred relationships involving `writeJSON()` (e.g. with `decodeCreateUser()` and `requireTenantClaims()`) actually correct?**
-  _`writeJSON()` has 36 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 37 inferred relationships involving `writeJSON()` (e.g. with `decodeCreateUser()` and `requireTenantClaims()`) actually correct?**
+  _`writeJSON()` has 37 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `github.com/rey1024/sideci/backend`, `react-dom`, `@types/node` to the rest of the system?**
   _8 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `api/main.go` be split into smaller, more focused modules?**
-  _Cohesion score 0.11697965571205007 - nodes in this community are weakly interconnected._
-- **Why does `Milestone 3 — Persuratan Multi-NIK & Pengesahan Hybrid QR/TTE (`F03`)` connect `SIDECI — Development Backlog & Task Tracker` to `context.Context`?**
+  _Cohesion score 0.11951710261569416 - nodes in this community are weakly interconnected._
+- **Why does `Milestone 3 — Persuratan Multi-NIK & Pengesahan Hybrid QR/TTE (`F03`)` connect `SIDECI — Development Backlog & Task Tracker` to `.CreateOrIssueLetter`?**
   _High betweenness centrality (0.063) - this node is a cross-community bridge._
 - **Should `testing.T` be split into smaller, more focused modules?**
-  _Cohesion score 0.052884615384615384 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05174825174825175 - nodes in this community are weakly interconnected._
 - **Why does `Laporan Audit Keamanan Aplikasi SIDECI (Cloudflare Security Audit Skill Methodology)` connect `3. Evaluasi Matriks Keamanan (Cloudflare Security Audit Checklist)` to `Server`?**
   _High betweenness centrality (0.031) - this node is a cross-community bridge._

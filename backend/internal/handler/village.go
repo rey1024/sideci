@@ -95,6 +95,7 @@ func (s *Server) RegisterRoutes(mux *http.ServeMux) {
 	mux.Handle("POST /api/v1/kiosk/rfid-mappings", letterOperator(http.HandlerFunc(s.handleBindRFIDMapping)))
 	mux.Handle("GET /api/v1/kiosk/guestbook", popReader(http.HandlerFunc(s.handleListGuestbook)))
 	mux.Handle("POST /api/v1/kiosk/guestbook", letterOperator(http.HandlerFunc(s.handleCreateGuestbook)))
+	mux.Handle("POST /api/v1/kiosk/guestbook/{id}/feedback", letterOperator(http.HandlerFunc(s.handleSubmitGuestbookFeedback)))
 
 	// Superadmin platform
 	mux.Handle("GET /api/v1/admin/villages", superOnly(http.HandlerFunc(s.handleAdminListVillages)))

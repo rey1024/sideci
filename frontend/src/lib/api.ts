@@ -616,6 +616,8 @@ export interface ApiGuestbookEntry {
   purpose_category: string;
   purpose_detail: string;
   target_official: string;
+  service_rating?: number;
+  feedback_impression?: string;
   checkin_at: string;
 }
 
@@ -625,6 +627,8 @@ export interface ApiGuestbookStats {
   rfid_count: number;
   nik_count: number;
   manual_count: number;
+  rated_count?: number;
+  avg_rating?: number;
 }
 
 export async function kioskLookupResident(params: {
@@ -698,6 +702,23 @@ export async function createGuestbookEntry(payload: {
     message?: string;
     error?: string;
   }>("/kiosk/guestbook", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function submitGuestbookFeedback(
+  entryId: string,
+  payload: {
+    service_rating: number;
+    feedback_impression?: string;
+  }
+) {
+  return request<{
+    entry?: ApiGuestbookEntry;
+    message?: string;
+    error?: string;
+  }>(`/kiosk/guestbook/${encodeURIComponent(entryId)}/feedback`, {
     method: "POST",
     body: JSON.stringify(payload),
   });
