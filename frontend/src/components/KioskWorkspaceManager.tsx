@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
+  Camera,
   CheckCircle2,
   CreditCard,
   Download,
@@ -38,11 +39,14 @@ import {
   kioskLookupResident,
 } from "@/lib/api";
 import ResidentAutocomplete from "@/components/ResidentAutocomplete";
+import KioskCameraKtpScanner, {
+  ExtractedKtpResult,
+} from "@/components/KioskCameraKtpScanner";
 
 type KioskAdminTab = "kiosk_screen" | "rfid_settings" | "guestbook_log";
 type KioskServiceMode = "home" | "letter" | "guestbook";
 type LetterWizardStep = "pick_type" | "identify" | "confirm";
-type GuestbookIdMethod = "RFID" | "NIK" | "MANUAL";
+type GuestbookIdMethod = "CAMERA" | "RFID" | "NIK" | "MANUAL";
 
 interface KioskTemplateOption {
   code: string;
@@ -242,9 +246,11 @@ export default function KioskWorkspaceManager({
   const [letterStep, setLetterStep] = useState<LetterWizardStep>("pick_type");
   const [identifiedResident, setIdentifiedResident] =
     useState<ApiResidentItem | null>(null);
-  const [identifiedMethod, setIdentifiedMethod] = useState<"RFID" | "NIK">(
-    "RFID"
-  );
+  const [identifiedMethod, setIdentifiedMethod] = useState<
+    "CAMERA" | "RFID" | "NIK"
+  >("CAMERA");
+  const [croppedKtpImage, setCroppedKtpImage] = useState<string | null>(null);
+  const [showHomeCameraModal, setShowHomeCameraModal] = useState(false);
   const [rfidInput, setRfidInput] = useState("");
   const [nikInput, setNikInput] = useState("");
   const [lookupLoading, setLookupLoading] = useState(false);
@@ -253,7 +259,9 @@ export default function KioskWorkspaceManager({
 
   // State Alur 1: Persuratan Kiosk
   const [kioskLetterCode, setKioskLetterCode] = useState<string>("SK_UMUM");
-  const [kioskIdTab, setKioskIdTab] = useState<"RFID" | "NIK">("RFID");
+  const [kioskIdTab, setKioskIdTab] = useState<"CAMERA" | "RFID" | "NIK">(
+    "CAMERA"
+  );
   const [kioskLetterPurpose, setKioskLetterPurpose] =
     useState<string>("Administrasi Bank");
   const [kioskChildName, setKioskChildName] = useState("");
@@ -275,7 +283,7 @@ export default function KioskWorkspaceManager({
     useState<ApiLetterRecord | null>(null);
 
   // State Alur 2: Buku Tamu Kiosk
-  const [gbMethod, setGbMethod] = useState<GuestbookIdMethod>("RFID");
+  const [gbMethod, setGbMethod] = useState<GuestbookIdMethod>("CAMERA");
   const [gbFullName, setGbFullName] = useState("");
   const [gbNIK, setGbNIK] = useState("");
   const [gbRFID, setGbRFID] = useState("");
@@ -340,10 +348,15 @@ export default function KioskWorkspaceManager({
 
   const applyResidentToKioskState = (
     res: ApiResidentItem,
-    method: "RFID" | "NIK"
+    method: "CAMERA" | "RFID" | "NIK",
+    croppedImage?: string
   ) => {
     setIdentifiedResident(res);
     setIdentifiedMethod(method);
+    if (croppedImage) {
+      setCroppedKtpImage(croppedImage);
+    }
+    setShowHomeCameraModal(false);
     setLookupError(null);
     setGbFullName(res.full_name);
     setGbNIK(res.nik);
@@ -362,6 +375,14 @@ export default function KioskWorkspaceManager({
     if (serviceMode === "letter" && letterStep === "identify") {
       setLetterStep("confirm");
     }
+  };
+
+  const handleCameraKtpDetected = (result: ExtractedKtpResult) => {
+    applyResidentToKioskState(
+      result.resident,
+      "CAMERA",
+      result.croppedImageDataUrl
+    );
   };
 
   const handleScanRFID = async (uidToScan?: string) => {
@@ -409,6 +430,8 @@ export default function KioskWorkspaceManager({
     setServiceMode("home");
     setLetterStep("pick_type");
     setIdentifiedResident(null);
+    setCroppedKtpImage(null);
+    setShowHomeCameraModal(false);
     setRfidInput("");
     setNikInput("");
     setLookupError(null);
@@ -542,8 +565,10 @@ export default function KioskWorkspaceManager({
     }
 
     setSubmittingGuestbook(true);
+    const backendMethod: "RFID" | "NIK" | "MANUAL" =
+      gbMethod === "CAMERA" ? "NIK" : gbMethod;
     const res = await createGuestbookEntry({
-      identification_method: gbMethod,
+      identification_method: backendMethod,
       rfid_uid:
         gbMethod === "RFID"
           ? identifiedResident?.rfid_uid || gbRFID || rfidInput
@@ -684,7 +709,15 @@ export default function KioskWorkspaceManager({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowHomeCameraModal((v) => !v)}
+            className="inline-flex items-center gap-2 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-[#072116] px-5 py-3.5 text-base font-extrabold shadow-md transition-all active:scale-95"
+          >
+            <Camera className="w-5 h-5" />
+            {showHomeCameraModal ? "Tutup Kamera KTP" : "Scan KTP via Kamera"}
+          </button>
           {serviceMode !== "home" && (
             <button
               type="button"
@@ -716,17 +749,40 @@ export default function KioskWorkspaceManager({
 
       {/* 2. KONTEN TENGAH TABLET KIOSK (FOKUS, TULISAN BESAR, MINIM TEKS) */}
       <div className="w-full max-w-6xl mx-auto my-auto py-4 space-y-6">
-        {/* KARTU SAPAAN WARGA APABILA KTP-EL SUDAH DI-TAP */}
+        {/* PANEL SCANNER KAMERA KTP APABILA DIBUKA DARI HEADER */}
+        {showHomeCameraModal && (
+          <KioskCameraKtpScanner
+            candidateResidents={rfidMappings}
+            onDetected={handleCameraKtpDetected}
+            onClose={() => setShowHomeCameraModal(false)}
+          />
+        )}
+
+        {/* KARTU SAPAAN WARGA APABILA KTP-EL SUDAH DI-TAP / DI-SCAN KAMERA */}
         {identifiedResident && (
           <div className="rounded-3xl bg-emerald-500/20 border-2 border-emerald-400/50 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-400 text-[#072116] flex items-center justify-center shrink-0 shadow">
-                <UserCheck className="w-9 h-9" />
-              </div>
+              {croppedKtpImage && identifiedMethod === "CAMERA" ? (
+                <div className="w-28 aspect-[1.586/1] rounded-xl overflow-hidden border-2 border-emerald-300 shadow shrink-0 bg-black">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={croppedKtpImage}
+                    alt="Hasil Crop KTP-el"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-2xl bg-emerald-400 text-[#072116] flex items-center justify-center shrink-0 shadow">
+                  <UserCheck className="w-9 h-9" />
+                </div>
+              )}
               <div>
                 <div className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-300">
-                  KTP-el Warga Terdeteksi ({identifiedMethod}
-                  {identifiedResident.rfid_uid
+                  KTP-el Warga Terdeteksi (
+                  {identifiedMethod === "CAMERA"
+                    ? "KAMERA KTP • AUTO-CROP"
+                    : identifiedMethod}
+                  {identifiedResident.rfid_uid && identifiedMethod === "RFID"
                     ? ` • ${identifiedResident.rfid_uid}`
                     : ""}
                   )
@@ -746,6 +802,7 @@ export default function KioskWorkspaceManager({
               type="button"
               onClick={() => {
                 setIdentifiedResident(null);
+                setCroppedKtpImage(null);
                 setRfidInput("");
                 setNikInput("");
               }}
@@ -994,33 +1051,49 @@ export default function KioskWorkspaceManager({
                   </button>
                 </div>
 
-                {/* 2 TAB BESAR: SCAN RFID VS CARI NIK */}
-                <div className="grid grid-cols-2 gap-4">
+                {/* 3 TAB BESAR: SCAN KAMERA KTP VS SCAN RFID VS CARI NIK */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  <button
+                    type="button"
+                    onClick={() => setKioskIdTab("CAMERA")}
+                    className={`rounded-2xl py-4 px-5 text-base sm:text-lg font-extrabold flex items-center justify-center gap-2.5 border-2 transition-all ${
+                      kioskIdTab === "CAMERA"
+                        ? "border-[#6741D9] bg-[#6741D9] text-white shadow-md"
+                        : "border-line bg-[#F8FAFD] text-ink-secondary"
+                    }`}
+                  >
+                    <Camera className="w-6 h-6" /> 1. Scan Kamera KTP
+                  </button>
                   <button
                     type="button"
                     onClick={() => setKioskIdTab("RFID")}
-                    className={`rounded-2xl py-4 px-5 text-base sm:text-xl font-extrabold flex items-center justify-center gap-3 border-2 transition-all ${
+                    className={`rounded-2xl py-4 px-5 text-base sm:text-lg font-extrabold flex items-center justify-center gap-2.5 border-2 transition-all ${
                       kioskIdTab === "RFID"
                         ? "border-[#6741D9] bg-[#6741D9] text-white shadow-md"
                         : "border-line bg-[#F8FAFD] text-ink-secondary"
                     }`}
                   >
-                    <Nfc className="w-6 h-6" /> 1. Scan RFID KTP-el
+                    <Nfc className="w-6 h-6" /> 2. Scan RFID KTP-el
                   </button>
                   <button
                     type="button"
                     onClick={() => setKioskIdTab("NIK")}
-                    className={`rounded-2xl py-4 px-5 text-base sm:text-xl font-extrabold flex items-center justify-center gap-3 border-2 transition-all ${
+                    className={`rounded-2xl py-4 px-5 text-base sm:text-lg font-extrabold flex items-center justify-center gap-2.5 border-2 transition-all ${
                       kioskIdTab === "NIK"
                         ? "border-[#6741D9] bg-[#6741D9] text-white shadow-md"
                         : "border-line bg-[#F8FAFD] text-ink-secondary"
                     }`}
                   >
-                    <Search className="w-6 h-6" /> 2. Ketik NIK / Nama
+                    <Search className="w-6 h-6" /> 3. Ketik NIK / Nama
                   </button>
                 </div>
 
-                {kioskIdTab === "RFID" ? (
+                {kioskIdTab === "CAMERA" ? (
+                  <KioskCameraKtpScanner
+                    candidateResidents={rfidMappings}
+                    onDetected={handleCameraKtpDetected}
+                  />
+                ) : kioskIdTab === "RFID" ? (
                   <div className="rounded-3xl bg-[#F8FAFD] border-2 border-line p-6 sm:p-8 text-center space-y-5">
                     <div className="w-20 h-20 rounded-full bg-pastel-violetSoft text-[#6741D9] flex items-center justify-center mx-auto">
                       <Radio className="w-10 h-10 animate-pulse" />
@@ -1356,8 +1429,34 @@ export default function KioskWorkspaceManager({
                   </button>
                 </div>
 
-                {/* 3 TOMBOL METODE IDENTITAS BESAR */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                {/* 4 TOMBOL METODE IDENTITAS BESAR (TERMASUK KAMERA KTP AUTO-CROP) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                  <button
+                    type="button"
+                    onClick={() => setGbMethod("CAMERA")}
+                    className={`rounded-2xl p-4 sm:p-5 border-2 text-left flex items-center gap-3.5 transition-all ${
+                      gbMethod === "CAMERA"
+                        ? "border-[#6741D9] bg-[#6741D9] text-white shadow-md"
+                        : "border-line bg-[#F8FAFD] text-ink"
+                    }`}
+                  >
+                    <Camera className="w-8 h-8 shrink-0" />
+                    <div>
+                      <div className="text-base sm:text-lg font-extrabold">
+                        1. Scan Kamera KTP
+                      </div>
+                      <div
+                        className={`text-xs ${
+                          gbMethod === "CAMERA"
+                            ? "text-white/80"
+                            : "text-ink-muted"
+                        }`}
+                      >
+                        Auto-Crop Webcam
+                      </div>
+                    </div>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setGbMethod("RFID")}
@@ -1370,7 +1469,7 @@ export default function KioskWorkspaceManager({
                     <Nfc className="w-8 h-8 shrink-0" />
                     <div>
                       <div className="text-base sm:text-lg font-extrabold">
-                        1. Scan RFID KTP
+                        2. Scan RFID KTP
                       </div>
                       <div
                         className={`text-xs ${
@@ -1396,7 +1495,7 @@ export default function KioskWorkspaceManager({
                     <Search className="w-8 h-8 shrink-0" />
                     <div>
                       <div className="text-base sm:text-lg font-extrabold">
-                        2. Cari NIK Warga
+                        3. Cari NIK Warga
                       </div>
                       <div
                         className={`text-xs ${
@@ -1425,7 +1524,7 @@ export default function KioskWorkspaceManager({
                     <Edit3 className="w-8 h-8 shrink-0" />
                     <div>
                       <div className="text-base sm:text-lg font-extrabold">
-                        3. Isi Manual
+                        4. Isi Manual
                       </div>
                       <div
                         className={`text-xs ${
@@ -1441,6 +1540,13 @@ export default function KioskWorkspaceManager({
                 </div>
 
                 {/* INPUT IDENTITAS SESUAI METODE */}
+                {gbMethod === "CAMERA" && !identifiedResident && (
+                  <KioskCameraKtpScanner
+                    candidateResidents={rfidMappings}
+                    onDetected={handleCameraKtpDetected}
+                  />
+                )}
+
                 {gbMethod === "RFID" && !identifiedResident && (
                   <div className="rounded-3xl bg-[#F8FAFD] border-2 border-line p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="flex items-center gap-4">

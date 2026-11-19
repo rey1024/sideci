@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/KioskWorkspaceManager.tsx": {
-    "mtime": 1795101898.239902,
-    "seen": 1795101952.139041,
-    "ast_hash": "7072c3bc98a5d4ccdd7607c912a2da6a",
+    "mtime": 1795102620.5859995,
+    "seen": 1795102684.3170838,
+    "ast_hash": "1555df4f1625df03110a7895564425c8",
     "semantic_hash": ""
   },
   "frontend/src/components/LetterStudioManager.tsx": {
@@ -615,6 +615,12 @@
     "mtime": 1795093587.8637946,
     "seen": 1795101394.047817,
     "ast_hash": "82752a34f8378130cb9d47f855335618",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/KioskCameraKtpScanner.tsx": {
+    "mtime": 1795102423.117429,
+    "seen": 1795102684.3170838,
+    "ast_hash": "df699217f775795ead4ea2f30c5420b1",
     "semantic_hash": ""
   }
 }
