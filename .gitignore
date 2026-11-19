@@ -59,7 +59,7 @@ yarn-error.log*
 *.tsbuildinfo
 
 # 6. Analysis, Scratch & OS/IDE Files
-graphify-out/
+graphify-out/.cache/
 __pycache__/
 *.py[cod]
 .DS_Store

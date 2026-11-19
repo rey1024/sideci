@@ -1,0 +1,23 @@
+# SIDECI Graphify Ignore Rules (UU PDP & Secret Hygiene)
+clients_dontread/
+infra/credentials.env
+infra/secrets/
+docs/infra/
+docs/referensi/
+docs/video/screenshots/
+docs/video/*.mp4
+backend/bin/
+backend/storage/
+backend/tmp/
+frontend/node_modules/
+frontend/.next/
+frontend/.next-dev/
+frontend/out/
+node_modules/
+.git/
+*.env
+*.exe
+*.tar.gz
+*.zip
+*.sql.gz
+*.dump
