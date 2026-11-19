@@ -1,0 +1,32 @@
+Saya ingin  membuat aplikasi SIDECI Sistem Desa Cerdas Terintegrasi.
+Sistem ini akan digunakan oleh banyak desa, bisa ditambahkan oleh admin.
+Fitur masing2 desa:
+- landing page, tampilan modern informasi desa tersebut (studi kasus desa ringdikit), ada foto kepala desa besar, diisi data data dasar yang menarik publik degan visual menarik
+- setelah login terdapat menu2, seperti Kependudukan, Persuratan, dan menu lainnya yang dibutuhkan.
+Pengguna sistem ini terdiri dari :
+1. publik 
+2. operator desa (bisa memiliki lebih dar 1 roles)
+- Persuratan
+- kependudukan (input dan validasi data kependudukan yang diinput kepala dusun)
+- dll
+3. operator kepala dusun
+- input data kependudukan sesuai dusun masing-masing
+3. Kepala desa (Eksekutif), melihat statistik, informasi Eksekutif
+
+Pada data kependudukan
+operator desa:
+- manajemen data penduduk (fomat contoh data ada di excel docs/input) 
+- mendaftarkan kelahiran, kematian, perkawinan dsb, ada historis berdasarkan data penduduk. 
+
+operator kepala dusun: 
+- input data kependudukan di dusun masing2, melaporkan kematian , kelahiran dsb..
+
+Untuk Persuratan, ooperator desa bisa membuat surat sesuai template (operator tinggal menginoutkan NIK, dan data yang diperlukan lainnya secara efektif)
+
+Teknologi:
+web : frontend nextjs
+backend: golang, postgree
+alembic.
+mobile (flutter, pengembangan kedepannya)
+
+
