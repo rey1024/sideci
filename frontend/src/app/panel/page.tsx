@@ -386,196 +386,339 @@ function Workspace({
            ===================================================================== */}
         {role === "operator_desa" && (
           <div className="space-y-5">
-            {/* 1. RINGKASAN STATISTIK KEPENDUDUKAN REAL-TIME DI BAGIAN ATAS */}
+            {/* 1. RINGKASAN STATISTIK KEPENDUDUKAN REAL-TIME DI BAGIAN ATAS (PASTEL COLORFUL CARDS) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="soft-card p-5 flex items-start justify-between gap-3">
+              {/* CARD 1: PENDUDUK AKTIF (PASTEL VIOLET) */}
+              <div className="rounded-2xl bg-gradient-to-br from-[#F3EFFE] via-[#EFEAFE] to-[#E5DBFF] border-2 border-[#D0BFFF] p-5 flex items-start justify-between gap-3 shadow-sm hover:shadow-md transition-all">
                 <div>
-                  <div className="text-xs font-semibold text-ink-muted">
+                  <div className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-[#5F3DC4]">
                     Penduduk Aktif Terdaftar
                   </div>
-                  <div className="text-2xl sm:text-3xl font-bold tabular-nums text-ink mt-1">
+                  <div className="text-3xl sm:text-4xl font-extrabold tabular-nums text-[#2B1966] mt-1.5">
                     {(popStats?.active_residents ?? 0).toLocaleString("id-ID")}
                   </div>
-                  <div className="text-xs text-ink-secondary mt-1.5 tabular-nums">
-                    L:{" "}
-                    <strong className="text-ink">
-                      {(popStats?.male_count ?? 0).toLocaleString("id-ID")}
-                    </strong>{" "}
-                    • P:{" "}
-                    <strong className="text-ink">
-                      {(popStats?.female_count ?? 0).toLocaleString("id-ID")}
-                    </strong>
+                  <div className="inline-flex items-center gap-1.5 rounded-lg bg-white/75 border border-[#D0BFFF] px-2.5 py-1 text-xs font-semibold text-[#4C2E9B] mt-2.5 tabular-nums">
+                    <span>
+                      L:{" "}
+                      <strong className="font-extrabold">
+                        {(popStats?.male_count ?? 0).toLocaleString("id-ID")}
+                      </strong>
+                    </span>
+                    <span>•</span>
+                    <span>
+                      P:{" "}
+                      <strong className="font-extrabold">
+                        {(popStats?.female_count ?? 0).toLocaleString("id-ID")}
+                      </strong>
+                    </span>
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-pastel-violetSoft text-[#6741D9] flex items-center justify-center shrink-0">
-                  <Users className="w-5 h-5" />
+                <div className="w-12 h-12 rounded-2xl bg-[#6741D9] text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Users className="w-6 h-6" />
                 </div>
               </div>
 
-              <div className="soft-card p-5 flex items-start justify-between gap-3">
+              {/* CARD 2: TOTAL KARTU KELUARGA (PASTEL MINT EMERALD) */}
+              <div className="rounded-2xl bg-gradient-to-br from-[#E6FCF5] via-[#D8F9EE] to-[#C3FAE8] border-2 border-[#96F2D7] p-5 flex items-start justify-between gap-3 shadow-sm hover:shadow-md transition-all">
                 <div>
-                  <div className="text-xs font-semibold text-ink-muted">
+                  <div className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-[#087F5B]">
                     Total Kartu Keluarga (KK)
                   </div>
-                  <div className="text-2xl sm:text-3xl font-bold tabular-nums text-ink mt-1">
+                  <div className="text-3xl sm:text-4xl font-extrabold tabular-nums text-[#053D2C] mt-1.5">
                     {(popStats?.total_households ?? 0).toLocaleString("id-ID")}
                   </div>
-                  <div className="text-xs text-[#099268] font-medium mt-1.5 tabular-nums">
+                  <div className="inline-flex items-center gap-1 rounded-lg bg-white/75 border border-[#96F2D7] px-2.5 py-1 text-xs font-bold text-[#087F5B] mt-2.5 tabular-nums">
                     Wajib KTP:{" "}
                     {(popStats?.wajib_ktp_count ?? 0).toLocaleString("id-ID")} •{" "}
                     {popStats?.dusuns?.length || 5} Banjar
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-pastel-mintSoft text-[#099268] flex items-center justify-center shrink-0">
-                  <Home className="w-5 h-5" />
+                <div className="w-12 h-12 rounded-2xl bg-[#099268] text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Home className="w-6 h-6" />
                 </div>
               </div>
 
-              <div className="soft-card p-5 flex items-start justify-between gap-3">
+              {/* CARD 3: MUTASI & NON-AKTIF (PASTEL SKY AQUA) */}
+              <div className="rounded-2xl bg-gradient-to-br from-[#E7F5FF] via-[#D9F0FF] to-[#CFEAFF] border-2 border-[#A5D8FF] p-5 flex items-start justify-between gap-3 shadow-sm hover:shadow-md transition-all">
                 <div>
-                  <div className="text-xs font-semibold text-ink-muted">
+                  <div className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-[#0B7285]">
                     Mutasi & Non-Aktif
                   </div>
-                  <div className="text-2xl sm:text-3xl font-bold tabular-nums text-ink mt-1">
+                  <div className="text-3xl sm:text-4xl font-extrabold tabular-nums text-[#073A4B] mt-1.5">
                     {(
                       (popStats?.deceased_count ?? 0) +
                       (popStats?.moved_out_count ?? 0)
                     ).toLocaleString("id-ID")}
                   </div>
-                  <div className="text-xs text-ink-secondary mt-1.5 tabular-nums">
-                    Wafat:{" "}
-                    <strong className="text-[#C92A2A]">
-                      {popStats?.deceased_count ?? 0}
-                    </strong>{" "}
-                    • Pindah:{" "}
-                    <strong className="text-[#B45309]">
-                      {popStats?.moved_out_count ?? 0}
-                    </strong>{" "}
-                    • Bln ini:{" "}
-                    <strong className="text-ink">
-                      {popStats?.events_this_month ?? 0}
-                    </strong>
+                  <div className="inline-flex items-center gap-1 rounded-lg bg-white/75 border border-[#A5D8FF] px-2.5 py-1 text-xs font-semibold text-[#0B7285] mt-2.5 tabular-nums">
+                    <span>
+                      Wafat:{" "}
+                      <strong className="text-[#C92A2A]">
+                        {popStats?.deceased_count ?? 0}
+                      </strong>
+                    </span>
+                    <span>•</span>
+                    <span>
+                      Pindah:{" "}
+                      <strong className="text-[#B45309]">
+                        {popStats?.moved_out_count ?? 0}
+                      </strong>
+                    </span>
+                    <span>•</span>
+                    <span>
+                      Bln ini:{" "}
+                      <strong className="text-[#073A4B]">
+                        {popStats?.events_this_month ?? 0}
+                      </strong>
+                    </span>
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-pastel-aquaSoft text-[#0B7285] flex items-center justify-center shrink-0">
-                  <Activity className="w-5 h-5" />
+                <div className="w-12 h-12 rounded-2xl bg-[#0C8599] text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Activity className="w-6 h-6" />
                 </div>
               </div>
 
-              <div className="soft-card p-5 flex items-start justify-between gap-3">
+              {/* CARD 4: ANTREAN VALIDASI DUSUN (PASTEL HONEY AMBER) */}
+              <div className="rounded-2xl bg-gradient-to-br from-[#FFF9DB] via-[#FFF3BF] to-[#FFEC99] border-2 border-[#FFE066] p-5 flex items-start justify-between gap-3 shadow-sm hover:shadow-md transition-all">
                 <div>
-                  <div className="text-xs font-semibold text-ink-muted">
+                  <div className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-[#B45309]">
                     Antrean Validasi Dusun
                   </div>
-                  <div className="text-2xl sm:text-3xl font-bold tabular-nums text-ink mt-1">
+                  <div className="text-3xl sm:text-4xl font-extrabold tabular-nums text-[#5C2B04] mt-1.5">
                     {pendingCount}
                   </div>
-                  <div className="text-xs text-ink-secondary mt-1.5">
+                  <div className="mt-2.5">
                     {pendingCount > 0 ? (
                       <button
                         type="button"
                         onClick={() => setOperatorTab("validasi")}
-                        className="text-[#B45309] font-semibold hover:underline"
+                        className="inline-flex items-center rounded-lg bg-white/85 border border-[#FCC419] px-2.5 py-1 text-xs font-extrabold text-[#B45309] hover:underline"
                       >
                         Perlu ditinjau Operator ➔
                       </button>
                     ) : (
-                      <span className="text-[#099268] font-medium">
+                      <span className="inline-flex items-center rounded-lg bg-white/80 border border-[#FFE066] px-2.5 py-1 text-xs font-bold text-[#087F5B]">
                         Semua usulan dusun tervalidasi
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-pastel-honeySoft text-[#B45309] flex items-center justify-center shrink-0">
-                  <ClipboardCheck className="w-5 h-5" />
+                <div className="w-12 h-12 rounded-2xl bg-[#D97706] text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <ClipboardCheck className="w-6 h-6" />
                 </div>
               </div>
             </div>
 
-            {/* 2. HEADER & NAVIGASI TAB MEJA KERJA OPERATOR DESA */}
-            <div className="soft-card p-5 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <span className="rounded-lg bg-pastel-mintSoft px-2.5 py-0.5 text-xs font-semibold text-[#099268]">
-                    Role: Kependudukan & Mutasi
-                  </span>
-                  <span className="rounded-lg bg-pastel-violetSoft px-2.5 py-0.5 text-xs font-semibold text-[#6741D9]">
-                    Role: Persuratan Desa
-                  </span>
+            {/* 2. HEADER & NAVIGASI TAB MEJA KERJA OPERATOR DESA (MENU BESAR BERWARNA PASTEL BERBEDA-BEDA DENGAN IKON) */}
+            <div className="soft-card p-6 space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                    <span className="rounded-lg bg-pastel-mintSoft border border-[#96F2D7] px-3 py-1 text-xs font-bold text-[#087F5B]">
+                      Role: Kependudukan & Mutasi
+                    </span>
+                    <span className="rounded-lg bg-pastel-violetSoft border border-[#D0BFFF] px-3 py-1 text-xs font-bold text-[#6741D9]">
+                      Role: Persuratan Desa
+                    </span>
+                    <span className="rounded-lg bg-[#FFF3BF] border border-[#FFE066] px-3 py-1 text-xs font-bold text-[#B45309]">
+                      Role: Anjungan Kiosk Mandiri
+                    </span>
+                  </div>
+                  <h1 className="text-xl sm:text-2xl font-extrabold text-ink">
+                    Meja Kerja Operator Desa Ringdikit
+                  </h1>
                 </div>
-                <h1 className="text-lg sm:text-xl font-bold text-ink">
-                  Meja Kerja Operator Desa Ringdikit
-                </h1>
+                <span className="text-xs sm:text-sm font-semibold text-ink-muted">
+                  Pilih modul layanan di bawah untuk mengelola data & pelayanan warga:
+                </span>
               </div>
 
-              <div className="flex flex-wrap gap-1.5 bg-[#F8FAFC] border border-line p-1.5 rounded-xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+                {/* MENU 1: DATA PENDUDUK & MUTASI (PASTEL VIOLET) */}
                 <button
                   type="button"
                   onClick={() => setOperatorTab("penduduk")}
-                  className={
+                  className={`group text-left rounded-2xl p-4 border-2 transition-all flex items-center gap-3.5 ${
                     operatorTab === "penduduk"
-                      ? "pill-tab-active inline-flex items-center gap-1.5"
-                      : "pill-tab inline-flex items-center gap-1.5"
-                  }
+                      ? "bg-[#6741D9] border-[#5F3DC4] text-white shadow-md scale-[1.01]"
+                      : "bg-[#F3EFFE] hover:bg-[#E5DBFF] border-[#D0BFFF] text-[#3B2182]"
+                  }`}
                 >
-                  <Users className="w-4 h-4" />
-                  Data Penduduk & Mutasi
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      operatorTab === "penduduk"
+                        ? "bg-white/20 text-white"
+                        : "bg-[#6741D9] text-white shadow-sm"
+                    }`}
+                  >
+                    <Users className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm sm:text-base font-extrabold leading-snug">
+                      Data Penduduk & Mutasi
+                    </div>
+                    <div
+                      className={`text-xs font-medium mt-0.5 truncate ${
+                        operatorTab === "penduduk"
+                          ? "text-purple-100"
+                          : "text-[#5F3DC4]"
+                      }`}
+                    >
+                      Database KK, NIK & Riwayat
+                    </div>
+                  </div>
                 </button>
+
+                {/* MENU 2: VALIDASI DUSUN (PASTEL MINT EMERALD) */}
                 <button
                   type="button"
                   onClick={() => setOperatorTab("validasi")}
-                  className={
+                  className={`group text-left rounded-2xl p-4 border-2 transition-all flex items-center gap-3.5 ${
                     operatorTab === "validasi"
-                      ? "pill-tab-active inline-flex items-center gap-1.5"
-                      : "pill-tab inline-flex items-center gap-1.5"
-                  }
+                      ? "bg-[#099268] border-[#087F5B] text-white shadow-md scale-[1.01]"
+                      : "bg-[#E6FCF5] hover:bg-[#C3FAE8] border-[#96F2D7] text-[#064E3B]"
+                  }`}
                 >
-                  <UserCheck className="w-4 h-4" />
-                  Validasi Dusun ({pendingCount})
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      operatorTab === "validasi"
+                        ? "bg-white/20 text-white"
+                        : "bg-[#099268] text-white shadow-sm"
+                    }`}
+                  >
+                    <UserCheck className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm sm:text-base font-extrabold leading-snug">
+                      Validasi Dusun ({pendingCount})
+                    </div>
+                    <div
+                      className={`text-xs font-medium mt-0.5 truncate ${
+                        operatorTab === "validasi"
+                          ? "text-emerald-100"
+                          : "text-[#087F5B]"
+                      }`}
+                    >
+                      Usulan 5 Kelian Banjar
+                    </div>
+                  </div>
                 </button>
+
+                {/* MENU 3: STUDIO BUAT SURAT (PASTEL SKY BLUE) */}
                 <button
                   type="button"
                   onClick={() => {
                     setPersuratanSubTab("studio");
                     setOperatorTab("persuratan");
                   }}
-                  className={
+                  className={`group text-left rounded-2xl p-4 border-2 transition-all flex items-center gap-3.5 ${
                     operatorTab === "persuratan" &&
                     persuratanSubTab === "studio"
-                      ? "pill-tab-active inline-flex items-center gap-1.5"
-                      : "pill-tab inline-flex items-center gap-1.5"
-                  }
+                      ? "bg-[#1971C2] border-[#1864AB] text-white shadow-md scale-[1.01]"
+                      : "bg-[#E7F5FF] hover:bg-[#D0EBFF] border-[#A5D8FF] text-[#0B4A84]"
+                  }`}
                 >
-                  <FilePlus2 className="w-4 h-4" />
-                  Studio Buat Surat (PDF & DOCX)
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      operatorTab === "persuratan" &&
+                      persuratanSubTab === "studio"
+                        ? "bg-white/20 text-white"
+                        : "bg-[#1971C2] text-white shadow-sm"
+                    }`}
+                  >
+                    <FilePlus2 className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm sm:text-base font-extrabold leading-snug">
+                      Studio Buat Surat
+                    </div>
+                    <div
+                      className={`text-xs font-medium mt-0.5 truncate ${
+                        operatorTab === "persuratan" &&
+                        persuratanSubTab === "studio"
+                          ? "text-sky-100"
+                          : "text-[#1971C2]"
+                      }`}
+                    >
+                      Cetak Resmi PDF & DOCX
+                    </div>
+                  </div>
                 </button>
+
+                {/* MENU 4: BUKU REGISTER & ARSIP TTD/TTE (PASTEL HONEY AMBER) */}
                 <button
                   type="button"
                   onClick={() => {
                     setPersuratanSubTab("register");
                     setOperatorTab("persuratan");
                   }}
-                  className={
+                  className={`group text-left rounded-2xl p-4 border-2 transition-all flex items-center gap-3.5 ${
                     operatorTab === "persuratan" &&
                     persuratanSubTab !== "studio"
-                      ? "pill-tab-active inline-flex items-center gap-1.5"
-                      : "pill-tab inline-flex items-center gap-1.5"
-                  }
+                      ? "bg-[#D97706] border-[#B45309] text-white shadow-md scale-[1.01]"
+                      : "bg-[#FFF9DB] hover:bg-[#FFF3BF] border-[#FFE066] text-[#78350F]"
+                  }`}
                 >
-                  <FileCheck2 className="w-4 h-4" />
-                  Buku Register & Arsip TTD/TTE
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      operatorTab === "persuratan" &&
+                      persuratanSubTab !== "studio"
+                        ? "bg-white/20 text-white"
+                        : "bg-[#D97706] text-white shadow-sm"
+                    }`}
+                  >
+                    <FileCheck2 className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm sm:text-base font-extrabold leading-snug">
+                      Buku Register & Arsip
+                    </div>
+                    <div
+                      className={`text-xs font-medium mt-0.5 truncate ${
+                        operatorTab === "persuratan" &&
+                        persuratanSubTab !== "studio"
+                          ? "text-amber-100"
+                          : "text-[#B45309]"
+                      }`}
+                    >
+                      Unggah PDF Sah TTD/TTE
+                    </div>
+                  </div>
                 </button>
+
+                {/* MENU 5: ANJUNGAN KIOSK & RFID (PASTEL ROSE CORAL) */}
                 <button
                   type="button"
                   onClick={() => setOperatorTab("kiosk")}
-                  className={
+                  className={`group text-left rounded-2xl p-4 border-2 transition-all flex items-center gap-3.5 ${
                     operatorTab === "kiosk"
-                      ? "pill-tab-active inline-flex items-center gap-1.5"
-                      : "pill-tab inline-flex items-center gap-1.5"
-                  }
+                      ? "bg-[#E03131] border-[#C92A2A] text-white shadow-md scale-[1.01]"
+                      : "bg-[#FFF0F6] hover:bg-[#FFDEEB] border-[#FCC2D7] text-[#881337]"
+                  }`}
                 >
-                  <Nfc className="w-4 h-4" />
-                  Anjungan Kiosk & RFID
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      operatorTab === "kiosk"
+                        ? "bg-white/20 text-white"
+                        : "bg-[#E03131] text-white shadow-sm"
+                    }`}
+                  >
+                    <Nfc className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm sm:text-base font-extrabold leading-snug">
+                      Anjungan Kiosk & RFID
+                    </div>
+                    <div
+                      className={`text-xs font-medium mt-0.5 truncate ${
+                        operatorTab === "kiosk"
+                          ? "text-rose-100"
+                          : "text-[#C92A2A]"
+                      }`}
+                    >
+                      Kamera KTP, RFID & Tamu
+                    </div>
+                  </div>
                 </button>
               </div>
             </div>
