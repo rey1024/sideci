@@ -264,11 +264,8 @@ export default function HeroCarousel({
               </svg>
 
               {/* Kartu Identitas Mengambang Elegan di Bagian Bawah */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-[330px] rounded-2xl bg-[#0A1630]/88 backdrop-blur-md border border-[#315596]/80 px-4 py-2.5 shadow-xl flex items-center justify-between gap-3 text-white">
-                <div className="text-sm sm:text-base font-bold tracking-tight leading-snug text-white">
-                  {v.leaderName}
-                </div>
-                <span className="text-[11px] font-bold text-[#102040] bg-[#FFD43B] px-2.5 py-1 rounded-lg shrink-0">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-2xl bg-[#0A1630]/88 backdrop-blur-md border border-[#315596]/80 px-4 py-2.5 shadow-xl text-white">
+                <span className="text-[11px] font-bold text-[#102040] bg-[#FFD43B] px-2.5 py-1 rounded-lg">
                   5 {v.hamletTerm}
                 </span>
               </div>
