@@ -208,60 +208,12 @@ export default function HeroCarousel({
             />
 
             <div className="relative h-[460px] sm:h-[520px] lg:h-[96%] flex items-end justify-center">
-              {/* Maskot kartun perangkat desa (ilustrasi SVG, menggantikan foto) */}
-              <svg
-                viewBox="0 0 400 520"
-                role="img"
-                aria-label="Ilustrasi kartun perangkat desa"
-                className="h-full w-auto select-none drop-shadow-[0_18px_28px_rgba(6,15,34,0.55)]"
-              >
-                {/* Badan: jas & kemeja */}
-                <path d="M60 520 C60 400 120 350 200 350 C280 350 340 400 340 520 Z" fill="#1F2F57" />
-                <path d="M200 350 L160 520 L240 520 Z" fill="#F8FAFC" />
-                <path d="M200 372 L188 520 L212 520 Z" fill="#E03131" />
-                <path d="M200 350 L150 350 L178 420 L200 372 Z" fill="#2B4278" />
-                <path d="M200 350 L250 350 L222 420 L200 372 Z" fill="#2B4278" />
-                {/* Selempang kain songket */}
-                <path d="M120 400 L280 470 L280 500 L110 430 Z" fill="#FFD43B" opacity="0.9" />
-                {/* Leher */}
-                <rect x="178" y="310" width="44" height="50" rx="14" fill="#F2B98E" />
-                {/* Telinga */}
-                <circle cx="124" cy="236" r="16" fill="#F2B98E" />
-                <circle cx="276" cy="236" r="16" fill="#F2B98E" />
-                {/* Wajah */}
-                <ellipse cx="200" cy="232" rx="78" ry="88" fill="#FFCFA3" />
-                {/* Udeng (ikat kepala Bali) */}
-                <path d="M118 190 C120 130 170 108 200 108 C240 108 284 132 284 190 C250 168 150 168 118 190 Z" fill="#7B3F00" />
-                <path d="M118 190 C150 172 250 172 284 190 L284 202 C250 184 150 184 118 202 Z" fill="#FFD43B" />
-                <path d="M262 118 L300 92 L288 138 Z" fill="#7B3F00" />
-                {/* Alis */}
-                <path d="M152 214 Q170 202 188 212" stroke="#3B2314" strokeWidth="6" strokeLinecap="round" fill="none" />
-                <path d="M212 212 Q230 202 248 214" stroke="#3B2314" strokeWidth="6" strokeLinecap="round" fill="none" />
-                {/* Mata */}
-                <ellipse cx="170" cy="236" rx="11" ry="13" fill="#FFFFFF" />
-                <ellipse cx="230" cy="236" rx="11" ry="13" fill="#FFFFFF" />
-                <circle cx="172" cy="238" r="6.5" fill="#2B1A10" />
-                <circle cx="228" cy="238" r="6.5" fill="#2B1A10" />
-                <circle cx="174" cy="235" r="2" fill="#FFFFFF" />
-                <circle cx="230" cy="235" r="2" fill="#FFFFFF" />
-                {/* Pipi */}
-                <circle cx="148" cy="268" r="12" fill="#FF9E8A" opacity="0.55" />
-                <circle cx="252" cy="268" r="12" fill="#FF9E8A" opacity="0.55" />
-                {/* Hidung */}
-                <path d="M200 244 Q192 262 202 268" stroke="#D9965F" strokeWidth="4" strokeLinecap="round" fill="none" />
-                {/* Kumis */}
-                <path d="M164 284 Q182 274 200 284 Q218 274 236 284 Q218 292 200 288 Q182 292 164 284 Z" fill="#3B2314" />
-                {/* Senyum */}
-                <path d="M170 296 Q200 322 230 296 Q200 308 170 296 Z" fill="#B23A48" stroke="#8C2735" strokeWidth="2" strokeLinejoin="round" />
-                {/* Tangan melambai */}
-                <g>
-                  <path d="M330 470 C360 430 368 390 352 350" stroke="#1F2F57" strokeWidth="38" strokeLinecap="round" fill="none" />
-                  <circle cx="350" cy="334" r="26" fill="#FFCFA3" />
-                  <rect x="338" y="296" width="9" height="26" rx="4.5" fill="#FFCFA3" />
-                  <rect x="349" y="292" width="9" height="28" rx="4.5" fill="#FFCFA3" />
-                  <rect x="360" y="298" width="9" height="24" rx="4.5" fill="#FFCFA3" />
-                </g>
-              </svg>
+              {/* Ilustrasi kartun perangkat desa */}
+              <img
+                src="/images/perbekel-ilustrasi.png"
+                alt="Ilustrasi perangkat desa Ringdikit"
+                className="h-full w-auto max-w-none object-contain object-bottom select-none drop-shadow-[0_18px_28px_rgba(6,15,34,0.55)]"
+              />
 
               {/* Kartu Identitas Mengambang Elegan di Bagian Bawah */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-2xl bg-[#0A1630]/88 backdrop-blur-md border border-[#315596]/80 px-4 py-2.5 shadow-xl text-white">
